@@ -123,7 +123,7 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         x = x + self.ffn(x)
         return x
     
-class SpectralNormalizedTransformerForClassification(nn.Module):
+class SpectrallyNormalizedTransformerForClassification(nn.Module):
     def __init__(self, d_model, nhead, d_ff, num_emb, max_seq_len, num_classes, apply_embedding_sn=False,
                  apply_attention_sn=False, apply_ffn_sn=False):
         super().__init__()

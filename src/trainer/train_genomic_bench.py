@@ -7,7 +7,7 @@ from genomic_benchmarks.data_check import info
 from sklearn.metrics import f1_score, accuracy_score
 from genomic_benchmarks.data_check.info import labels_in_order
 
-from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectralNormalizedTransformerForClassification
+from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForClassification
 from ..spectral_norm_transformer.util import LetterTokenizer, build_vocab, token_to_idx, coll_factory
 
 # Load the dataset
@@ -30,7 +30,7 @@ collate_fn = coll_factory(vocab, tokenizer, device=device)
 train_loader = DataLoader(train_dset, batch_size=32, shuffle=True, collate_fn=collate_fn)
 
 # Model
-vanilla_model = SpectralNormalizedTransformerForClassification(
+vanilla_model = SpectrallyNormalizedTransformerForClassification(
     d_model=512, nhead=8, d_ff=2048, num_emb=len(vocab), num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=False,

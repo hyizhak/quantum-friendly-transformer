@@ -1,3 +1,9 @@
+# Mac OS
+.DS_Store
+
+# Pytorch
+*.pth
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
