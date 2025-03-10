@@ -1,0 +1,70 @@
+Dataset `human_nontata_promoters` has 2 classes: negative, positive.
+
+All lengths of genomic intervals equals 251.
+
+Totally 36131 sequences have been found, 27097 for training and 9034 for testing.
+          train  test
+negative  12355  4119
+positive  14742  4915
+Vocab size: 8
+Using device: cuda
+Epoch 0
+Accuracy: 0.8052911224263892
+F1 Score: 0.8005895023239995
+Epoch 1
+Accuracy: 0.8218950630949745
+F1 Score: 0.8120985635875277
+Epoch 2
+Accuracy: 0.8177994243967235
+F1 Score: 0.8139271987338912
+Epoch 3
+Accuracy: 0.8259907017932256
+F1 Score: 0.8208342831091863
+Epoch 4
+Accuracy: 0.8195705114013726
+F1 Score: 0.7939317319848292
+Epoch 5
+Accuracy: 0.8368386096967013
+F1 Score: 0.820855614973262
+Epoch 6
+Accuracy: 0.8324108921850786
+F1 Score: 0.8088866447866702
+Epoch 7
+Accuracy: 0.8306398051804295
+F1 Score: 0.8296213808463251
+Epoch 8
+Accuracy: 0.846690281160062
+F1 Score: 0.8378410022245639
+Epoch 9
+Accuracy: 0.7842594642461811
+F1 Score: 0.7450621321124918
+Epoch 10
+Accuracy: 0.839495240203675
+F1 Score: 0.8314737331473734
+Epoch 11
+Accuracy: 0.8421518707106487
+F1 Score: 0.824643384161338
+Epoch 12
+Accuracy: 0.8428160283373921
+F1 Score: 0.8401620891490319
+Epoch 13
+Accuracy: 0.8246623865397388
+F1 Score: 0.7925615505500262
+Epoch 14
+Accuracy: 0.837170688510073
+F1 Score: 0.831094270295097
+Epoch 15
+Accuracy: 0.8363958379455391
+F1 Score: 0.8105128205128204
+Epoch 16
+Accuracy: 0.8470223599734337
+F1 Score: 0.8414046362175809
+Epoch 17
+Accuracy: 0.8508966127961036
+F1 Score: 0.8398906454296922
+Epoch 18
+Accuracy: 0.8454726588443657
+F1 Score: 0.8299634591961023
+Epoch 19
+Accuracy: 0.7787248173566527
+F1 Score: 0.7362448871882835

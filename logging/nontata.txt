@@ -1,4 +1,0 @@
-vanilla model:
-    Accuracy: 0.8465795882222714
-    F1 Score: 0.8318777292576418
-

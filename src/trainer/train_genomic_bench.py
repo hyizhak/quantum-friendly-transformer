@@ -1,7 +1,7 @@
 import torch
 import torch.functional as F
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 from genomic_benchmarks.dataset_getters.pytorch_datasets import HumanNontataPromoters
 from genomic_benchmarks.data_check import info
 from sklearn.metrics import f1_score, accuracy_score
@@ -44,7 +44,7 @@ vanilla_model = SpectrallyNormalizedTransformerForClassification(
 criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(vanilla_model.parameters(), lr=0.001)
 
-for epoch in range(10):
+for epoch in tqdm(range(20)):
     vanilla_model.train()
     for i, (x, y) in enumerate(train_loader):
         optimizer.zero_grad()
@@ -53,11 +53,8 @@ for epoch in range(10):
         loss = criterion(y_pred, y.long())
         loss.backward()
         optimizer.step()
-
-        if i % 10 == 0:
-            print(f"Epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
         
-    torch.save(vanilla_model.state_dict(), f"./model/vanilla_model_test_epoch_{epoch}.pth")
+    torch.save(vanilla_model.state_dict(), f"./model/vanilla_model_epoch_{epoch}.pth")
 
     # Evaluation
     vanilla_model.eval()

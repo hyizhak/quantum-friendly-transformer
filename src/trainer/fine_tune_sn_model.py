@@ -1,7 +1,7 @@
 import torch
 import torch.functional as F
 from torch.utils.data import DataLoader
-
+from tqdm import tqdm
 from genomic_benchmarks.dataset_getters.pytorch_datasets import HumanNontataPromoters
 from genomic_benchmarks.data_check import info
 from sklearn.metrics import f1_score, accuracy_score
@@ -50,15 +50,30 @@ for model in sn_models:
 
     model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
 
-    model.load_state_dict(torch.load("./model/vanilla_model_epoch_9.pth"), strict=False)
+    model.load_state_dict(torch.load("./model/vanilla_model_epoch_17.pth"), strict=False)
+
+    print("=" * 80)
+    print(model_name)
+
+    model.eval()
+    test_loader = DataLoader(test_dset, batch_size=32, shuffle=False, collate_fn=collate_fn)
+
+    y_preds = []
+    for x, y in test_loader:
+        y_preds.extend(torch.argmax(model(x), dim=1).tolist())
+
+    print(f"Initial Evaluation")
+    print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
+    print(f"F1 Score: {f1_score(test_labels, y_preds)}")
 
     # Fine-tuning
     for param in model.transformer.parameters():
         param.requires_grad = False
+
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.001)
 
-    for epoch in range(10):
+    for epoch in tqdm(range(10)):
         model.train()
         for i, (x, y) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -67,11 +82,8 @@ for model in sn_models:
             loss = criterion(y_pred, y.long())
             loss.backward()
             optimizer.step()
-
-            if i % 10 == 0:
-                print(f"Epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
             
-        torch.save(model.state_dict(), f"./model/{model_name}_epoch_{epoch}.pth")
+        # torch.save(model.state_dict(), f"./model/{model_name}_epoch_{epoch}.pth")
 
         # Evaluation
         model.eval()
@@ -82,5 +94,5 @@ for model in sn_models:
             y_preds.extend(torch.argmax(model(x), dim=1).tolist())
 
         print(f"Epoch {epoch}")
-        print(f"{model_name} Accuracy: {accuracy_score(test_labels, y_preds)}")
-        print(f"{model_name} F1 Score: {f1_score(test_labels, y_preds)}")
+        print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
+        print(f"F1 Score: {f1_score(test_labels, y_preds)}")
