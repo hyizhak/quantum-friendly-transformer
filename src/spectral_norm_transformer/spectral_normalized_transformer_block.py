@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.utils as utils
 from torch.nn.utils.parametrizations import spectral_norm
+from .attention_separate_qkv import AttentionWithSeparateQKV
 
 class RotaryPositionalEmbedding(nn.Module):
     def __init__(self, head_dim, max_seq_len, base=10000.0):
@@ -87,10 +88,12 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         self.RoPE = RotaryPositionalEmbedding(head_dim=d_model, max_seq_len=max_seq_len)
         
         # Self-attention components
-        self.attn = nn.MultiheadAttention(embed_dim=d_model, num_heads=nhead)
+        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead)
         if apply_attention_sn:
             # Apply SN to the projection matrices for Q, K, V manually if needed.
-            self.attn.in_proj_weight = spectral_norm(nn.Parameter(self.attn.in_proj_weight))
+            self.attn.q_linear = spectral_norm(self.attn.q_linear)
+            self.attn.k_linear = spectral_norm(self.attn.k_linear)
+            self.attn.v_linear = spectral_norm(self.attn.v_linear)
         
         # Feed Forward Network
         self.ffn = nn.Sequential(

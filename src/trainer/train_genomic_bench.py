@@ -8,7 +8,10 @@ from sklearn.metrics import f1_score, accuracy_score
 from genomic_benchmarks.data_check.info import labels_in_order
 
 from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForClassification
-from ..spectral_norm_transformer.util import LetterTokenizer, build_vocab, token_to_idx, coll_factory
+from ..util import LetterTokenizer, build_vocab, token_to_idx, coll_factory, manual_seed
+
+# Set the seed
+manual_seed(42)
 
 # Load the dataset
 train_dset = HumanNontataPromoters('train', version=0)
@@ -54,15 +57,16 @@ for epoch in range(10):
         if i % 10 == 0:
             print(f"Epoch {epoch}, Iteration {i}, Loss: {loss.item()}")
         
-    torch.save(vanilla_model.state_dict(), f"./model/vanilla_model_epoch_{epoch}.pth")
+    torch.save(vanilla_model.state_dict(), f"./model/vanilla_model_test_epoch_{epoch}.pth")
 
-# Evaluation
-vanilla_model.eval()
-test_loader = DataLoader(test_dset, batch_size=32, shuffle=False, collate_fn=collate_fn)
+    # Evaluation
+    vanilla_model.eval()
+    test_loader = DataLoader(test_dset, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
-y_preds = []
-for x, y in test_loader:
-    y_preds.extend(torch.argmax(vanilla_model(x), dim=1).tolist())
+    y_preds = []
+    for x, y in test_loader:
+        y_preds.extend(torch.argmax(vanilla_model(x), dim=1).tolist())
 
-print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
-print(f"F1 Score: {f1_score(test_labels, y_preds)}")
+    print(f"Epoch {epoch}")
+    print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
+    print(f"F1 Score: {f1_score(test_labels, y_preds)}")
