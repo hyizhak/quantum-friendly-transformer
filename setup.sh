@@ -9,3 +9,4 @@ conda activate $env_name
 pip install torch 
 pip install scikit-learn
 pip install genomic-benchmarks
+pip install transformers datasets tokenizers accelerate

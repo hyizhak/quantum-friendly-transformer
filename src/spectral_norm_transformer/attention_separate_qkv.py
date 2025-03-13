@@ -244,10 +244,10 @@ class AttentionWithSeparateQKV(nn.Module):
                 `batch_first` argument is ignored for unbatched inputs.
         """  # noqa: B950
 
-        # calculate the singular values
-        singular_values = torch.linalg.svdvals(self.q_linear.weight)
-        max_sv = singular_values[0].item()
-        print(f"max sv: {max_sv}")
+        # # calculate the singular values
+        # singular_values = torch.linalg.svdvals(self.q_linear.weight)
+        # max_sv = singular_values[0].item()
+        # print(f"max sv: {max_sv}")
 
         self.in_proj_weight = torch.cat(
             (self.q_linear.weight, self.k_linear.weight, self.v_linear.weight)
