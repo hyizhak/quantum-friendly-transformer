@@ -14,8 +14,8 @@ To train an one-layer transformer on the non-tata promoter dataset, use:
 python -m src.trainer.train_genomic_bench > ./logging/nontata_vanilla.txt
 ```
 
-To fine-tune the transformer with specific layer spectral-normalized, use:
+To fine-tune the transformer on the same dataset with specific layer spectral-normalized, use:
 
 ```
-python -m src.trainer.fine_tune_sn_model > ./logging/nontata_sn.txt
+python -m src.trainer.sn_model_genomic_bench > ./logging/nontata_sn.txt
 ```

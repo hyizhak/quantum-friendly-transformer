@@ -76,11 +76,16 @@ class RotaryPositionalEmbedding(nn.Module):
 
 class SpectrallyNormalizedTransformerBlock(nn.Module):
     def __init__(self, d_model, nhead, d_ff, num_emb, max_seq_len, apply_embedding_sn=False,
-                 apply_attention_sn=False, apply_ffn_sn=False):
+                 apply_attention_sn=False, apply_ffn_sn=False, embedding_layer=None):
         super().__init__()
         
         # Embedding layer
-        self.embedding = nn.Embedding(num_embeddings=num_emb, embedding_dim=d_model, padding_idx=0)
+        if embedding_layer is not None:
+            self.embedding = embedding_layer
+            assert self.embedding.weight.shape[1] == d_model, "Embedding dimension must match d_model"
+        else:
+            self.embedding = nn.Embedding(num_embeddings=num_emb, embedding_dim=d_model, padding_idx=0)
+
         if apply_embedding_sn:
             # consider wrapping the weight manually.
             self.embedding.weight.data = self.embedding.weight.data / torch.norm(self.embedding.weight.data, dim=1, keepdim=True)
@@ -126,16 +131,17 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         x = x + self.ffn(x)
         return x
     
-class SpectrallyNormalizedTransformerForClassification(nn.Module):
+class SpectrallyNormalizedTransformerForSequenceClassification(nn.Module):
     def __init__(self, d_model, nhead, d_ff, num_emb, max_seq_len, num_classes, apply_embedding_sn=False,
-                 apply_attention_sn=False, apply_ffn_sn=False):
+                 apply_attention_sn=False, apply_ffn_sn=False, embedding_layer=None):
         super().__init__()
         
         self.transformer = SpectrallyNormalizedTransformerBlock(
             d_model=d_model, nhead=nhead, d_ff=d_ff, num_emb=num_emb, max_seq_len=max_seq_len,
             apply_embedding_sn=apply_embedding_sn,
             apply_attention_sn=apply_attention_sn,
-            apply_ffn_sn=apply_ffn_sn
+            apply_ffn_sn=apply_ffn_sn,
+            embedding_layer=embedding_layer
         )
         
         self.classifier = nn.Linear(d_model, num_classes)
@@ -144,6 +150,25 @@ class SpectrallyNormalizedTransformerForClassification(nn.Module):
         x = self.transformer(x)
         cls_repr = x[:, 0, :]
         return self.classifier(cls_repr)
+    
+class SpectrallyNormalizedTransformerForTokenClassification(nn.Module):
+    def __init__(self, d_model, nhead, d_ff, num_emb, max_seq_len, num_classes, apply_embedding_sn=False,
+                 apply_attention_sn=False, apply_ffn_sn=False, embedding_layer=None):
+        super().__init__()
+        
+        self.transformer = SpectrallyNormalizedTransformerBlock(
+            d_model=d_model, nhead=nhead, d_ff=d_ff, num_emb=num_emb, max_seq_len=max_seq_len,
+            apply_embedding_sn=apply_embedding_sn,
+            apply_attention_sn=apply_attention_sn,
+            apply_ffn_sn=apply_ffn_sn,
+            embedding_layer=embedding_layer
+        )
+        
+        self.classifier = nn.Linear(d_model, num_classes)
+    
+    def forward(self, x):
+        x = self.transformer(x)
+        return self.classifier(x)
 
 # Example instantiation:
 if __name__ == "__main__":
