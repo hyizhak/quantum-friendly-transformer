@@ -2,6 +2,7 @@ from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForTokenClassification
 import torch
 from torch.utils.data import DataLoader
+from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 import os
 import numpy as np
@@ -12,11 +13,11 @@ from ..util import tokenize_and_align_labels, compute_metrics, manual_seed
 # Set the seed
 manual_seed(42)
 
-cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+cache_dir = "~/.cache/huggingface"
 
 os.environ['HF_HOME'] = cache_dir
-os.environ['HF_DATASETS_OFFLINE'] = '1'
-os.environ['HF_HUB_OFFLINE'] = '1'
+# os.environ['HF_DATASETS_OFFLINE'] = '1'
+# os.environ['HF_HUB_OFFLINE'] = '1'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -26,23 +27,22 @@ conll03 = load_dataset("eriktks/conll2003", cache_dir=f"{cache_dir}/datasets")
 label_list = conll03["train"].features["pos_tags"].feature.names
 
 # Specify the model checkpoint for Llama2
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
-model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
+# model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
 
 # Load the tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.pad_token = tokenizer.eos_token
 
-llama_model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, local_files_only=True)
+llama_model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float32)
 
 # Retrieve the input embeddings.
 embedding_layer = llama_model.get_input_embeddings()
 
 # Preprocess the dataset
 tokenized_conll03 = conll03.map(lambda examples: tokenize_and_align_labels(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
-tokenized_conll03 = conll03.map(lambda examples: tokenize_and_align_labels(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
-data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer, padding='max_length', max_length=64)
+data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
 
 train_loader = DataLoader(tokenized_conll03["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
 val_loader = DataLoader(tokenized_conll03["validation"], batch_size=32, shuffle=False, collate_fn=data_collator)
@@ -74,23 +74,26 @@ for model in [vanilla_model, sn_model]:
     print(model_name)
 
     criterion = torch.nn.CrossEntropyLoss(ignore_index=-100)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.0002)
+    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+    scaler = GradScaler()
 
     acc = []
 
     for epoch in tqdm(range(40)):
         model.train()
         for i, batch in enumerate(train_loader):
-            batch = {k: v.to(device) for k, v in batch.items()}
-            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
-            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            with autocast():
+                batch = {k: v.to(device) for k, v in batch.items()}
+                x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
 
-            optimizer.zero_grad()
-            logits = model(x, key_padding_mask=(attn_mask == 0))
-            logits = model(x, key_padding_mask=(attn_mask == 0))
-            loss = criterion(logits.view(-1, logits.size(-1)), y.view(-1))
-            loss.backward()
-            optimizer.step()
+                optimizer.zero_grad()
+                logits = model(x, key_padding_mask=(attn_mask == 0))
+                loss = criterion(logits.view(-1, logits.size(-1)), y.view(-1))
+                scaler.scale(loss).backward()
+                scaler.step(optimizer)
+                scaler.update()
+
+                print(f'epoch: {epoch}, iter: {i}, loss: {loss.item()}')
 
         # Evaluation
         model.eval()

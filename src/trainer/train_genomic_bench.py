@@ -55,7 +55,7 @@ for model in [vanilla_model, sn_model]:
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in tqdm(range(50)):
+    for epoch in tqdm(range(20)):
         model.train()
         for i, (x, y) in enumerate(train_loader):
             optimizer.zero_grad()
