@@ -40,6 +40,7 @@ embedding_layer = llama_model.get_input_embeddings()
 
 # Preprocess the dataset
 tokenized_conll03 = conll03.map(lambda examples: tokenize_and_align_labels(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
+tokenized_conll03 = conll03.map(lambda examples: tokenize_and_align_labels(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer, padding='max_length', max_length=64)
 
@@ -82,8 +83,10 @@ for model in [vanilla_model, sn_model]:
         for i, batch in enumerate(train_loader):
             batch = {k: v.to(device) for k, v in batch.items()}
             x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
 
             optimizer.zero_grad()
+            logits = model(x, key_padding_mask=(attn_mask == 0))
             logits = model(x, key_padding_mask=(attn_mask == 0))
             loss = criterion(logits.view(-1, logits.size(-1)), y.view(-1))
             loss.backward()
