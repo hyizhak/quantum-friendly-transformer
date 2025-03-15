@@ -112,7 +112,7 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
                     # Apply spectral normalization
                     layer = spectral_norm(layer)
         
-    def forward(self, x):
+    def forward(self, x, key_padding_mask=None, attn_mask=None):
         # If using an embedding layer, x will be token indices.
         if x.dtype == torch.long:
             x = self.embedding(x)
@@ -123,7 +123,7 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         # Self-attention expects (seq_len, batch_size, d_model)
         x = x.squeeze(2).transpose(0, 1)
 
-        attn_output, _ = self.attn(x, x, x)
+        attn_output, _ = self.attn(x, x, x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         x = x + attn_output  # Residual connection
         
         # Feed-forward network
@@ -146,8 +146,8 @@ class SpectrallyNormalizedTransformerForSequenceClassification(nn.Module):
         
         self.classifier = nn.Linear(d_model, num_classes)
     
-    def forward(self, x):
-        x = self.transformer(x)
+    def forward(self, x, key_padding_mask=None, attn_mask=None):
+        x = self.transformer(x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         cls_repr = x[:, 0, :]
         return self.classifier(cls_repr)
     
@@ -166,8 +166,8 @@ class SpectrallyNormalizedTransformerForTokenClassification(nn.Module):
         
         self.classifier = nn.Linear(d_model, num_classes)
     
-    def forward(self, x):
-        x = self.transformer(x)
+    def forward(self, x, key_padding_mask=None, attn_mask=None):
+        x = self.transformer(x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         return self.classifier(x)
 
 # Example instantiation:

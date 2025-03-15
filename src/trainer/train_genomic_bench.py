@@ -50,12 +50,12 @@ sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
 # Training
 for model in [vanilla_model, sn_model]:
 
-    model_name = model.__class__.__name__
+    model_name = "vanilla" if model == vanilla_model else "sn_model"
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in tqdm(range(20)):
+    for epoch in tqdm(range(50)):
         model.train()
         for i, (x, y) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -65,15 +65,16 @@ for model in [vanilla_model, sn_model]:
             loss.backward()
             optimizer.step()
             
-        torch.save(model.state_dict(), f"./model/{model_name}_genomic_epoch_{epoch}.pth")
+        torch.save(model.state_dict(), f"./model/genomic/{model_name}_epoch_{epoch}.pth")
 
         # Evaluation
         model.eval()
         test_loader = DataLoader(test_dset, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
         y_preds = []
-        for x, y in test_loader:
-            y_preds.extend(torch.argmax(model(x), dim=1).tolist())
+        with torch.no_grad():
+            for x, y in test_loader:
+                y_preds.extend(torch.argmax(model(x), dim=1).tolist())
 
         print(f"Epoch {epoch}")
         print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")

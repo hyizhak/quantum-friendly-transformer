@@ -2,7 +2,7 @@ import torch
 from torch.nn import ConstantPad1d
 from collections import Counter
 import numpy as np
-import evaluate
+from sklearn.metrics import f1_score, accuracy_score
 
 def manual_seed(seed):
     torch.manual_seed(seed)
@@ -101,7 +101,6 @@ def get_label_to_idx(label_list):
 
 def compute_metrics(label_list, p):
     predictions, labels = p
-    predictions = np.argmax(predictions, axis=2)
 
     true_predictions = [
         [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
@@ -112,16 +111,16 @@ def compute_metrics(label_list, p):
         for prediction, label in zip(predictions, labels)
     ]
 
-    seqeval = evaluate.load("seqeval")
+    # Now flatten them into 1D lists of token-level predictions & labels
+    flat_preds = [token for seq in true_predictions for token in seq]
+    flat_labels = [token for seq in true_labels for token in seq]
 
-    results = seqeval.compute(predictions=true_predictions, references=true_labels)
-    return {
-        "precision": results["overall_precision"],
-        "recall": results["overall_recall"],
-        "f1": results["overall_f1"],
-        "accuracy": results["overall_accuracy"],
+    # Finally, call classification_report on the flattened lists
+    report = {
+        'f1': f1_score(flat_labels, flat_preds, average='macro'),
+        'accuracy': accuracy_score(flat_labels, flat_preds)
     }
-
+    return report
 
 
 
