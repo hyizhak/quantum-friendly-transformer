@@ -12,10 +12,28 @@ To train an one-layer transformer on the non-tata promoter dataset, use:
 
 ```
 python -m src.trainer.train_genomic_bench > ./logging/nontata_vanilla.txt
+python ./demo/draw_training_process.py ./logging/nontata_vanilla.txt
 ```
 
 To fine-tune the transformer on the same dataset with specific layer spectral-normalized, use:
 
 ```
-python -m src.trainer.sn_model_genomic_bench > ./logging/nontata_sn.txt
+python -m src.trainer.fine_tune_sn_model_genomic_bench > ./logging/
+nontata_sn.txt
+python ./demo/draw_training_process.py ./logging/nontata_sn.txt
+```
+
+To train an one-layer transformer on the conll 2003 POS dataset, use:
+
+```
+python -m src.trainer.train_conll2003 > ./logging/conll03_vanilla.txt
+python ./demo/draw_training_process.py ./logging/conll03_vanilla.txt
+```
+
+To fine-tune the transformer on the same dataset with specific layer spectral-normalized, use:
+
+```
+python -m src.trainer.fine_tune_sn_model_conll2003 > ./logging/
+conll03_sn.txt
+python ./demo/draw_training_process.py ./logging/conll03_sn.txt
 ```

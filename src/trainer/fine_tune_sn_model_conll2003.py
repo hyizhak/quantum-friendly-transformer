@@ -51,37 +51,72 @@ val_loader = DataLoader(tokenized_conll03["validation"], batch_size=32, shuffle=
 test_loader = DataLoader(tokenized_conll03["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
 # Model
-vanilla_model = SpectrallyNormalizedTransformerForTokenClassification(
+attn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
     d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
     apply_embedding_sn=False,
-    apply_attention_sn=False,
+    apply_attention_sn=True,
     apply_ffn_sn=False,
     embedding_layer=embedding_layer
 ).to(device)
 
-sn_model = SpectrallyNormalizedTransformerForTokenClassification(
+ffn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
     d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
     apply_embedding_sn=False,
-    apply_attention_sn=True,
+    apply_attention_sn=False,
     apply_ffn_sn=True,
     embedding_layer=embedding_layer
 ).to(device)
 
 # Training
-for model in [sn_model]:
+for model in [attn_normalized_model, ffn_normalized_model]:
 
-    model_name = "vanilla" if model == vanilla_model else "sn_model"
+    model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
+
+    model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/conll03/vanilla_epoch_20.pth"), strict=False)
 
     print("=" * 80)
     print(model_name)
 
+    # Initial evaluation
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for batch in val_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            logits = model(x, key_padding_mask=(attn_mask == 0))
+            # Argmax over the last dimension (num_labels) => shape [batch_size, seq_length]
+            preds = torch.argmax(logits, dim=-1)
+            
+            # Move to CPU for metric computation
+            preds = preds.detach().cpu().numpy()
+            labels = y.detach().cpu().numpy()
+
+            # Append to list (each element is shape [batch_size, seq_length])
+            all_preds.append(preds)
+            all_labels.append(labels)
+
+    # Concatenate along batch dimension => final shape [total_samples, seq_length]
+    all_preds = np.concatenate(all_preds, axis=0)
+    all_labels = np.concatenate(all_labels, axis=0)
+
+    # Now pass (preds, labels) to compute_metrics
+    metrics = compute_metrics(label_list, (all_preds, all_labels))
+    print(f'epoch: 0, metrics: {metrics}')
+
+    # Fine-tuning
+    for param in model.transformer.parameters():
+        param.requires_grad = False
+
     criterion = torch.nn.CrossEntropyLoss(ignore_index=-100)
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+    optimizer = torch.optim.Adam(model.classifier.parameters(), lr=1e-5)
     scaler = GradScaler()
 
     acc = []
 
-    for epoch in tqdm(range(400)):
+    for epoch in tqdm(range(200)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):
@@ -122,7 +157,7 @@ for model in [sn_model]:
 
         # Now pass (preds, labels) to compute_metrics
         metrics = compute_metrics(label_list, (all_preds, all_labels))
-        print(f'epoch: {epoch}, metrics: {metrics}')
+        print(f'epoch: {epoch+1}, metrics: {metrics}')
         acc.append(metrics['accuracy'])
 
         if epoch <= 30:

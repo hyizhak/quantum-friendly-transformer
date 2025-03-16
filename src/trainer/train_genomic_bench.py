@@ -52,6 +52,9 @@ for model in [vanilla_model, sn_model]:
 
     model_name = "vanilla" if model == vanilla_model else "sn_model"
 
+    print("=" * 80)
+    print(model_name)
+
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
@@ -76,6 +79,10 @@ for model in [vanilla_model, sn_model]:
             for x, y in test_loader:
                 y_preds.extend(torch.argmax(model(x), dim=1).tolist())
 
-        print(f"Epoch {epoch}")
-        print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
-        print(f"F1 Score: {f1_score(test_labels, y_preds)}")
+        
+        metrics = {
+            'f1': f1_score(test_labels, y_preds),
+            'accuracy': accuracy_score(test_labels, y_preds)
+        }
+
+        print(f"epoch: {epoch+1}, metrics: {metrics}")

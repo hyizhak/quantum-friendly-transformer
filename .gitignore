@@ -4,6 +4,9 @@
 # Pytorch
 *.pth
 
+# PBS
+submit_pbs*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

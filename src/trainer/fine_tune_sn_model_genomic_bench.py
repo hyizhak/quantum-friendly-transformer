@@ -7,7 +7,7 @@ from genomic_benchmarks.data_check import info
 from sklearn.metrics import f1_score, accuracy_score
 from genomic_benchmarks.data_check.info import labels_in_order
 
-from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForClassification
+from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
 from ..util import LetterTokenizer, build_vocab, token_to_idx, coll_factory, manual_seed
 
 # Set the seed
@@ -33,14 +33,14 @@ collate_fn = coll_factory(vocab, tokenizer, device=device)
 train_loader = DataLoader(train_dset, batch_size=32, shuffle=True, collate_fn=collate_fn)
 
 # Model
-attn_normalized_model = SpectrallyNormalizedTransformerForClassification(
+attn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=512, nhead=8, d_ff=2048, num_emb=len(vocab), num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=True,
     apply_ffn_sn=False
 ).to(device)
 
-ffn_normalized_model = SpectrallyNormalizedTransformerForClassification(
+ffn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=512, nhead=8, d_ff=2048, num_emb=len(vocab), num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=False,
@@ -53,21 +53,26 @@ for model in sn_models:
 
     model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
 
-    model.load_state_dict(torch.load("./model/genomic/vanilla_model_epoch_17.pth"), strict=False)
+    model.load_state_dict(torch.load("./model/genomic/vanilla_epoch_15.pth"), strict=False)
 
     print("=" * 80)
     print(model_name)
 
+    # Initial evaluation
     model.eval()
     test_loader = DataLoader(test_dset, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
     y_preds = []
-    for x, y in test_loader:
-        y_preds.extend(torch.argmax(model(x), dim=1).tolist())
+    with torch.no_grad():
+        for x, y in test_loader:
+            y_preds.extend(torch.argmax(model(x), dim=1).tolist())
 
-    print(f"Initial Evaluation")
-    print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
-    print(f"F1 Score: {f1_score(test_labels, y_preds)}")
+    metrics = {
+        'f1': f1_score(test_labels, y_preds),
+        'accuracy': accuracy_score(test_labels, y_preds)
+        }
+
+    print(f"epoch: 0, metrics: {metrics}")
 
     # Fine-tuning
     for param in model.transformer.parameters():
@@ -76,7 +81,7 @@ for model in sn_models:
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.001)
 
-    for epoch in tqdm(range(10)):
+    for epoch in tqdm(range(20)):
         model.train()
         for i, (x, y) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -97,6 +102,9 @@ for model in sn_models:
             for x, y in test_loader:
                 y_preds.extend(torch.argmax(model(x), dim=1).tolist())
 
-        print(f"Epoch {epoch}")
-        print(f"Accuracy: {accuracy_score(test_labels, y_preds)}")
-        print(f"F1 Score: {f1_score(test_labels, y_preds)}")
+        metrics = {
+            'f1': f1_score(test_labels, y_preds),
+            'accuracy': accuracy_score(test_labels, y_preds)
+        }
+
+        print(f"epoch: {epoch+1}, metrics: {metrics}")
