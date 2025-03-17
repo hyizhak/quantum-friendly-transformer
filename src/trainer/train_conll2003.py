@@ -38,8 +38,8 @@ llama_model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch
 
 # Retrieve the input embeddings.
 embedding_layer = llama_model.get_input_embeddings()
-# for param in embedding_layer.parameters():
-#     param.requires_grad = False
+for param in embedding_layer.parameters():
+    param.requires_grad = False
 
 # Preprocess the dataset
 tokenized_conll03 = conll03.map(lambda examples: tokenize_and_align_labels(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
@@ -68,7 +68,7 @@ sn_model = SpectrallyNormalizedTransformerForTokenClassification(
 ).to(device)
 
 # Training
-for model in [sn_model]:
+for model in [vanilla_model, sn_model]:
 
     model_name = "vanilla" if model == vanilla_model else "sn_model"
 
