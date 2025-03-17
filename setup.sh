@@ -8,3 +8,6 @@ conda activate $env_name
 
 # install some dependencies
 pip install -r reqs/requirements.txt
+
+# install the package
+pip install -e .

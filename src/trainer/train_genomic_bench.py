@@ -7,8 +7,8 @@ from genomic_benchmarks.data_check import info
 from sklearn.metrics import f1_score, accuracy_score
 from genomic_benchmarks.data_check.info import labels_in_order
 
-from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
-from ..util import LetterTokenizer, build_vocab, token_to_idx, coll_factory, manual_seed
+from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
+from src.util import LetterTokenizer, build_vocab, token_to_idx, coll_factory, manual_seed
 
 # Set the seed
 manual_seed(42)

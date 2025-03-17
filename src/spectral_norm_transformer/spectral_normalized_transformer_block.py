@@ -131,6 +131,9 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         x = x + self.ffn(x)
         return x
     
+    def get_input_embeddings(self):
+        return self.embedding
+    
 class SpectrallyNormalizedTransformerForSequenceClassification(nn.Module):
     def __init__(self, d_model, nhead, d_ff, num_emb, max_seq_len, num_classes, apply_embedding_sn=False,
                  apply_attention_sn=False, apply_ffn_sn=False, embedding_layer=None):

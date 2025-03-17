@@ -7,8 +7,8 @@ from tqdm import tqdm
 import os
 import numpy as np
 
-from ..spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForTokenClassification
-from ..util import tokenize_and_align_labels, compute_metrics, manual_seed
+from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForTokenClassification
+from src.util import tokenize_and_align_labels, compute_metrics, manual_seed
 
 # Set the seed
 manual_seed(42)

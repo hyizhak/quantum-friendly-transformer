@@ -1,17 +1,45 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from datasets import load_dataset
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+
+from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForTokenClassification
+
+cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+
+os.environ['HF_HOME'] = cache_dir
+os.environ['HF_DATASETS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"Using device: {device}")
 
 # Specify the model checkpoint for Llama2
-model_name = "meta-llama/Llama-2-7b-chat-hf"
+# model_name = "meta-llama/Llama-2-7b-chat-hf"
+model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
 
-# Load the tokenizer and model
+# # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
+# model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
+
+conll03 = load_dataset("eriktks/conll2003", cache_dir=f"{cache_dir}/datasets")
+
+label_list = conll03["train"].features["pos_tags"].feature.names
+
+model = SpectrallyNormalizedTransformerForTokenClassification(
+    d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
+    apply_embedding_sn=False,
+    apply_attention_sn=True,
+    apply_ffn_sn=False,
+)
+
+model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/conll03/vanilla_epoch_20.pth"), strict=False)
 
 # Retrieve the input embeddings.
-embedding_layer = model.get_input_embeddings()
+embedding_layer = model.transformer.get_input_embeddings()
+# embedding_layer = model.get_input_embeddings()
 embeddings = embedding_layer.weight  # Shape: [vocab_size, embedding_dim]
 print(f"Embedding matrix shape: {embeddings.shape}")
 
@@ -41,5 +69,5 @@ plt.bar(bin_centers, counts, width=bin_edges[1]-bin_edges[0], edgecolor='black')
 plt.xlabel("L2 Norm of Token Embeddings")
 plt.ylabel("Frequency (Number of Tokens)")
 plt.xlim(0, 2)
-# plt.title("Histogram of L2 Norms of Llama2 Token Embeddings")
-# plt.savefig("llama_emb_histogram.png")
+plt.title("Histogram of L2 Norms of Trained SN transformer Token Embeddings")
+plt.savefig("sn_emb_histogram.png")
