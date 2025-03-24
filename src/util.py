@@ -93,6 +93,23 @@ def tokenize_and_align_labels(tokenizer, examples):
     tokenized_inputs["labels"] = labels
     return tokenized_inputs
 
+def tokenize_dna_sequence(tokenizer, examples):
+    # examples["sequence"] is a list of DNA strings
+    # examples["label"] is a list of labels (or single label if not batched)
+    
+    # Tokenize all sequences in the batch
+    tokenized_inputs = tokenizer(
+        examples["sequence"],        # list of raw sequences
+        padding="max_length",        # or "longest";
+        truncation=True,             # truncate if sequence is too long
+        max_length=256,              # max length of the tokenized sequence
+    )
+    
+    # Add the labels into the returned dictionary
+    tokenized_inputs["labels"] = examples["label"]
+    
+    return tokenized_inputs
+
 def get_idx_to_label(label_list):
     return {idx: label for idx, label in enumerate(label_list)}
 

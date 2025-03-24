@@ -54,7 +54,7 @@ class AttentionWithSeparateQKV(nn.Module):
         embed_dim: Total dimension of the model.
         num_heads: Number of parallel attention heads. Note that ``embed_dim`` will be split
             across ``num_heads`` (i.e. each head will have dimension ``embed_dim // num_heads``).
-        dropout: Dropout probability on ``attn_output_weights``. Default: ``0.0`` (no dropout).
+        dropout: Dropout probability on ``attn_output_weights``. Default: ``0.1`` .
         bias: If specified, adds bias to input / output projection layers. Default: ``True``.
         add_bias_kv: If specified, adds bias to the key and value sequences at dim=0. Default: ``False``.
         add_zero_attn: If specified, adds a new batch of zeros to the key and value sequences at dim=1.
@@ -83,7 +83,7 @@ class AttentionWithSeparateQKV(nn.Module):
         self,
         embed_dim,
         num_heads,
-        dropout=0.0,
+        dropout=0.1,
         bias=True,
         add_bias_kv=False,
         add_zero_attn=False,
