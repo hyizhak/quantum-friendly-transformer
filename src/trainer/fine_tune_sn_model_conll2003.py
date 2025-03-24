@@ -116,7 +116,7 @@ for model in [attn_normalized_model, ffn_normalized_model]:
 
     acc = []
 
-    for epoch in tqdm(range(200)):
+    for epoch in tqdm(range(1, 201)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):
@@ -157,7 +157,7 @@ for model in [attn_normalized_model, ffn_normalized_model]:
 
         # Now pass (preds, labels) to compute_metrics
         metrics = compute_metrics(label_list, (all_preds, all_labels))
-        print(f'epoch: {epoch+1}, metrics: {metrics}')
+        print(f'epoch: {epoch}, metrics: {metrics}')
         acc.append(metrics['accuracy'])
 
         if epoch <= 30:

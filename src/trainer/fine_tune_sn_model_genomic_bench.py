@@ -81,7 +81,7 @@ for model in sn_models:
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.classifier.parameters(), lr=0.001)
 
-    for epoch in tqdm(range(20)):
+    for epoch in tqdm(range(1, 21)):
         model.train()
         for i, (x, y) in enumerate(train_loader):
             optimizer.zero_grad()
@@ -107,4 +107,4 @@ for model in sn_models:
             'accuracy': accuracy_score(test_labels, y_preds)
         }
 
-        print(f"epoch: {epoch+1}, metrics: {metrics}")
+        print(f"epoch: {epoch}, metrics: {metrics}")

@@ -79,7 +79,7 @@ for model in [vanilla_model, sn_model]:
 
     acc = []
 
-    for epoch in tqdm(range(400)):
+    for epoch in tqdm(range(1, 101)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):

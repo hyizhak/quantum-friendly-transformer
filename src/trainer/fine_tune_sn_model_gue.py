@@ -32,11 +32,6 @@ model_name = f"{cache_dir}/hub/DNABERT-2-117M"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 config = BertConfig.from_pretrained(model_name)
 
-# one time operation: save the embedding weights
-# dnabert_model = AutoModel.from_pretrained(model_name, config=config)
-# embedding_weights = dnabert_model.embeddings.word_embeddings.weight.data.clone()
-# torch.save(embedding_weights, "model/dnabert_embedding_weights.pth")
-
 dnabert_embedding = nn.Embedding(num_embeddings=4096, embedding_dim=768, padding_idx=0)
 with torch.no_grad():
     weights = torch.load("model/dnabert_embedding_weights.pth")
@@ -55,7 +50,7 @@ val_loader = DataLoader(tokenized_prom["dev"], batch_size=32, shuffle=False, col
 test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
 # # Model
-vanilla_model = SpectrallyNormalizedTransformerForSequenceClassification(
+attn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=False,
@@ -63,7 +58,7 @@ vanilla_model = SpectrallyNormalizedTransformerForSequenceClassification(
     embedding_layer=dnabert_embedding
 ).to(device)
 
-sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
+ffn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=True,
@@ -72,12 +67,39 @@ sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
 ).to(device)
 
 # # Training
-for model in [vanilla_model, sn_model]:
+for model in [attn_normalized_model, ffn_normalized_model]:
 
-    model_name = "vanilla" if model == vanilla_model else "sn_model"
+    model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
+
+    model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/gue/vanilla_epoch_20.pth"), strict=False)
 
     print("=" * 80)
     print(model_name)
+
+    # Initial Evaluation
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for batch in val_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            y_pred = model(x, key_padding_mask=(attn_mask == 0))
+            
+            all_preds.extend(torch.argmax(y_pred, dim=1).tolist())
+            all_labels.extend(y.tolist())
+
+    metrics = {
+        'f1': f1_score(all_labels, all_preds),
+        'accuracy': accuracy_score(all_labels, all_preds)
+    }
+
+    print(f"epoch: {epoch}, metrics: {metrics}")
+
+    # Fine-tuning
+    for param in model.transformer.parameters():
+        param.requires_grad = False
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
