@@ -71,7 +71,7 @@ for model in [attn_normalized_model, ffn_normalized_model]:
 
     model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
 
-    model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/gue/vanilla_epoch_20.pth"), strict=False)
+    model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/gue/vanilla_epoch_40.pth"), strict=False)
 
     print("=" * 80)
     print(model_name)
@@ -95,14 +95,14 @@ for model in [attn_normalized_model, ffn_normalized_model]:
         'accuracy': accuracy_score(all_labels, all_preds)
     }
 
-    print(f"epoch: {epoch}, metrics: {metrics}")
+    print(f"epoch: 0, metrics: {metrics}")
 
     # Fine-tuning
     for param in model.transformer.parameters():
         param.requires_grad = False
 
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=2e-6)
     scaler = GradScaler()
 
     acc = []

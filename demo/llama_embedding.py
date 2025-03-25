@@ -13,9 +13,6 @@ os.environ['HF_HOME'] = cache_dir
 os.environ['HF_DATASETS_OFFLINE'] = '1'
 os.environ['HF_HUB_OFFLINE'] = '1'
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"Using device: {device}")
-
 # Specify the model checkpoint for Llama2
 # model_name = "meta-llama/Llama-2-7b-chat-hf"
 model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
@@ -36,6 +33,8 @@ model = SpectrallyNormalizedTransformerForTokenClassification(
 )
 
 model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/conll03/vanilla_epoch_20.pth"), strict=False)
+
+print(model)
 
 # Retrieve the input embeddings.
 embedding_layer = model.transformer.get_input_embeddings()

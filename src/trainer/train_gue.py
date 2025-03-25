@@ -80,12 +80,12 @@ for model in [vanilla_model, sn_model]:
     print(model_name)
 
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=2e-6)
     scaler = GradScaler()
 
     acc = []
 
-    for epoch in tqdm(range(1, 201)):
+    for epoch in tqdm(range(1, 101)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):
