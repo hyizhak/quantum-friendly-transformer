@@ -11,7 +11,7 @@ from torch.amp import autocast, GradScaler
 import os
 
 from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
-from src.util import tokenize_dna_sequence, manual_seed
+from src.util import tokenize_dna_sequence_gue, manual_seed
 
 # Set the seed
 manual_seed(42)
@@ -45,8 +45,8 @@ with torch.no_grad():
 # Load the dataset
 prom_300_notata = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache_dir=f"{cache_dir}/datasets")
 
-# # Preprocess the dataset
-tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
+# Preprocess the dataset
+tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -54,7 +54,7 @@ train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, 
 val_loader = DataLoader(tokenized_prom["dev"], batch_size=32, shuffle=False, collate_fn=data_collator)
 test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
-# # Model
+# Model
 vanilla_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
@@ -71,7 +71,7 @@ sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
     embedding_layer=dnabert_embedding
 ).to(device)
 
-# # Training
+# Training
 for model in [vanilla_model, sn_model]:
 
     model_name = "vanilla" if model == vanilla_model else "sn_model"

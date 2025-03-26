@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+cache_dir = "/home/users/nus/e1310988/scratch/huggingface/"
 
 os.environ['HF_HOME'] = cache_dir
 os.environ['HF_DATASETS_OFFLINE'] = '1'
 os.environ['HF_HUB_OFFLINE'] = '1'
 
 # Specify the model checkpoint for Llama2
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
-model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
+# model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
 
 # # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)

@@ -11,7 +11,7 @@ from torch.amp import autocast, GradScaler
 import os
 
 from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
-from src.util import tokenize_dna_sequence, manual_seed
+from src.util import tokenize_dna_sequence_gue, manual_seed
 
 # Set the seed
 manual_seed(42)
@@ -41,7 +41,7 @@ with torch.no_grad():
 prom_300_notata = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache_dir=f"{cache_dir}/datasets")
 
 # # Preprocess the dataset
-tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
+tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
