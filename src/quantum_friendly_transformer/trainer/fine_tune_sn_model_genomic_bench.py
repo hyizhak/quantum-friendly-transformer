@@ -10,8 +10,8 @@ from transformers.models.bert.configuration_bert import BertConfig
 from torch.amp import autocast, GradScaler
 import os
 
-from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForSequenceClassification
-from src.util import tokenize_dna_sequence_gue, manual_seed
+from quantum_friendly_transformer.norm_transformer.spectral_normalized_transformer import SpectrallyNormalizedTransformerForSequenceClassification
+from quantum_friendly_transformer.util import tokenize_dna_sequence_genomic_bench, manual_seed
 
 # Set the seed
 manual_seed(42)
@@ -32,30 +32,24 @@ model_name = f"{cache_dir}/hub/DNABERT-2-117M"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 config = BertConfig.from_pretrained(model_name)
 
-# one time operation: save the embedding weights
-# dnabert_model = AutoModel.from_pretrained(model_name, config=config)
-# embedding_weights = dnabert_model.embeddings.word_embeddings.weight.data.clone()
-# torch.save(embedding_weights, "model/dnabert_embedding_weights.pth")
-
 dnabert_embedding = nn.Embedding(num_embeddings=4096, embedding_dim=768, padding_idx=0)
 with torch.no_grad():
     weights = torch.load("model/dnabert_embedding_weights.pth")
     dnabert_embedding.weight.copy_(weights)
 
 # Load the dataset
-prom_300_notata = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache_dir=f"{cache_dir}/datasets")
+notata_dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters")
 
-# Preprocess the dataset
-tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
+# # Preprocess the dataset
+tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genomic_bench(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
-val_loader = DataLoader(tokenized_prom["dev"], batch_size=32, shuffle=False, collate_fn=data_collator)
 test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
-# Model
-vanilla_model = SpectrallyNormalizedTransformerForSequenceClassification(
+# # Model
+attn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=False,
@@ -63,7 +57,7 @@ vanilla_model = SpectrallyNormalizedTransformerForSequenceClassification(
     embedding_layer=dnabert_embedding
 ).to(device)
 
-sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
+ffn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=True,
@@ -71,13 +65,40 @@ sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
     embedding_layer=dnabert_embedding
 ).to(device)
 
-# Training
-for model in [vanilla_model, sn_model]:
+# # Training
+for model in [attn_normalized_model, ffn_normalized_model]:
 
-    model_name = "vanilla" if model == vanilla_model else "sn_model"
+    model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
+
+    model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/genomic_bench/vanilla_epoch_40.pth"), strict=False)
 
     print("=" * 80)
     print(model_name)
+
+    # Initial Evaluation
+    model.eval()
+    all_preds = []
+    all_labels = []
+
+    with torch.no_grad():
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            y_pred = model(x, key_padding_mask=(attn_mask == 0))
+            
+            all_preds.extend(torch.argmax(y_pred, dim=1).tolist())
+            all_labels.extend(y.tolist())
+
+    metrics = {
+        'f1': f1_score(all_labels, all_preds),
+        'accuracy': accuracy_score(all_labels, all_preds)
+    }
+
+    print(f"epoch: 0, metrics: {metrics}")
+
+    # Fine-tuning
+    for param in model.transformer.parameters():
+        param.requires_grad = False
 
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=2e-6)
@@ -85,7 +106,7 @@ for model in [vanilla_model, sn_model]:
 
     acc = []
 
-    for epoch in tqdm(range(1, 101)):
+    for epoch in tqdm(range(1, 201)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):
@@ -106,7 +127,7 @@ for model in [vanilla_model, sn_model]:
         all_labels = []
 
         with torch.no_grad():
-            for batch in val_loader:
+            for batch in test_loader:
                 batch = {k: v.to(device) for k, v in batch.items()}
                 x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
                 y_pred = model(x, key_padding_mask=(attn_mask == 0))
@@ -123,6 +144,6 @@ for model in [vanilla_model, sn_model]:
 
         if epoch <= 30:
             if epoch % 10 == 0:
-                torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/gue/{model_name}_epoch_{epoch}.pth")
+                torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/genomic_bench/{model_name}_epoch_{epoch}.pth")
         elif epoch % 40 == 0:
-            torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/gue/{model_name}_epoch_{epoch}.pth")
+            torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/genomic_bench/{model_name}_epoch_{epoch}.pth")

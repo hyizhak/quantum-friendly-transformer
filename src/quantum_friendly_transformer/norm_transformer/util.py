@@ -1,7 +1,9 @@
+from typing import Optional
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
 from torch.nn.utils.parametrizations import spectral_norm
-from typing import Optional
 
 def apply_spectral_norm(module, layers=(nn.Linear,)):
     """

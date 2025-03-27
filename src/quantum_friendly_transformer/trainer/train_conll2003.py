@@ -7,8 +7,9 @@ from tqdm import tqdm
 import os
 import numpy as np
 
-from spectral_norm_transformer.spectral_normalized_transformer_block import SpectrallyNormalizedTransformerForTokenClassification
-from src.util import tokenize_and_align_labels, compute_metrics, manual_seed
+from quantum_friendly_transformer.norm_transformer.spectral_normalized_transformer import SpectrallyNormalizedTransformerForTokenClassification
+from quantum_friendly_transformer.norm_transformer.frobenius_normalized_transformer import FrobeniuslyNormalizedTransformerForTokenClassification
+from quantum_friendly_transformer.util import tokenize_and_align_labels, compute_metrics, manual_seed
 
 # Set the seed
 manual_seed(42)
@@ -65,10 +66,23 @@ sn_model = SpectrallyNormalizedTransformerForTokenClassification(
     embedding_layer=embedding_layer
 ).to(device)
 
-# Training
-for model in [vanilla_model, sn_model]:
+fn_model = FrobeniuslyNormalizedTransformerForTokenClassification(
+    d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
+    apply_embedding_fn=False,
+    apply_attention_fn=True,
+    apply_ffn_fn=True,
+    embedding_layer=embedding_layer
+).to(device)
 
-    model_name = "vanilla" if model == vanilla_model else "sn_model"
+# Training
+for model in [vanilla_model, sn_model, fn_model]:
+
+    if model == vanilla_model:
+        model_name = "vanilla"
+    elif model == sn_model:
+        model_name = "sn_model"
+    elif model == fn_model:
+        model_name = "fn_model"
 
     print("=" * 80)
     print(model_name)
