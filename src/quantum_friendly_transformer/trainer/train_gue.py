@@ -26,8 +26,8 @@ os.environ['HF_HUB_OFFLINE'] = '1'
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-model_name = "zhihan1996/DNABERT-2-117M"
-# model_name = f"{cache_dir}/hub/DNABERT-2-117M"
+# model_name = "zhihan1996/DNABERT-2-117M"
+model_name = f"{cache_dir}/hub/DNABERT-2-117M"
 
 # Load DNABert model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
