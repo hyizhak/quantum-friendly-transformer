@@ -51,7 +51,7 @@ val_loader = DataLoader(tokenized_conll03["validation"], batch_size=32, shuffle=
 test_loader = DataLoader(tokenized_conll03["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
 # Model
-attn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
+attn_sn_model = SpectrallyNormalizedTransformerForTokenClassification(
     d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
     apply_embedding_sn=False,
     apply_attention_sn=True,
@@ -59,7 +59,7 @@ attn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
     embedding_layer=embedding_layer
 ).to(device)
 
-ffn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
+ffn_sn_model = SpectrallyNormalizedTransformerForTokenClassification(
     d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
     apply_embedding_sn=False,
     apply_attention_sn=False,
@@ -68,9 +68,9 @@ ffn_normalized_model = SpectrallyNormalizedTransformerForTokenClassification(
 ).to(device)
 
 # Training
-for model in [attn_normalized_model, ffn_normalized_model]:
+for model in [attn_sn_model, ffn_sn_model]:
 
-    model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
+    model_name = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
     model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/conll03/vanilla_epoch_20.pth"), strict=False)
 

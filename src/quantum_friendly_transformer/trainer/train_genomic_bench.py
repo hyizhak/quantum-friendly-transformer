@@ -80,7 +80,7 @@ fn_model = FrobeniuslyNormalizedTransformerForSequenceClassification(
 ).to(device)
 
 # Training
-for model in [vanilla_model, sn_model, fn_model]:
+for model in [fn_model]:
 
     if model == vanilla_model:
         model_name = "vanilla"
@@ -98,7 +98,7 @@ for model in [vanilla_model, sn_model, fn_model]:
 
     acc = []
 
-    for epoch in tqdm(range(1, 101)):
+    for epoch in tqdm(range(1, 201)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):

@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
+MODEL_NAME = ['vanilla', 'sn_model', 'fn_model', 'attn_sn_model', 'ffn_sn_model', 'attn_fn_model', 'ffn_fn_model']
 
 def main():
     if len(sys.argv) < 2:
@@ -11,101 +12,78 @@ def main():
         sys.exit(1)
 
     log_file = sys.argv[1]
-    # Extract a base name to use for saving plots, e.g. 'my_log' from 'my_log.txt'
     base_name = os.path.splitext(os.path.basename(log_file))[0]
 
-    # Storage for metrics
-    model1_epochs = []
-    model1_f1 = []
-    model1_acc = []
-
-    model2_epochs = []
-    model2_f1 = []
-    model2_acc = []
-
-    current_model = None
-    plot_type = None
-
     # Regex to extract: epoch, f1, accuracy
-    # Example lines: "epoch: 2, metrics: {'f1': 0.475297678386248, 'accuracy': 0.8359342550287783}"
+    # Matches lines like:
+    #  "epoch: 2, metrics: {'f1': 0.475297678386248, 'accuracy': 0.8359342550287783}"
     pattern = re.compile(
         r"epoch:\s*(\d+),\s*metrics:\s*\{.*'f1':\s*([\d\.]+).+'accuracy':\s*([\d\.]+).*"
     )
+
+    # Dictionary to store data for *any* number of models
+    models_data = {}
+
+    current_model = None
 
     # Read the log file
     with open(log_file, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if not line:
-                continue
+                continue  # Skip empty lines
 
-            # Detect if we just hit a "vanilla" or "sn_model" line
-            if line.startswith("vanilla"):
-                current_model = "vanilla"
-                plot_type = "train"
-                continue
-            elif line.startswith("sn_model"):
-                current_model = "sn_model"
-                plot_type = "train"
-                continue
-            elif line.startswith("attn_normalized_model"):
-                current_model = "attn_normalized_model"
-                plot_type = "fine-tune"
-                continue
-            elif line.startswith("ffn_normalized_model"):
-                current_model = "ffn_normalized_model"
-                plot_type = "fine-tune"
-                continue
-
-            # Attempt to parse lines with epoch/f1/accuracy
+            # Try to match our epoch-f1-accuracy pattern
             match = pattern.match(line)
             if match:
+                # This line has epoch/metrics
                 epoch_val = int(match.group(1))
                 f1_val = float(match.group(2))
                 acc_val = float(match.group(3))
 
-                if current_model == "vanilla" or current_model == "attn_normalized_model":
-                    model1_epochs.append(epoch_val)
-                    model1_f1.append(f1_val)
-                    model1_acc.append(acc_val)
-                elif current_model == "sn_model" or current_model == "ffn_normalized_model":
-                    model2_epochs.append(epoch_val)
-                    model2_f1.append(f1_val)
-                    model2_acc.append(acc_val)
+                # Only record metrics if we have a current_model set
+                if current_model is not None:
+                    models_data[current_model]['epochs'].append(epoch_val)
+                    models_data[current_model]['f1'].append(f1_val)
+                    models_data[current_model]['accuracy'].append(acc_val)
+            else:
+                if line in MODEL_NAME:
+                    current_model = line
+                    # If this model hasn't been seen before, initialize its data
+                    if current_model not in models_data:
+                        models_data[current_model] = {
+                            'epochs': [],
+                            'f1': [],
+                            'accuracy': []
+                        }
 
-    label1 = "vanilla model" if plot_type == "train" else "attn-normalized"
-    label2 = "spectral-normalized" if plot_type == "train" else "ffn-normalzied"
-    # --- Plot F1 ---
+    # --- Plot F1 for each model ---
     plt.figure()
-    plt.plot(model1_epochs, model1_f1, label=label1)
-    plt.plot(model2_epochs, model2_f1, label=label2)
+    for model_name, data in models_data.items():
+        plt.plot(data['epochs'], data['f1'], label=model_name)
+
     plt.xlabel("Epoch")
     plt.ylabel("F1")
     plt.title("F1 over Epochs")
     plt.legend()
-
-    # Force x-axis to only use integer ticks
     plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    # Save figure based on the input filename
     f1_filename = f"./demo/{base_name}_f1.png"
     plt.savefig(f1_filename)
     print(f"Saved F1 plot to {f1_filename}")
     plt.close()
 
-    # --- Plot Accuracy ---
+    # --- Plot Accuracy for each model ---
     plt.figure()
-    plt.plot(model1_epochs, model1_acc, label=label1)
-    plt.plot(model2_epochs, model2_acc, label=label2)
+    for model_name, data in models_data.items():
+        plt.plot(data['epochs'], data['accuracy'], label=model_name)
+
     plt.xlabel("Epoch")
     plt.ylabel("Accuracy")
     plt.title("Accuracy over Epochs")
     plt.legend()
-
-    # Force x-axis to only use integer ticks
     plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    # Save figure based on the input filename
     acc_filename = f"./demo/{base_name}_accuracy.png"
     plt.savefig(acc_filename)
     print(f"Saved Accuracy plot to {acc_filename}")

@@ -50,7 +50,7 @@ val_loader = DataLoader(tokenized_prom["dev"], batch_size=32, shuffle=False, col
 test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 
 # # Model
-attn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
+attn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=False,
@@ -58,7 +58,7 @@ attn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification
     embedding_layer=dnabert_embedding
 ).to(device)
 
-ffn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
+ffn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
     d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
     apply_embedding_sn=False,
     apply_attention_sn=True,
@@ -67,9 +67,9 @@ ffn_normalized_model = SpectrallyNormalizedTransformerForSequenceClassification(
 ).to(device)
 
 # # Training
-for model in [attn_normalized_model, ffn_normalized_model]:
+for model in [attn_sn_model, ffn_sn_model]:
 
-    model_name = "attn_normalized_model" if model == attn_normalized_model else "ffn_normalized_model"
+    model_name = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
     model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/gue/vanilla_epoch_40.pth"), strict=False)
 
