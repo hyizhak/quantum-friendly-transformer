@@ -59,7 +59,7 @@ requires-python = ">=3.8"
 # This is either text indicating the license for the distribution, or a file
 # that contains the license.
 # https://packaging.python.org/en/latest/specifications/core-metadata/#license
-license = {file = "LICENSE.txt"}
+license = {text = "MIT license"}
 
 # This field adds keywords for your project which will appear on the
 # project page. What does your project relate to?
@@ -73,14 +73,14 @@ keywords = []
 # authored the project, and a valid email address corresponding to the name
 # listed.
 authors = [
-  {name = "A. Random Developer", email = "author@example.com" }
+  {name = "Yizhan Han", email = "hyz0235@gmail.com"}
 ]
 
 # This should be your name or the names of the organization who currently
 # maintains the project, and a valid email address corresponding to the name
 # listed.
 maintainers = [
-  {name = "A. Great Maintainer", email = "maintainer@example.com" }
+  {name = "Yizhan Han", email = "hyz0235@gmail.com"}
 ]
 
 # Classifiers help users find your project by categorizing it.

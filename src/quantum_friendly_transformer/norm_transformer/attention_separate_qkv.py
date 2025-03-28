@@ -249,6 +249,10 @@ class AttentionWithSeparateQKV(nn.Module):
         # max_sv = singular_values[0].item()
         # print(f"max sv: {max_sv}")
 
+        # # calculate the Frobenius norm
+        # frobenius_norm = torch.linalg.norm(self.q_linear.weight, ord='fro')
+        # print(f"frobenius norm: {frobenius_norm}")
+
         self.in_proj_weight = torch.cat(
             (self.q_linear.weight, self.k_linear.weight, self.v_linear.weight)
         )
