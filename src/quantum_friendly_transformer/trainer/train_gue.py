@@ -17,17 +17,17 @@ from quantum_friendly_transformer.util import tokenize_dna_sequence_gue, manual_
 # Set the seed
 manual_seed(42)
 
-cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+# cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
 
-os.environ['HF_HOME'] = cache_dir
-os.environ['HF_DATASETS_OFFLINE'] = '1'
-os.environ['HF_HUB_OFFLINE'] = '1'
+# os.environ['HF_HOME'] = cache_dir
+# os.environ['HF_DATASETS_OFFLINE'] = '1'
+# os.environ['HF_HUB_OFFLINE'] = '1'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-# model_name = "zhihan1996/DNABERT-2-117M"
-model_name = f"{cache_dir}/hub/DNABERT-2-117M"
+model_name = "zhihan1996/DNABERT-2-117M"
+# model_name = f"{cache_dir}/hub/DNABERT-2-117M"
 
 # Load DNABert model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -43,8 +43,10 @@ with torch.no_grad():
     weights = torch.load("model/dnabert_embedding_weights.pth")
     dnabert_embedding.weight.copy_(weights)
 
+print(dnabert_embedding)
+
 # Load the dataset
-prom_300_notata = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache_dir=f"{cache_dir}/datasets")
+prom_300_notata = load_dataset("leannmlindsey/GUE", name="prom_300_notata")
 
 # Preprocess the dataset
 tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])

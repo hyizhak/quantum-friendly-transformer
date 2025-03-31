@@ -12,7 +12,7 @@ import os
 # os.environ['HF_HUB_OFFLINE'] = '1'
 
 # Specify the model checkpoint for Llama2
-model_name = "meta-llama/Llama-2-13b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 # model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
 
 # model_name = "meta-llama/Llama-3.2-11B-Vision"
@@ -56,10 +56,14 @@ def plot_hist(ax, data, title):
     counts, bin_edges = np.histogram(data.cpu().numpy(), bins=num_bins)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     ax.bar(bin_centers, counts, width=bin_edges[1] - bin_edges[0], edgecolor='black')
-    ax.set_title(title)
+    ax.set_title(title, fontsize=14)
     ax.set_xlim(0, 3)
-    ax.set_xlabel("L2 Norm")
-    ax.set_ylabel("Frequency")
+    ax.set_xlabel(r"$\ell_2$ Norm", fontsize=14)
+    ax.set_ylabel("Frequency", fontsize=14)
+
+    # Set the tick font sizes as well
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
 
 # First row: row-norm histograms
 # plot_hist(axes[0, 0], row_norms_Wq, "Row L2 Norm - Wq")
@@ -67,12 +71,12 @@ def plot_hist(ax, data, title):
 # plot_hist(axes[0, 2], row_norms_Wv, "Row L2 Norm - Wv")
 
 # Second row: column-norm histograms
-plot_hist(axes[0], col_norms_Wq, "Column L2 Norm - Wq")
-plot_hist(axes[1], col_norms_Wk, "Column L2 Norm - Wk")
-plot_hist(axes[2], col_norms_Wv, "Column L2 Norm - Wv")
+plot_hist(axes[0], col_norms_Wq, r"Column $\ell_2$ Norm - Wq")
+plot_hist(axes[1], col_norms_Wk, r"Column $\ell_2$ Norm - Wk")
+plot_hist(axes[2], col_norms_Wv, r"Column $\ell_2$ Norm - Wv")
 
-plt.suptitle("Histograms of Column L2 Norms for Wq, Wk, Wv Weights (Layer 0)")
+plt.suptitle(r"Histograms of Column $\ell_2$ Norms for Wq, Wk, Wv Weights (Layer 0 of Llama-2-$7b$)", size=14)
 plt.tight_layout()
 
 # Save to file
-plt.savefig("qkv_col_norms_llama2_7b_4096.png")
+plt.savefig("qkv_col_norms_llama_2_7b_4096.pdf")
