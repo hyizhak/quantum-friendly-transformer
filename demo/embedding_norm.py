@@ -1,5 +1,5 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from datasets import load_dataset
+# from datasets import load_dataset
 import torch
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +19,11 @@ import os
 
 model_name = "Qwen/Qwen2.5-14B-Instruct"
 
-# model_name = "google/gemma-2-2b-it"
+# model_name = "google/gemma-3-4b-it"
+
+# model_name = "microsoft/phi-4"
+
+# model_name = "openai-community/gpt2-xl"
 
 # # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -61,7 +65,7 @@ bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 plt.figure(figsize=(10, 6))
 plt.bar(bin_centers, counts, width=bin_edges[1]-bin_edges[0], edgecolor='black')
 
-plt.xlabel(r"$\ell_2$ norm of Token Embeddings", fontsize=14)
+plt.xlabel(r"$\ell_2$ Norm of Token Embeddings", fontsize=14)
 plt.ylabel("Frequency (Number of Tokens)", fontsize=14)
 plt.title(r"Histogram of $\ell_2$ Norms of Qwen2.5-$14b$ Token Embeddings", fontsize=14)
 
