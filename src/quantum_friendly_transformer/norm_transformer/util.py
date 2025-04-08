@@ -23,11 +23,11 @@ def apply_spectral_norm(module, layers=(nn.Linear,)):
 
 def apply_frobenius_norm(module, layers=(nn.Linear,)):
     """
-    Recursively apply spectral normalization to the specified layer types.
+    Recursively apply frobenius normalization to the specified layer types.
     
     Args:
         module (nn.Module): The model or submodule to modify.
-        layers (tuple): Layer classes to apply SN to.
+        layers (tuple): Layer classes to apply FN to.
     """
 
     def FN(module):
