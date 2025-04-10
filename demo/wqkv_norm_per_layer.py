@@ -5,79 +5,102 @@ import numpy as np
 import os
 import pandas as pd
 
-# Specify the model checkpoint for Llama-2-7b-chat-hf
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
-# # Create a safe version of the model name for filenames
-# safe_model_name = "llama_2_7b_4096"
-# label_model_name = r'Llama-2-$7b$'
+# --- Model Configuration ---
+# Uncomment and modify these if switching models
+# model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
+# safe_model_name = "llama_3_8b_4096"
+# label_model_name = r'Llama-3-$8b$'
 
-# Specify the model checkpoint for Qwen
-model_name = "Qwen/Qwen2.5-3B-Instruct"
-# Create a safe version of the model name for filenames
-safe_model_name = "qwen_2.5_3b_2048"
-label_model_name = r'Qwen2.5-$3b$'
+# model_name = "Qwen/Qwen2.5-3B-Instruct"
+# safe_model_name = "qwen_2.5_3b_2048"
+# label_model_name = r'Qwen2.5-$3b$'
 
-# Load the tokenizer and model
+# Using Mistral-Nemo as configured:
+model_name = "mistralai/Mistral-Nemo-Base-2407"
+safe_model_name = "mistral_nemo_12b_5120"
+label_model_name = r'Mistral-Nemo-$12b$'
+
+# --- Load the tokenizer and model ---
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name, torch_dtype=torch.float16, trust_remote_code=True
-)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
 model.eval()
 
-# List to collect norm statistics for each layer
-layers_stats = []
+# --- Aggregate column norms across all layers ---
+all_wq_norms = []
+all_wk_norms = []
+all_wv_norms = []
 
-# Iterate over all layers in the model
+# Iterate over all layers of the model; assumes model.model.layers exists.
 for i, layer in enumerate(model.model.layers):
-    # Access QKV weights for the current layer
+    # Retrieve Q, K, V projection weights and move to CPU.
     Wq = layer.self_attn.q_proj.weight.detach().cpu()
     Wk = layer.self_attn.k_proj.weight.detach().cpu()
     Wv = layer.self_attn.v_proj.weight.detach().cpu()
-
-    # Compute column norms for each matrix
+    
+    # Compute the ℓ₂ norm for each column (norm over rows).
     col_norms_Wq = Wq.norm(dim=0)
     col_norms_Wk = Wk.norm(dim=0)
     col_norms_Wv = Wv.norm(dim=0)
+    
+    # Append the computed norms to the corresponding list.
+    all_wq_norms.append(col_norms_Wq)
+    all_wk_norms.append(col_norms_Wk)
+    all_wv_norms.append(col_norms_Wv)
 
-    # Compute mean and variance for the column norms
-    Wq_mean = col_norms_Wq.mean().item()
-    Wq_var = col_norms_Wq.var().item()
-    Wk_mean = col_norms_Wk.mean().item()
-    Wk_var = col_norms_Wk.var().item()
-    Wv_mean = col_norms_Wv.mean().item()
-    Wv_var = col_norms_Wv.var().item()
+# Concatenate all column norms from each layer into one tensor per projection.
+all_wq_norms = torch.cat(all_wq_norms)
+all_wk_norms = torch.cat(all_wk_norms)
+all_wv_norms = torch.cat(all_wv_norms)
 
-    # Save the stats for the current layer
-    layers_stats.append({
-        "layer": i,
-        "Wq_mean": Wq_mean,
-        "Wq_var": Wq_var,
-        "Wk_mean": Wk_mean,
-        "Wk_var": Wk_var,
-        "Wv_mean": Wv_mean,
-        "Wv_var": Wv_var,
-    })
+# Compute aggregated mean and variance for each projection.
+Wq_mean = all_wq_norms.mean().item()
+Wq_var  = all_wq_norms.var().item()
+Wk_mean = all_wk_norms.mean().item()
+Wk_var  = all_wk_norms.var().item()
+Wv_mean = all_wv_norms.mean().item()
+Wv_var  = all_wv_norms.var().item()
 
-# Create a DataFrame from the collected statistics and save to CSV
-df_stats = pd.DataFrame(layers_stats)
-csv_filename = f"wqkv_norm_stats_{safe_model_name}.csv"
+# Compute the overall (combined) statistics for Wq, Wk, and Wv.
+all_combined = torch.cat([all_wq_norms, all_wk_norms, all_wv_norms])
+total_mean = all_combined.mean().item()
+total_var  = all_combined.var().item()
+
+# Extract the d_hidden value from one of the layers (assumes all layers are identical in this regard)
+d_hidden = model.model.layers[0].self_attn.q_proj.weight.shape[1]
+
+# --- Save Aggregated Statistics to CSV ---
+# We create one row CSV with the following columns:
+# d_hidden, Wq_mean, Wq_var, Wk_mean, Wk_var, Wv_mean, Wv_var, Total_mean, Total_var
+stats_dict = {
+    "d_hidden": d_hidden,
+    "Wq_mean": Wq_mean,
+    "Wq_var": Wq_var,
+    "Wk_mean": Wk_mean,
+    "Wk_var": Wk_var,
+    "Wv_mean": Wv_mean,
+    "Wv_var": Wv_var,
+    "Total_mean": total_mean,
+    "Total_var": total_var,
+}
+
+df_stats = pd.DataFrame([stats_dict])
+csv_filename = f"wqkv_norm_stats_aggregated_{safe_model_name}.csv"
 df_stats.to_csv(csv_filename, index=False)
-print(f"Saved norm statistics to {csv_filename}")
+print(f"Saved aggregated norm statistics to {csv_filename}")
 
-# Scatter plot for mean column norms with variance as error bars
-plt.figure(figsize=(12, 6))
-plt.errorbar(df_stats["layer"], df_stats["Wq_mean"], yerr=df_stats["Wq_var"],
-             fmt='o', label=r"Wq $\ell_2$ Norm Mean")
-plt.errorbar(df_stats["layer"], df_stats["Wk_mean"], yerr=df_stats["Wk_var"],
-             fmt='o', label=r"Wk $\ell_2$ Norm Mean")
-plt.errorbar(df_stats["layer"], df_stats["Wv_mean"], yerr=df_stats["Wv_var"],
-             fmt='o', label=r"Wv $\ell_2$ Norm Mean")
-plt.xlabel("Layer", fontsize=14)
-plt.ylabel(r"Mean Column $\ell_2$ Norm", fontsize=14)
-plt.title(rf"Mean Column $\ell_2$ Norms for QKV Weights per Layer ({label_model_name})", fontsize=16)
-plt.legend(fontsize=12)
+# --- Optional: Bar Plot of Aggregated Means with Error Bars ---
+groups = ["Wq", "Wk", "Wv", "Total"]
+means = [Wq_mean, Wk_mean, Wv_mean, total_mean]
+variances = [Wq_var, Wk_var, Wv_var, total_var]
+
+plt.figure(figsize=(8, 6))
+plt.bar(groups, means, yerr=variances, capsize=5)
+plt.xlabel("Projection Group")
+plt.ylabel(r"Mean Column $\ell_2$ Norm")
+plt.ylim(0, 1.3)
+plt.title(rf"Aggregated Mean Column $\ell_2$ Norms for QKV Weights ({label_model_name})")
 plt.tight_layout()
-mean_plot_filename = f"wqkv_mean_scatter_{safe_model_name}.pdf"
-plt.savefig(mean_plot_filename)
+bar_plot_filename = f"wqkv_aggregated_bar_{safe_model_name}.pdf"
+plt.savefig(bar_plot_filename)
 plt.show()
-print(f"Saved mean scatter plot with error bars to {mean_plot_filename}")
+print(f"Saved aggregated bar plot with error bars to {bar_plot_filename}")
