@@ -3,6 +3,7 @@ from torch.nn import ConstantPad1d
 from collections import Counter
 import numpy as np
 from sklearn.metrics import f1_score, accuracy_score
+from transformers import TrainingArguments, Trainer, TrainerCallback, TrainerControl, TrainerState
 
 def manual_seed(seed):
     torch.manual_seed(seed)
@@ -102,7 +103,7 @@ def tokenize_dna_sequence_gue(tokenizer, examples):
         examples["sequence"],        # list of raw sequences
         padding="max_length",        # or "longest";
         truncation=True,             # truncate if sequence is too long
-        max_length=256,              # max length of the tokenized sequence
+        max_length=75,              # max length of the tokenized sequence
     )
     
     # Add the labels into the returned dictionary
@@ -119,7 +120,7 @@ def tokenize_dna_sequence_genomic_bench(tokenizer, examples):
         examples["seq"],        # list of raw sequences
         padding="max_length",        # or "longest";
         truncation=True,             # truncate if sequence is too long
-        max_length=256,              # max length of the tokenized sequence
+        max_length=64,              # max length of the tokenized sequence
     )
     
     # Add the labels into the returned dictionary
@@ -156,6 +157,35 @@ def compute_metrics(label_list, p):
     }
     return report
 
+class PrintMetricsCallback(TrainerCallback):
+    """
+    A callback to automatically run after each evaluation and
+    print the metrics in your custom format, e.g.:
+        epoch: X, metrics: {'f1': ..., 'accuracy': ...}
+    """
+    def on_evaluate(
+        self, 
+        args: TrainingArguments, 
+        state: TrainerState, 
+        control: TrainerControl, 
+        metrics, 
+        **kwargs
+    ):
+        # The `metrics` dict has keys like "eval_loss", "eval_f1", "eval_accuracy", "epoch", etc.
+        # We'll grab `f1` and `accuracy` if they exist.
+        epoch = metrics.get("epoch", state.epoch)  # Typically stored in 'epoch'
+        if epoch is None:
+            epoch = 0.0
+        f1 = metrics.get("eval_f1", None)
+        acc = metrics.get("eval_accuracy", None)
+
+        if f1 is not None and acc is not None:
+            print(f"epoch: {int(epoch)}, metrics: {{'f1': {f1}, 'accuracy': {acc}}}")
+        else:
+            # If your metric keys differ or you want to see all metric keys:
+            print(f"epoch: {int(epoch)}, all metrics: {metrics}")
+
+        return control
 
 
 

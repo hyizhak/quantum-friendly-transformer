@@ -22,20 +22,20 @@ from transformers.models.bert.modeling_bert import BertPreTrainedModel
 from transformers.modeling_utils import PreTrainedModel
 from transformers.models.bert.configuration_bert import BertConfig
 
-from ..frobenius_norm import frobenius_norm
+from ..frobenius_norm import frobenius_norm_with_scaling
 
 from .bert_padding import (index_first_axis,
                                             index_put_first_axis, pad_input,
                                             unpad_input, unpad_input_only)
 
-try:
-    from .flash_attn_triton import flash_attn_qkvpacked_func
-except ImportError as e:
-    flash_attn_qkvpacked_func = None
+# try:
+#     from .flash_attn_triton import flash_attn_qkvpacked_func
+# except ImportError as e:
+flash_attn_qkvpacked_func = None
 
 logger = logging.getLogger(__name__)
 
-class NormalizedBertConfig(BertConfig):
+class FrobeniuslyNormalizedBertConfig(BertConfig):
     r"""
     This is the configuration class to store the configuration of a [`BertModel`] or a [`TFBertModel`]. It is used to
     instantiate a BERT model according to the specified arguments, defining the model architecture. Instantiating a
@@ -126,6 +126,7 @@ class NormalizedBertConfig(BertConfig):
         apply_attn_fn=False,
         apply_ffn_fn=False,
         no_layer_norm=False,
+        max_gamma=2,
         **kwargs,
     ):
         super().__init__(pad_token_id=pad_token_id, **kwargs)
@@ -148,9 +149,10 @@ class NormalizedBertConfig(BertConfig):
         self.apply_attn_fn = apply_attn_fn
         self.apply_ffn_fn = apply_ffn_fn
         self.no_layer_norm = no_layer_norm
+        self.max_gamma = max_gamma
 
     @classmethod
-    def from_bert_config(cls, config, apply_attn_fn=False, apply_ffn_fn=False, no_layer_norm=False):
+    def from_bert_config(cls, config, apply_attn_fn=False, apply_ffn_fn=False, no_layer_norm=False, max_gamma=2):
         """
         Constructs a `NormalizedBertConfig` from a `BertConfig` instance, including any additional
         arguments present in the original configuration.
@@ -163,12 +165,13 @@ class NormalizedBertConfig(BertConfig):
             "apply_attn_fn": apply_attn_fn,
             "apply_ffn_fn": apply_ffn_fn,
             "no_layer_norm": no_layer_norm,
+            "max_gamma": max_gamma,
         })
         
         # Return an instance of NormalizedBertConfig by passing the full dictionary.
         return cls(**config_dict)
 
-class BertEmbeddings(nn.Module):
+class FrobeniuslyNormalizedBertEmbeddings(nn.Module):
 
     def __init__(self, config):
         super().__init__()
@@ -241,7 +244,7 @@ class BertEmbeddings(nn.Module):
         return embeddings
 
 
-class BertUnpadSelfAttention(nn.Module):
+class FrobeniuslyNormalizedBertUnpadSelfAttention(nn.Module):
 
     def __init__(self, config):
         super().__init__()
@@ -258,12 +261,12 @@ class BertUnpadSelfAttention(nn.Module):
         self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
         self.p_dropout = config.attention_probs_dropout_prob
         if config.apply_attn_fn:
-            self.seperate_qkv = True
-            self.Wq = frobenius_norm(nn.Linear(self.all_head_size, config.hidden_size))
-            self.Wk = frobenius_norm(nn.Linear(self.all_head_size, config.hidden_size))
-            self.Wv = frobenius_norm(nn.Linear(self.all_head_size, config.hidden_size))
+            self.qkv_fn = True
+            self.Wq = frobenius_norm_with_scaling(nn.Linear(self.all_head_size, config.hidden_size), max_gamma=config.max_gamma)
+            self.Wk = frobenius_norm_with_scaling(nn.Linear(self.all_head_size, config.hidden_size), max_gamma=config.max_gamma)
+            self.Wv = frobenius_norm_with_scaling(nn.Linear(self.all_head_size, config.hidden_size), max_gamma=config.max_gamma)
         else:
-            self.seperate_qkv = False
+            self.qkv_fn = False
             self.Wqkv = nn.Linear(self.all_head_size, 3 * config.hidden_size)
 
         # Warn if defaulting to pytorch because of import issues
@@ -296,7 +299,7 @@ class BertUnpadSelfAttention(nn.Module):
         Returns:
             attention: (total_nnz, dim)
         """
-        if self.seperate_qkv:
+        if self.qkv_fn:
             qkv = torch.cat([self.Wq(hidden_states),
                              self.Wk(hidden_states),
                              self.Wv(hidden_states)], dim=-1)
@@ -313,7 +316,11 @@ class BertUnpadSelfAttention(nn.Module):
             q = qkv[:, :, 0, :, :].permute(0, 2, 1, 3)  # b h s d
             k = qkv[:, :, 1, :, :].permute(0, 2, 3, 1)  # b h d s
             v = qkv[:, :, 2, :, :].permute(0, 2, 1, 3)  # b h s d
-            attention_scores = torch.matmul(q, k) / math.sqrt(
+            if self.qkv_fn:
+                attention_scores = torch.matmul(q, k) * math.sqrt(
+                self.attention_head_size)
+            else:
+                attention_scores = torch.matmul(q, k) / math.sqrt(
                 self.attention_head_size)
             attention_scores = attention_scores + bias
             attention_probs = nn.functional.softmax(attention_scores, dim=-1)
@@ -341,13 +348,13 @@ class BertUnpadSelfAttention(nn.Module):
 
 
 # Copy of transformer's library BertSelfOutput that will not be caught by surgery methods looking for HF BERT modules.
-class BertSelfOutput(nn.Module):
+class FrobeniuslyNormalizedBertSelfOutput(nn.Module):
 
     def __init__(self, config):
         super().__init__()
         if config.apply_attn_fn:
-            self.dense = frobenius_norm(nn.Linear(config.hidden_size,
-                                                 config.hidden_size))
+            self.dense = frobenius_norm_with_scaling(nn.Linear(config.hidden_size,
+                                                 config.hidden_size), max_gamma=config.max_gamma)
         else:
             self.dense = nn.Linear(config.hidden_size, config.hidden_size)
         if config.no_layer_norm:
@@ -365,13 +372,13 @@ class BertSelfOutput(nn.Module):
         return hidden_states
 
 
-class BertUnpadAttention(nn.Module):
+class FrobeniuslyNormalizedBertUnpadAttention(nn.Module):
     """Chains attention, Dropout, and LayerNorm for Mosaic BERT."""
 
     def __init__(self, config):
         super().__init__()
-        self.self = BertUnpadSelfAttention(config)
-        self.output = BertSelfOutput(config)
+        self.self = FrobeniuslyNormalizedBertUnpadSelfAttention(config)
+        self.output = FrobeniuslyNormalizedBertSelfOutput(config)
 
     def forward(
         self,
@@ -404,7 +411,7 @@ class BertUnpadAttention(nn.Module):
             return self.output(self_output, input_tensor)
 
 
-class BertGatedLinearUnitMLP(nn.Module):
+class FrobeniuslyNormalizedBertGatedLinearUnitMLP(nn.Module):
     """Applies the FFN at the end of each Mosaic BERT layer.
 
     Compared to the default BERT architecture, this block replaces :class:`~transformers.model.bert.modeling_bert.BertIntermediate`
@@ -423,18 +430,18 @@ class BertGatedLinearUnitMLP(nn.Module):
         super().__init__()
         self.config = config
         if config.apply_ffn_fn:
-            self.gated_layers = frobenius_norm(
+            self.gated_layers = frobenius_norm_with_scaling(
                 nn.Linear(config.hidden_size,
                           config.intermediate_size * 2,
-                          bias=False))
+                          bias=False), max_gamma=config.max_gamma)
         else:
             self.gated_layers = nn.Linear(config.hidden_size,
                                       config.intermediate_size * 2,
                                       bias=False)
         self.act = nn.GELU(approximate='none')
         if config.apply_ffn_fn:
-            self.wo = frobenius_norm(nn.Linear(config.intermediate_size,
-                                               config.hidden_size))
+            self.wo = frobenius_norm_with_scaling(nn.Linear(config.intermediate_size,
+                                               config.hidden_size), max_gamma=config.max_gamma)
         else:
             self.wo = nn.Linear(config.intermediate_size, config.hidden_size)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
@@ -465,13 +472,13 @@ class BertGatedLinearUnitMLP(nn.Module):
         return hidden_states
 
 
-class BertLayer(nn.Module):
+class FrobeniuslyNormalizedBertLayer(nn.Module):
     """Composes the Mosaic BERT attention and FFN blocks into a single layer."""
 
     def __init__(self, config):
-        super(BertLayer, self).__init__()
-        self.attention = BertUnpadAttention(config)
-        self.mlp = BertGatedLinearUnitMLP(config)
+        super(FrobeniuslyNormalizedBertLayer, self).__init__()
+        self.attention = FrobeniuslyNormalizedBertUnpadAttention(config)
+        self.mlp = FrobeniuslyNormalizedBertGatedLinearUnitMLP(config)
 
     def forward(
         self,
@@ -501,7 +508,7 @@ class BertLayer(nn.Module):
         return layer_output
 
 
-class BertEncoder(nn.Module):
+class FrobeniuslyNormalizedBertEncoder(nn.Module):
     """A stack of BERT layers providing the backbone of Mosaic BERT.
 
     This module is modeled after the Hugging Face BERT's :class:`~transformers.model.bert.modeling_bert.BertEncoder`,
@@ -513,7 +520,7 @@ class BertEncoder(nn.Module):
 
     def __init__(self, config):
         super().__init__()
-        layer = BertLayer(config)
+        layer = FrobeniuslyNormalizedBertLayer(config)
         self.layer = nn.ModuleList(
             [copy.deepcopy(layer) for _ in range(config.num_hidden_layers)])
 
@@ -692,7 +699,7 @@ class BertPredictionHeadTransform(nn.Module):
         return hidden_states
 
 
-class BertModel(BertPreTrainedModel):
+class FrobeniuslyNormalizedBertModel(BertPreTrainedModel):
     """Overall BERT model.
 
     Args:
@@ -736,9 +743,9 @@ class BertModel(BertPreTrainedModel):
     """
 
     def __init__(self, config, add_pooling_layer=True):
-        super(BertModel, self).__init__(config)
-        self.embeddings = BertEmbeddings(config)
-        self.encoder = BertEncoder(config)
+        super(FrobeniuslyNormalizedBertModel, self).__init__(config)
+        self.embeddings = FrobeniuslyNormalizedBertEmbeddings(config)
+        self.encoder = FrobeniuslyNormalizedBertEncoder(config)
         self.pooler = BertPooler(config) if add_pooling_layer else None
         self.post_init()
 
@@ -852,7 +859,7 @@ class BertOnlyNSPHead(nn.Module):
 
 
 
-class BertForMaskedLM(BertPreTrainedModel):
+class FrobeniuslyNormalizedBertForMaskedLM(BertPreTrainedModel):
 
     def __init__(self, config):
         super().__init__(config)
@@ -862,7 +869,7 @@ class BertForMaskedLM(BertPreTrainedModel):
                 'If you want to use `BertForMaskedLM` make sure `config.is_decoder=False` for '
                 'bi-directional self-attention.')
 
-        self.bert = BertModel(config, add_pooling_layer=False)
+        self.bert = FrobeniuslyNormalizedBertModel(config, add_pooling_layer=False)
         self.cls = BertOnlyMLMHead(config,
                                    self.bert.embeddings.word_embeddings.weight)
 
@@ -981,7 +988,7 @@ class BertForMaskedLM(BertPreTrainedModel):
 
 
 
-class BertForSequenceClassification(BertPreTrainedModel):
+class FrobeniuslyNormalizedBertForSequenceClassification(BertPreTrainedModel):
     """Bert Model transformer with a sequence classification/regression head.
 
     This head is just a linear layer on top of the pooled output. Used for,
@@ -993,7 +1000,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         self.num_labels = config.num_labels
         self.config = config
 
-        self.bert = BertModel(config)
+        self.bert = FrobeniuslyNormalizedBertModel(config)
         classifier_dropout = (config.classifier_dropout
                               if config.classifier_dropout is not None else
                               config.hidden_dropout_prob)
@@ -1072,7 +1079,7 @@ class BertForSequenceClassification(BertPreTrainedModel):
         if not return_dict:
             output = (logits,) + outputs[2:]
             return ((loss,) + output) if loss is not None else output
-
+        
         return SequenceClassifierOutput(
             loss=loss,
             logits=logits,

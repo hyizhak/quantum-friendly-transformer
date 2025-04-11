@@ -1,8 +1,16 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from transformers.models.bert.configuration_bert import BertConfig
+import os
 
-model_name = "zhihan1996/DNABERT-2-117M"
+cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+
+os.environ['HF_HOME'] = cache_dir
+os.environ['HF_DATASETS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
+
+model_name = f"{cache_dir}/hub/DNABERT-2-117M"
+# model_name = "zhihan1996/DNABERT-2-117M"
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 config = BertConfig.from_pretrained(model_name)
@@ -21,8 +29,8 @@ new_state_dict = {}
 
 for key, value in model_state_dict.items():
     # 1) Skip any layernorm keys (covers "LayerNorm" and "layernorm")
-    if "layernorm" in key.lower():
-        continue
+    # if "layernorm" in key.lower():
+    #     continue
 
     # 2) Chunk Wqkv into Wq, Wk, Wv and rename them to "Wq.parametrizations.weight.original", etc.
     if "Wqkv" in key:
@@ -66,7 +74,9 @@ for key, value in model_state_dict.items():
             if any(x in k for x in ["embeddings.word_embeddings", 
                                     "embeddings.token_type_embeddings",
                                     "pooler.dense",
-                                    "classifier"]):
+                                    "classifier",
+                                    "layernorm",
+                                    "LayerNorm"]):
                 return False
             # Also do not rename biases to param form
             if k.endswith(".bias"):
@@ -84,5 +94,5 @@ for key, value in model_state_dict.items():
             # keep the original name as is
             new_state_dict[key] = value
 
-torch.save(new_state_dict, "model/modified_dna_bert_state_dict.pth")
+torch.save(new_state_dict, "model/modified_dna_bert_layernorm_state_dict.pth")
 print("\nModified state dict keys:\n", list(new_state_dict.keys()))

@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
-MODEL_NAME = ['vanilla', 'sn_model', 'fn_model', 'attn_sn_model', 'ffn_sn_model', 'attn_fn_model', 'ffn_fn_model']
+MODEL_NAME = ['vanilla', 'sn_model', 'fn_model', 'fn_layernorm', 'subnorm_model',  'attn_sn_model', 'ffn_sn_model', 'attn_fn_model', 'ffn_fn_model']
 
 def main():
     if len(sys.argv) < 2:
