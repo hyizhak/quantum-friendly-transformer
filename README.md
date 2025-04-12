@@ -26,6 +26,7 @@ To fine-tune the frobenius normalized DNABert on the same dataset, use:
 
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_multilayer_genomic_bench.py > ./logging/nontata_multi_layer.txt
+python demo/draw_training_process.py ./logging/nontata_multi_layer.txt
 ```
 
 To train an one-layer transformer on the [Genome Understanding Evaluation (GUE) notata promoter dataset](https://huggingface.co/datasets/leannmlindsey/GUE)(0-1 classification task), use:
@@ -40,6 +41,13 @@ To fine-tune the transformer on the same dataset with specific layer normalized,
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_sn_model_gue.py > ./logging/gue_sn.txt
 python demo/draw_training_process.py ./logging/gue_sn.txt
+```
+
+To fine-tune the frobenius normalized DNABert on the same dataset, use:
+
+```
+python src/quantum_friendly_transformer/trainer/fine_tune_multilayer_gue.py > ./logging/gue_multi_layer.txt
+python demo/draw_training_process.py ./logging/gue_multi_layer.txt
 ```
 
 To train an one-layer transformer on the [conll 2003 dataset](https://huggingface.co/datasets/eriktks/conll2003)(POS classification task), use:

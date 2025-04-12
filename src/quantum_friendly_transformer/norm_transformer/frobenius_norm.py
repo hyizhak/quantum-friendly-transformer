@@ -34,16 +34,13 @@ class _FrobeniusNormWithGamma(nn.Module):
     \]
     where \(\gamma = \text{max\_gamma} \cdot \sigma(g)\) and \( g \) is an unconstrained parameter.
     """
-    def __init__(self, eps: float = 1e-12, init_gamma: float = 1.0, max_gamma: float = 2.0):
+    def __init__(self, eps: float = 1e-12, max_gamma: float = 2.0):
         super().__init__()
         self.eps = eps
         self.max_gamma = max_gamma
         # To initialize so that gamma is close to init_gamma, solve: init_gamma = max_gamma * sigmoid(g)
         # This gives: g = log(init_gamma / (max_gamma - init_gamma)).
-        if init_gamma >= max_gamma:
-            init_g = torch.tensor(0.0)
-        else:
-            init_g = torch.log(torch.tensor(init_gamma / (max_gamma - init_gamma)))
+        init_g = torch.log(torch.tensor(1 / eps))
         self.g = nn.Parameter(init_g)
 
     def forward(self, X: Tensor) -> Tensor:
@@ -88,7 +85,6 @@ def frobenius_norm_with_scaling(
     module: nn.Module,
     name: str = "weight",
     eps: float = 1e-12,
-    init_gamma: float = 1.0,
     max_gamma: float = 2.0
 ) -> nn.Module:
     r"""
@@ -117,6 +113,6 @@ def frobenius_norm_with_scaling(
     
     # Register the parametrization with learnable gamma scaling
     parametrize.register_parametrization(
-        module, name, _FrobeniusNormWithGamma(eps=eps, init_gamma=init_gamma, max_gamma=max_gamma)
+        module, name, _FrobeniusNormWithGamma(eps=eps, max_gamma=max_gamma)
     )
     return module

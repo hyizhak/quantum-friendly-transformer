@@ -11,7 +11,7 @@ from transformers.models.bert.configuration_bert import BertConfig
 import os
 
 from quantum_friendly_transformer.norm_transformer.util import apply_frobenius_norm
-from quantum_friendly_transformer.util import tokenize_dna_sequence_genomic_bench, manual_seed, PrintMetricsCallback
+from quantum_friendly_transformer.util import tokenize_dna_sequence_gue, manual_seed, PrintMetricsCallback
 from quantum_friendly_transformer.norm_transformer.bert.frobenius_normalized_bert import FrobeniuslyNormalizedBertConfig, FrobeniuslyNormalizedBertForSequenceClassification
 
 # Set the seed
@@ -72,7 +72,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # from safetensors import safe_open
 
 # tensors = {}
-# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_genomic_bench/fn_layernorm/checkpoint-42400/model.safetensors", framework="pt", device=0) as f:
+# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_gue/fn_layernorm/checkpoint-42400/model.safetensors", framework="pt", device=0) as f:
 #     for k in f.keys():
 #         tensors[k] = f.get_tensor(k)
 
@@ -95,10 +95,10 @@ subnorm_model.load_state_dict(torch.load("model/modified_dna_bert_layernorm_stat
 # print(model)
 
 # Load the dataset
-notata_dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters", cache_dir=f"{cache_dir}/datasets")
+notata_dataset = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache_dir=f"{cache_dir}/datasets")
 
 # Preprocess the dataset
-tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genomic_bench(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
+tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 train_dataset = tokenized_prom["train"]
 test_dataset  = tokenized_prom["test"]
@@ -178,16 +178,16 @@ def compute_metrics(eval_preds):
 
 # Train each model in a loop using Trainer
 for model_obj, model_label in [
-    # (vanilla_model, "vanilla"),
+    (vanilla_model, "vanilla"),
     # (fn_model, "fn_model"),
-    (fn_model_layernorm, "fn_layernorm_2"),
+    (fn_model_layernorm, "fn_layernorm"),
     (subnorm_model, "subnorm_model")
 ]:
     print(f"=" * 80)
     print(model_label)
 
     # Define a unique output directory for each model
-    current_output_dir = f"/home/users/nus/e1310988/scratch/model/multi_layer_genomic_bench/{model_label}"
+    current_output_dir = f"/home/users/nus/e1310988/scratch/model/multi_layer_gue/{model_label}"
     
     # Create a new TrainingArguments instance with the unique output_dir
     current_training_args = TrainingArguments(
