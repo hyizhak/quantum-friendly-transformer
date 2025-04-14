@@ -72,7 +72,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # from safetensors import safe_open
 
 # tensors = {}
-# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_gue/fn_layernorm/checkpoint-42400/model.safetensors", framework="pt", device=0) as f:
+# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_gue/fn_layernorm/checkpoint-33200/model.safetensors", framework="pt", device=0) as f:
 #     for k in f.keys():
 #         tensors[k] = f.get_tensor(k)
 
@@ -90,7 +90,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # print(np.mean(gamma_list))
 # print(np.var(gamma_list))
 
-subnorm_model.load_state_dict(torch.load("model/modified_dna_bert_layernorm_state_dict.pth"), strict=False)
+# subnorm_model.load_state_dict(torch.load("model/modified_dna_bert_layernorm_state_dict.pth"), strict=False)
 
 # print(model)
 
@@ -101,7 +101,7 @@ notata_dataset = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache
 tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 train_dataset = tokenized_prom["train"]
-test_dataset  = tokenized_prom["test"]
+test_dataset  = tokenized_prom["dev"]
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -178,10 +178,10 @@ def compute_metrics(eval_preds):
 
 # Train each model in a loop using Trainer
 for model_obj, model_label in [
-    (vanilla_model, "vanilla"),
+    # (vanilla_model, "vanilla"),
     # (fn_model, "fn_model"),
     (fn_model_layernorm, "fn_layernorm"),
-    (subnorm_model, "subnorm_model")
+    # (subnorm_model, "subnorm_model")
 ]:
     print(f"=" * 80)
     print(model_label)
@@ -192,17 +192,17 @@ for model_obj, model_label in [
     # Create a new TrainingArguments instance with the unique output_dir
     current_training_args = TrainingArguments(
         output_dir=current_output_dir,
-        learning_rate=8e-5,
+        learning_rate=3e-5,
         warmup_ratio=0.1,
         lr_scheduler_type="cosine",
         fp16=True,
         eval_strategy="epoch",
         logging_strategy="epoch",
         save_strategy="steps",
-        save_steps=20000,
+        save_steps=10000,
         per_device_train_batch_size=128,
         per_device_eval_batch_size=256,
-        num_train_epochs=200,
+        num_train_epochs=100,
         weight_decay=0.01,
         report_to="none"
     )

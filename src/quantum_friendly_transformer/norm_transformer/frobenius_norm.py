@@ -40,7 +40,7 @@ class _FrobeniusNormWithGamma(nn.Module):
         self.max_gamma = max_gamma
         # To initialize so that gamma is close to init_gamma, solve: init_gamma = max_gamma * sigmoid(g)
         # This gives: g = log(init_gamma / (max_gamma - init_gamma)).
-        init_g = torch.log(torch.tensor(1 / eps))
+        init_g = torch.log(torch.tensor(16))
         self.g = nn.Parameter(init_g)
 
     def forward(self, X: Tensor) -> Tensor:

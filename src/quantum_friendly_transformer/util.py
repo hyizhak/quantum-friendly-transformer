@@ -103,7 +103,7 @@ def tokenize_dna_sequence_gue(tokenizer, examples):
         examples["sequence"],        # list of raw sequences
         padding="max_length",        # or "longest";
         truncation=True,             # truncate if sequence is too long
-        max_length=75,              # max length of the tokenized sequence
+        max_length=96,              # max length of the tokenized sequence
     )
     
     # Add the labels into the returned dictionary
@@ -120,7 +120,7 @@ def tokenize_dna_sequence_genomic_bench(tokenizer, examples):
         examples["seq"],        # list of raw sequences
         padding="max_length",        # or "longest";
         truncation=True,             # truncate if sequence is too long
-        max_length=64,              # max length of the tokenized sequence
+        max_length=72,              # max length of the tokenized sequence
     )
     
     # Add the labels into the returned dictionary

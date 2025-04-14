@@ -170,6 +170,22 @@ class FrobeniuslyNormalizedBertConfig(BertConfig):
         
         # Return an instance of NormalizedBertConfig by passing the full dictionary.
         return cls(**config_dict)
+    
+class RMSNorm(nn.Module):
+    def __init__(self, hidden_size, eps=1e-6):
+        """
+        equivalent to T5LayerNorm
+        """
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(hidden_size))
+        self.variance_epsilon = eps
+
+    def forward(self, hidden_states):
+        input_dtype = hidden_states.dtype
+        hidden_states = hidden_states.to(torch.float32)
+        variance = hidden_states.pow(2).mean(-1, keepdim=True)
+        hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
+        return self.weight * hidden_states.to(input_dtype)
 
 class FrobeniuslyNormalizedBertEmbeddings(nn.Module):
 
@@ -434,16 +450,21 @@ class FrobeniuslyNormalizedBertGatedLinearUnitMLP(nn.Module):
                 nn.Linear(config.hidden_size,
                           config.intermediate_size * 2,
                           bias=False), max_gamma=config.max_gamma)
+            self.wo = frobenius_norm_with_scaling(nn.Linear(config.intermediate_size,
+                                               config.hidden_size), max_gamma=config.max_gamma)
+            # Introduce a learnable scaling parameter for the residual connection.
+            # Common practice is to initialize this scaling parameter to a small value (e.g., 0.1)
+            # so that early on the model relies mostly on the residual.
+            self.residual_scale = nn.Parameter(torch.tensor(0.1))
         else:
             self.gated_layers = nn.Linear(config.hidden_size,
                                       config.intermediate_size * 2,
                                       bias=False)
-        self.act = nn.GELU(approximate='none')
-        if config.apply_ffn_fn:
-            self.wo = frobenius_norm_with_scaling(nn.Linear(config.intermediate_size,
-                                               config.hidden_size), max_gamma=config.max_gamma)
-        else:
             self.wo = nn.Linear(config.intermediate_size, config.hidden_size)
+            self.residual_scale = 1.0
+
+        self.act = nn.GELU(approximate='none')
+
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         if config.no_layer_norm:
             self.layernorm = nn.Identity()
@@ -468,7 +489,7 @@ class FrobeniuslyNormalizedBertGatedLinearUnitMLP(nn.Module):
         # multiply by the second matrix
         hidden_states = self.wo(hidden_states)
         # add the residual connection and post-LN
-        hidden_states = self.layernorm(hidden_states + residual_connection)
+        hidden_states = self.layernorm(residual_connection + self.residual_scale * hidden_states)
         return hidden_states
 
 
@@ -690,7 +711,7 @@ class BertPredictionHeadTransform(nn.Module):
             self.transform_act_fn = ACT2FN[config.hidden_act]
         else:
             self.transform_act_fn = config.hidden_act
-        self.LayerNorm = torch.nn.LayerNorm(config.hidden_size, eps=1e-12)
+        self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=1e-12)
 
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         hidden_states = self.dense(hidden_states)

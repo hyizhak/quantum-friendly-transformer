@@ -15,7 +15,7 @@ from quantum_friendly_transformer.util import tokenize_dna_sequence_genomic_benc
 from quantum_friendly_transformer.norm_transformer.bert.frobenius_normalized_bert import FrobeniuslyNormalizedBertConfig, FrobeniuslyNormalizedBertForSequenceClassification
 
 # Set the seed
-manual_seed(3407)
+manual_seed(42)
 
 cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
 
@@ -35,24 +35,24 @@ config = BertConfig.from_pretrained(model_name)
 
 config.attention_probs_dropout_prob = 0.1
 
-vanilla_model = AutoModelForSequenceClassification.from_pretrained(model_name, trust_remote_code=True, config=config)
+# vanilla_model = AutoModelForSequenceClassification.from_pretrained(model_name, trust_remote_code=True, config=config)
 
-norm_config = FrobeniuslyNormalizedBertConfig.from_bert_config(
-    config,
-    apply_attn_fn=True,
-    apply_ffn_fn=True,
-    no_layer_norm=True,)
+# norm_config = FrobeniuslyNormalizedBertConfig.from_bert_config(
+#     config,
+#     apply_attn_fn=True,
+#     apply_ffn_fn=True,
+#     no_layer_norm=True,)
 
 # print(config)
 
-fn_model = FrobeniuslyNormalizedBertForSequenceClassification(norm_config)
+# fn_model = FrobeniuslyNormalizedBertForSequenceClassification(norm_config)
 
-norm_config_layernorm = FrobeniuslyNormalizedBertConfig.from_bert_config(
-    config,
-    apply_attn_fn=True,
-    apply_ffn_fn=True,
-    no_layer_norm=False,
-    max_gamma=2)
+# norm_config_layernorm = FrobeniuslyNormalizedBertConfig.from_bert_config(
+#     config,
+#     apply_attn_fn=True,
+#     apply_ffn_fn=True,
+#     no_layer_norm=False,
+#     max_gamma=2)
 
 subnorm_config_layernorm = FrobeniuslyNormalizedBertConfig.from_bert_config(
     config,
@@ -61,7 +61,7 @@ subnorm_config_layernorm = FrobeniuslyNormalizedBertConfig.from_bert_config(
     no_layer_norm=False,
     max_gamma=1)
 
-fn_model_layernorm = FrobeniuslyNormalizedBertForSequenceClassification(norm_config_layernorm)
+# fn_model_layernorm = FrobeniuslyNormalizedBertForSequenceClassification(norm_config_layernorm)
 
 subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_config_layernorm)
 
@@ -72,7 +72,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # from safetensors import safe_open
 
 # tensors = {}
-# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_genomic_bench/fn_layernorm/checkpoint-42400/model.safetensors", framework="pt", device=0) as f:
+# with safe_open("/home/users/nus/e1310988/scratch/model/multi_layer_genomic_bench/subnorm_model/checkpoint-40000/model.safetensors", framework="pt", device=0) as f:
 #     for k in f.keys():
 #         tensors[k] = f.get_tensor(k)
 
@@ -81,7 +81,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # for name, param in tensors.items():
 #     if name.endswith(".g"):
 #         g_value = param.data.cpu()  # move to CPU if needed
-#         gamma_value = torch.sigmoid(g_value) * 2
+#         gamma_value = torch.sigmoid(g_value)
 #         gamma_list.append(gamma_value)
 #         print(f"Parameter: {name}")
 #         print(f"g values:\n{g_value}")
@@ -90,7 +90,7 @@ subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_confi
 # print(np.mean(gamma_list))
 # print(np.var(gamma_list))
 
-subnorm_model.load_state_dict(torch.load("model/modified_dna_bert_layernorm_state_dict.pth"), strict=False)
+# subnorm_model.load_state_dict(torch.load("model/modified_dna_bert_layernorm_state_dict.pth"), strict=False)
 
 # print(model)
 
@@ -180,7 +180,7 @@ def compute_metrics(eval_preds):
 for model_obj, model_label in [
     # (vanilla_model, "vanilla"),
     # (fn_model, "fn_model"),
-    (fn_model_layernorm, "fn_layernorm_2"),
+    # (fn_model_layernorm, "fn_layernorm"),
     (subnorm_model, "subnorm_model")
 ]:
     print(f"=" * 80)
