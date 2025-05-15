@@ -17,17 +17,17 @@ from quantum_friendly_transformer.norm_transformer.bert.frobenius_normalized_ber
 # Set the seed
 manual_seed(42)
 
-cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+# cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
 
-os.environ['HF_HOME'] = cache_dir
-os.environ['HF_DATASETS_OFFLINE'] = '1'
-os.environ['HF_HUB_OFFLINE'] = '1'
+# os.environ['HF_HOME'] = cache_dir
+# os.environ['HF_DATASETS_OFFLINE'] = '1'
+# os.environ['HF_HUB_OFFLINE'] = '1'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-# model_name = "zhihan1996/DNABERT-2-117M"
-model_name = f"{cache_dir}/hub/DNABERT-2-117M"
+model_name = "zhihan1996/DNABERT-2-117M"
+# model_name = f"{cache_dir}/hub/DNABERT-2-117M"
 
 # Load DNABert model
 tokenizer = AutoTokenizer.from_pretrained(model_name)

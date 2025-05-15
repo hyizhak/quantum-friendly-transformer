@@ -3,7 +3,7 @@ from torch import nn, Tensor
 from torch.nn import Parameter, functional as F
 from torch.nn.init import xavier_uniform_, constant_, xavier_normal_
 from torch.nn.modules.linear import NonDynamicallyQuantizableLinear, Linear
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Any
 from .util import _check_arg_device, _arg_requires_grad, _is_make_fx_tracing
 
 
@@ -90,6 +90,7 @@ class AttentionWithSeparateQKV(nn.Module):
         kdim=None,
         vdim=None,
         batch_first=False,
+        rope=None,
         device=None,
         dtype=None,
     ) -> None:
@@ -137,6 +138,8 @@ class AttentionWithSeparateQKV(nn.Module):
         # else:
         #     self.register_parameter("in_proj_bias", None)
 
+        self.rope = rope
+
         self.q_linear = Linear(embed_dim, embed_dim, bias=bias)
         self.k_linear = Linear(embed_dim, embed_dim, bias=bias)
         self.v_linear = Linear(embed_dim, embed_dim, bias=bias)
@@ -157,8 +160,14 @@ class AttentionWithSeparateQKV(nn.Module):
 
     def _reset_parameters(self):
         xavier_uniform_(self.q_linear.weight)
+        if self.q_linear.bias is not None:
+            constant_(self.q_linear.bias, 0.)
         xavier_uniform_(self.k_linear.weight)
+        if self.k_linear.bias is not None:
+            constant_(self.k_linear.bias, 0.)
         xavier_uniform_(self.v_linear.weight)
+        if self.v_linear.bias is not None:
+            constant_(self.v_linear.bias, 0.)
 
         if self.bias_k is not None:
             xavier_normal_(self.bias_k)
@@ -328,6 +337,8 @@ class AttentionWithSeparateQKV(nn.Module):
                                  is not supported with NestedTensor input"
         elif torch.is_autocast_enabled():
             why_not_fast_path = "autocast is enabled"
+        elif self.rope is not None:
+            why_not_fast_path = "RoPE is not supported in fast path"
 
         if not why_not_fast_path:
             tensor_args = (
@@ -396,29 +407,14 @@ class AttentionWithSeparateQKV(nn.Module):
             else:
                 query, key, value = (x.transpose(1, 0) for x in (query, key, value))
 
-        if not self._qkv_same_embed_dim:
-            attn_output, attn_output_weights = F.multi_head_attention_forward(
+        if self.rope is not None:
+            attn_output, attn_output_weights = self.multi_head_attention_forward(
                 query,
                 key,
                 value,
-                self.embed_dim,
-                self.num_heads,
-                self.in_proj_weight,
-                self.in_proj_bias,
-                self.bias_k,
-                self.bias_v,
-                self.add_zero_attn,
-                self.dropout,
-                self.out_proj.weight,
-                self.out_proj.bias,
-                training=self.training,
                 key_padding_mask=key_padding_mask,
                 need_weights=need_weights,
                 attn_mask=attn_mask,
-                use_separate_proj_weight=True,
-                q_proj_weight=self.q_proj_weight,
-                k_proj_weight=self.k_proj_weight,
-                v_proj_weight=self.v_proj_weight,
                 average_attn_weights=average_attn_weights,
                 is_causal=is_causal,
             )
@@ -498,3 +494,69 @@ class AttentionWithSeparateQKV(nn.Module):
 
         # no attn_mask and no key_padding_mask, returns None, None
         return merged_mask, mask_type
+    
+    def multi_head_attention_forward(
+        self,
+        query: Tensor,
+        key: Tensor,
+        value: Tensor,
+        key_padding_mask: Optional[Tensor] = None,
+        need_weights: bool = True,
+        attn_mask: Optional[Tensor] = None,
+        average_attn_weights: bool = True,
+        is_causal: bool = False,
+    ) -> Tuple[Tensor, Optional[Tensor]]:
+        # 1) Unpack seq-first
+        L, B, D = query.shape        # L = seq_len, B = batch, D = embed_dim
+        H = self.num_heads
+        head_dim = D // H
+
+        # 2) Linear projection stays seq-first:
+        q = self.q_linear(query)     # → (L, B, D)
+        k = self.k_linear(key)       # → (L, B, D)
+        v = self.v_linear(value)     # → (L, B, D)
+
+        # 3) Split into heads (still seq-first):
+        #    from (L, B, D) to (L, B, H, d_h)
+        q = q.view(L, B, H, head_dim)
+        k = k.view(L, B, H, head_dim)
+        v = v.view(L, B, H, head_dim)
+
+        # 4) Bring batch & heads to front for matmul:
+        #    permute from (L, B, H, d_h) to (B, H, L, d_h)
+        q = q.permute(1, 2, 0, 3)    # → (B, H, L, head_dim)
+        k = k.permute(1, 2, 0, 3)
+        v = v.permute(1, 2, 0, 3)
+
+        # Attention score: (B, H, L, L)
+        attn_scores = torch.matmul(q, k.transpose(-2, -1)) / (head_dim ** 0.5)
+
+        # Attention mask (optional)
+        if attn_mask is not None:
+            attn_scores += attn_mask  # Broadcasted add
+
+        if key_padding_mask is not None:
+            # key_padding_mask: (B, L) -> (B, 1, 1, L)
+            mask = key_padding_mask[:, None, None, :].to(torch.bool)
+            attn_scores = attn_scores.masked_fill(mask, float("-inf"))
+
+        if is_causal:
+            causal_mask = torch.tril(torch.ones(L, L, device=query.device)).to(torch.bool)
+            attn_scores = attn_scores.masked_fill(~causal_mask, float("-inf"))
+
+        attn_weights = torch.softmax(attn_scores, dim=-1)
+        attn_weights = F.dropout(attn_weights, p=self.dropout, training=self.training)
+
+        # Apply attention to V
+        attn_output = torch.matmul(attn_weights, v)  # (B, H, L, head_dim)
+
+        # Concatenate heads and output projection
+        attn_output = attn_output.transpose(1, 2).contiguous().view(B, L, D)
+        output = self.out_proj(attn_output)
+
+        if need_weights:
+            if average_attn_weights:
+                attn_weights = attn_weights.mean(dim=1)  # (B, L, L)
+            return output, attn_weights
+        else:
+            return output, None
