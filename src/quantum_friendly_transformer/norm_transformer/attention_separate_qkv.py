@@ -528,35 +528,21 @@ class AttentionWithSeparateQKV(nn.Module):
         k = k.permute(1, 2, 0, 3)
         v = v.permute(1, 2, 0, 3)
 
-        # Attention score: (B, H, L, L)
-        attn_scores = torch.matmul(q, k.transpose(-2, -1)) / (head_dim ** 0.5)
-
-        # Attention mask (optional)
-        if attn_mask is not None:
-            attn_scores += attn_mask  # Broadcasted add
-
         if key_padding_mask is not None:
-            # key_padding_mask: (B, L) -> (B, 1, 1, L)
-            mask = key_padding_mask[:, None, None, :].to(torch.bool)
-            attn_scores = attn_scores.masked_fill(mask, float("-inf"))
+            # key_padding_mask: (B, L), True = pad  
+            inverted = ~key_padding_mask.to(torch.bool)          # now True = keep, False = drop
+            attn_mask = (
+                inverted
+                .view(B, 1, 1, L)                # (B, 1, 1, L)
+                .expand(-1, H, -1, -1)           # (B, H, 1, L)
+            )
 
-        if is_causal:
-            causal_mask = torch.tril(torch.ones(L, L, device=query.device)).to(torch.bool)
-            attn_scores = attn_scores.masked_fill(~causal_mask, float("-inf"))
+        attn_output = F.scaled_dot_product_attention(
+            q, k, v, attn_mask=attn_mask, dropout_p=self.dropout, is_causal=is_causal
+        )
 
-        attn_weights = torch.softmax(attn_scores, dim=-1)
-        attn_weights = F.dropout(attn_weights, p=self.dropout, training=self.training)
+        # 5) Reshape back to (L, B, D):
+        attn_output = attn_output.permute(2, 0, 1, 3)    # → (L, B, H, d_h)
+        attn_output = attn_output.contiguous().view(L, B, D)
 
-        # Apply attention to V
-        attn_output = torch.matmul(attn_weights, v)  # (B, H, L, head_dim)
-
-        # Concatenate heads and output projection
-        attn_output = attn_output.transpose(1, 2).contiguous().view(B, L, D)
-        output = self.out_proj(attn_output)
-
-        if need_weights:
-            if average_attn_weights:
-                attn_weights = attn_weights.mean(dim=1)  # (B, L, L)
-            return output, attn_weights
-        else:
-            return output, None
+        return attn_output, None

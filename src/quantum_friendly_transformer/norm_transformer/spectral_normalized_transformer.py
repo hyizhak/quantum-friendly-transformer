@@ -53,10 +53,10 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         x = x.transpose(0, 1)
 
         attn_output, _ = self.attn(x, x, x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
-        x = x.transpose(0, 1)
         x = x + attn_output  # Residual connection
         
         # Feed-forward network
+        x = x.transpose(0, 1)
         x = x + self.ffn(x)
         return x
     
