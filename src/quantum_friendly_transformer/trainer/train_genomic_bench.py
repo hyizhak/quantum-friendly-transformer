@@ -53,7 +53,9 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
 
-val_dataset, test_dataset = notata_dataset["test"].train_test_split(test_size=0.5, seed=42)
+split = tokenized_prom["test"].train_test_split(test_size=0.5, seed=42)
+val_dataset = split["train"]
+test_dataset = split["test"]
 
 val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=data_collator)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False,  collate_fn=data_collator)
@@ -102,7 +104,7 @@ for model in [vanilla_model, sn_model, fn_model]:
 
     acc = []
 
-    for epoch in tqdm(range(1, 501)):
+    for epoch in tqdm(range(1, 21)):
         model.train()
         for i, batch in enumerate(train_loader):
             with autocast(device_type=str(device)):

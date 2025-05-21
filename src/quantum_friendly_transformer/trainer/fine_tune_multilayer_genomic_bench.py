@@ -17,11 +17,11 @@ from quantum_friendly_transformer.norm_transformer.bert.frobenius_normalized_ber
 # Set the seed
 manual_seed(42)
 
-# cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
+cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
 
-# os.environ['HF_HOME'] = cache_dir
-# os.environ['HF_DATASETS_OFFLINE'] = '1'
-# os.environ['HF_HUB_OFFLINE'] = '1'
+os.environ['HF_HOME'] = cache_dir
+os.environ['HF_DATASETS_OFFLINE'] = '1'
+os.environ['HF_HUB_OFFLINE'] = '1'
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
@@ -101,7 +101,10 @@ notata_dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_
 tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genomic_bench(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 train_dataset = tokenized_prom["train"]
-val_dataset, test_dataset  = tokenized_prom["test"].train_test_split(test_size=0.5, seed=42)
+
+split = tokenized_prom["test"].train_test_split(test_size=0.5, seed=42)
+val_dataset = split["train"]
+test_dataset = split["test"]
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -202,7 +205,7 @@ for model_obj, model_label in [
         save_steps=20000,
         per_device_train_batch_size=128,
         per_device_eval_batch_size=256,
-        num_train_epochs=200,
+        num_train_epochs=2,
         weight_decay=0.01,
         report_to="none"
     )
