@@ -142,3 +142,15 @@ for model in [vanilla_model, sn_model, fn_model]:
                 torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
         elif epoch % 40 == 0:
             torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
+
+    # final evaluation
+    with torch.no_grad():
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            logits = model(x, key_padding_mask=(attn_mask == 0))
+            
+            all_preds.extend(torch.argmax(logits, dim=1).tolist())
+            all_labels.extend(y.tolist())
+    metrics = compute_metrics(label_list, (all_preds, all_labels))
+    print(f'{model_name} final metrics: {metrics}')

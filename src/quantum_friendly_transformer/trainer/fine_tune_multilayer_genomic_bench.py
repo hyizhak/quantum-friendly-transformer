@@ -101,7 +101,7 @@ notata_dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_
 tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genomic_bench(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 train_dataset = tokenized_prom["train"]
-test_dataset  = tokenized_prom["test"]
+val_dataset, test_dataset  = tokenized_prom["test"].train_test_split(test_size=0.5, seed=42)
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -212,7 +212,7 @@ for model_obj, model_label in [
         model=model_obj,
         args=current_training_args,
         train_dataset=train_dataset,
-        eval_dataset=test_dataset,
+        eval_dataset=val_dataset,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
@@ -221,6 +221,6 @@ for model_obj, model_label in [
 
     train_result = trainer.train()
 
-    metrics = trainer.evaluate()
+    metrics = trainer.evaluate(test_dataset)
     print(f"{model_label} final metrics: {metrics}")
 

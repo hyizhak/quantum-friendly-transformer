@@ -46,7 +46,11 @@ tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genom
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
-test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
+
+val_dataset, test_dataset = notata_dataset["test"].train_test_split(test_size=0.5, seed=42)
+
+val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, collate_fn=data_collator)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False,  collate_fn=data_collator)
 
 # # Model
 attn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
@@ -81,7 +85,7 @@ for model in [attn_sn_model, ffn_sn_model]:
     all_labels = []
 
     with torch.no_grad():
-        for batch in test_loader:
+        for batch in val_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
             x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
             y_pred = model(x, key_padding_mask=(attn_mask == 0))
@@ -127,7 +131,7 @@ for model in [attn_sn_model, ffn_sn_model]:
         all_labels = []
 
         with torch.no_grad():
-            for batch in test_loader:
+            for batch in val_loader:
                 batch = {k: v.to(device) for k, v in batch.items()}
                 x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
                 y_pred = model(x, key_padding_mask=(attn_mask == 0))
@@ -147,3 +151,18 @@ for model in [attn_sn_model, ffn_sn_model]:
                 torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/genomic_bench/{model_name}_epoch_{epoch}.pth")
         elif epoch % 40 == 0:
             torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/genomic_bench/{model_name}_epoch_{epoch}.pth")
+
+    # Final Evaluation
+    with torch.no_grad():
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            y_pred = model(x, key_padding_mask=(attn_mask == 0))
+            
+            all_preds.extend(torch.argmax(y_pred, dim=1).tolist())
+            all_labels.extend(y.tolist())
+    metrics = {
+        'f1': f1_score(all_labels, all_preds),
+        'accuracy': accuracy_score(all_labels, all_preds)
+    }
+    print(f'{model_name} final metrics: {metrics}')

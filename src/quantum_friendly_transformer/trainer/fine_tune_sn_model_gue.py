@@ -148,3 +148,18 @@ for model in [attn_sn_model, ffn_sn_model]:
                 torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/gue/{model_name}_epoch_{epoch}.pth")
         elif epoch % 40 == 0:
             torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/gue/{model_name}_epoch_{epoch}.pth")
+
+    # Final Evaluation
+    with torch.no_grad():
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            y_pred = model(x, key_padding_mask=(attn_mask == 0))
+            
+            all_preds.extend(torch.argmax(y_pred, dim=1).tolist())
+            all_labels.extend(y.tolist())
+    metrics = {
+        'f1': f1_score(all_labels, all_preds),
+        'accuracy': accuracy_score(all_labels, all_preds)
+    }
+    print(f'{model_name} final metrics: {metrics}')

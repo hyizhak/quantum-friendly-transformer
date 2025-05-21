@@ -165,3 +165,27 @@ for model in [attn_sn_model, ffn_sn_model]:
                 torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
         elif epoch % 40 == 0:
             torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
+
+    # final evaluation
+    with torch.no_grad():
+        for batch in test_loader:
+            batch = {k: v.to(device) for k, v in batch.items()}
+            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
+            logits = model(x, key_padding_mask=(attn_mask == 0))
+            # Argmax over the last dimension (num_labels) => shape [batch_size, seq_length]
+            preds = torch.argmax(logits, dim=-1)
+            
+            # Move to CPU for metric computation
+            preds = preds.detach().cpu().numpy()
+            labels = y.detach().cpu().numpy()
+
+            # Append to list (each element is shape [batch_size, seq_length])
+            all_preds.append(preds)
+            all_labels.append(labels)
+        # Concatenate along batch dimension => final shape [total_samples, seq_length]
+        all_preds = np.concatenate(all_preds, axis=0)
+        all_labels = np.concatenate(all_labels, axis=0)
+        # Now pass (preds, labels) to compute_metrics
+        metrics = compute_metrics(label_list, (all_preds, all_labels))
+        
+        print(f'{model_name} final metrics: {metrics}')

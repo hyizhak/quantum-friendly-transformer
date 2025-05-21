@@ -101,7 +101,8 @@ notata_dataset = load_dataset("leannmlindsey/GUE", name="prom_300_notata", cache
 tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_gue(tokenizer, examples), batched=True).select_columns(["input_ids", "labels", "attention_mask"])
 
 train_dataset = tokenized_prom["train"]
-test_dataset  = tokenized_prom["dev"]
+val_dataset  = tokenized_prom["dev"]
+test_dataset = tokenized_prom["test"]
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -220,7 +221,6 @@ for model_obj, model_label in [
     )
 
     train_result = trainer.train()
-
-    metrics = trainer.evaluate()
+    metrics = trainer.evaluate(test_dataset)
     print(f"{model_label} final metrics: {metrics}")
 

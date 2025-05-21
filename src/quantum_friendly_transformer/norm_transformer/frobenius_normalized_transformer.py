@@ -22,10 +22,10 @@ class FrobeniuslyNormalizedTransformerBlock(nn.Module):
             # consider wrapping the weight manually.
             self.embedding.weight.data = self.embedding.weight.data / torch.linalg.norm(self.embedding.weight.data, ord='fro')
 
-        self.RoPE = RotaryPositionalEmbedding(head_dim=d_model, max_seq_len=max_seq_len)
+        self.RoPE = RotaryPositionalEmbedding(head_dim=d_model//nhead, max_seq_len=max_seq_len)
         
         # Self-attention components
-        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead)
+        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=self.RoPE)
         if apply_attention_fn:
             # Apply FN to the projection matrices for Q, K, V manually if needed.
             self.attn.q_linear = frobenius_norm(self.attn.q_linear)
@@ -48,12 +48,9 @@ class FrobeniuslyNormalizedTransformerBlock(nn.Module):
         # If using an embedding layer, x will be token indices.
         if x.dtype == torch.long:
             x = self.embedding(x)
-
-        x = x.unsqueeze(2)  # Add an n_head dimension
-        x = self.RoPE(x)
         
         # Self-attention expects (seq_len, batch_size, d_model)
-        x = x.squeeze(2).transpose(0, 1)
+        x = x.transpose(0, 1)
 
         attn_output, _ = self.attn(x, x, x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         x = x + attn_output  # Residual connection
