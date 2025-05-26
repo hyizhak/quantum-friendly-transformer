@@ -1,106 +1,98 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
-import matplotlib.pyplot as plt
-import numpy as np
-import os
 import pandas as pd
 
-# --- Model Configuration ---
-# Uncomment and modify these if switching models
-# model_name = "meta-llama/Meta-Llama-3.1-8B-Instruct"
-# safe_model_name = "llama_3_8b_4096"
-# label_model_name = r'Llama-3-$8b$'
+def get_base_model(model):
+    prefix = model.base_model_prefix
+    return getattr(model, prefix)
 
-# model_name = "Qwen/Qwen2.5-3B-Instruct"
-# safe_model_name = "qwen_2.5_3b_2048"
-# label_model_name = r'Qwen2.5-$3b$'
+def get_transformer_layers(base_model):
+    if hasattr(base_model, 'layers'):
+        return base_model.layers
+    if hasattr(base_model, 'h'):
+        return base_model.h
+    if hasattr(base_model, 'encoder') and hasattr(base_model.encoder, 'layer'):
+        return base_model.encoder.layer
+    raise ValueError(f"Cannot find transformer layers on {base_model.__class__}")
 
-# Using Mistral-Nemo as configured:
-model_name = "mistralai/Mistral-Nemo-Base-2407"
-safe_model_name = "mistral_nemo_12b_5120"
-label_model_name = r'Mistral-Nemo-$12b$'
+def get_qkv_weights(layer):
+    # 1) GPT-style / Llama / Mistral
+    if hasattr(layer, 'self_attn'):
+        attn = layer.self_attn
+        return attn.q_proj.weight, attn.k_proj.weight, attn.v_proj.weight
 
-# --- Load the tokenizer and model ---
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
-model.eval()
+    # 2) BERT / RoBERTa
+    if hasattr(layer, 'attention') and hasattr(layer.attention, 'self'):
+        attn = layer.attention.self
+        return attn.query.weight, attn.key.weight, attn.value.weight
 
-# --- Aggregate column norms across all layers ---
-all_wq_norms = []
-all_wk_norms = []
-all_wv_norms = []
+    # 3) GPT-2 / GPT-Neo / GPT-J style
+    #    – these pack Q,K,V into one Conv1D c_attn weight of shape [in, 3*out]
+    if hasattr(layer, 'attn') and hasattr(layer.attn, 'c_attn'):
+        W = layer.attn.c_attn.weight  # shape [hidden, 3*hidden]
+        hidden = W.shape[1] // 3
+        Wq = W[:, :hidden]
+        Wk = W[:, hidden:2*hidden]
+        Wv = W[:, 2*hidden:]
+        return Wq, Wk, Wv
 
-# Iterate over all layers of the model; assumes model.model.layers exists.
-for i, layer in enumerate(model.model.layers):
-    # Retrieve Q, K, V projection weights and move to CPU.
-    Wq = layer.self_attn.q_proj.weight.detach().cpu()
-    Wk = layer.self_attn.k_proj.weight.detach().cpu()
-    Wv = layer.self_attn.v_proj.weight.detach().cpu()
-    
-    # Compute the ℓ₂ norm for each column (norm over rows).
-    col_norms_Wq = Wq.norm(dim=0)
-    col_norms_Wk = Wk.norm(dim=0)
-    col_norms_Wv = Wv.norm(dim=0)
-    
-    # Append the computed norms to the corresponding list.
-    all_wq_norms.append(col_norms_Wq)
-    all_wk_norms.append(col_norms_Wk)
-    all_wv_norms.append(col_norms_Wv)
+    raise ValueError(f"No self-attention block found in layer {layer.__class__.__name__}")
 
-# Concatenate all column norms from each layer into one tensor per projection.
-all_wq_norms = torch.cat(all_wq_norms)
-all_wk_norms = torch.cat(all_wk_norms)
-all_wv_norms = torch.cat(all_wv_norms)
+all_stats = []
 
-# Compute aggregated mean and variance for each projection.
-Wq_mean = all_wq_norms.mean().item()
-Wq_var  = all_wq_norms.var().item()
-Wk_mean = all_wk_norms.mean().item()
-Wk_var  = all_wk_norms.var().item()
-Wv_mean = all_wv_norms.mean().item()
-Wv_var  = all_wv_norms.var().item()
+# for model_name in [
+#     "meta-llama/Meta-Llama-3.1-8B-Instruct",
+#     "Qwen/Qwen2.5-3B-Instruct",
+#     "mistralai/Mistral-Nemo-Base-2407",
+#     'bert-base-uncased',
+#     'roberta-base',
+#     'distilgpt2',
+#     'gpt2',
+#     'openai-gpt',
+#     'meta-llama/Llama-2-7b-hf',
+#     'TinyLlama/Tinyllama-1.1B-chat-v1.0',
+#     'mistralai/Mistral-7B-v0.1',
+# ]:
+for model_name in [
+    'gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl',
+]:
+    safe_name = model_name.replace('/', '_').replace('-', '_')
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model     = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
+    model.eval()
 
-# Compute the overall (combined) statistics for Wq, Wk, and Wv.
-all_combined = torch.cat([all_wq_norms, all_wk_norms, all_wv_norms])
-total_mean = all_combined.mean().item()
-total_var  = all_combined.var().item()
+    base   = get_base_model(model)
+    layers = get_transformer_layers(base)
 
-# Extract the d_hidden value from one of the layers (assumes all layers are identical in this regard)
-d_hidden = model.model.layers[0].self_attn.q_proj.weight.shape[1]
+    all_q, all_k, all_v = [], [], []
+    for layer in layers:
+        Wq, Wk, Wv = [w.detach().cpu() for w in get_qkv_weights(layer)]
+        all_q.append(Wq.norm(dim=0))
+        all_k.append(Wk.norm(dim=0))
+        all_v.append(Wv.norm(dim=0))
 
-# --- Save Aggregated Statistics to CSV ---
-# We create one row CSV with the following columns:
-# d_hidden, Wq_mean, Wq_var, Wk_mean, Wk_var, Wv_mean, Wv_var, Total_mean, Total_var
-stats_dict = {
-    "d_hidden": d_hidden,
-    "Wq_mean": Wq_mean,
-    "Wq_var": Wq_var,
-    "Wk_mean": Wk_mean,
-    "Wk_var": Wk_var,
-    "Wv_mean": Wv_mean,
-    "Wv_var": Wv_var,
-    "Total_mean": total_mean,
-    "Total_var": total_var,
-}
+    all_q = torch.cat(all_q)
+    all_k = torch.cat(all_k)
+    all_v = torch.cat(all_v)
+    combined = torch.cat([all_q, all_k, all_v])
 
-df_stats = pd.DataFrame([stats_dict])
-csv_filename = f"wqkv_norm_stats_aggregated_{safe_model_name}.csv"
-df_stats.to_csv(csv_filename, index=False)
-print(f"Saved aggregated norm statistics to {csv_filename}")
+    # --- build stats dict ---
+    stats_dict = {
+        "model":    model_name,
+        "d_hidden": all_q.shape[0] // len(layers),
+        "Wq_mean":  all_q.mean().item(),
+        "Wq_var":   all_q.var().item(),
+        "Wk_mean":  all_k.mean().item(),
+        "Wk_var":   all_k.var().item(),
+        "Wv_mean":  all_v.mean().item(),
+        "Wv_var":   all_v.var().item(),
+        "total_mean": combined.mean().item(),
+        "total_var":  combined.var().item(),
+    }
+    all_stats.append(stats_dict)
 
-# --- Optional: Bar Plot of Aggregated Means with Error Bars ---
-groups = ["Wq", "Wk", "Wv", "Total"]
-means = [Wq_mean, Wk_mean, Wv_mean, total_mean]
-variances = [Wq_var, Wk_var, Wv_var, total_var]
-
-plt.figure(figsize=(8, 6))
-plt.bar(groups, means, yerr=variances, capsize=5)
-plt.xlabel("Projection Group")
-plt.ylabel(r"Mean Column $\ell_2$ Norm")
-plt.ylim(0, 1.3)
-plt.title(rf"Aggregated Mean Column $\ell_2$ Norms for QKV Weights ({label_model_name})")
-plt.tight_layout()
-bar_plot_filename = f"wqkv_aggregated_bar_{safe_model_name}.pdf"
-plt.savefig(bar_plot_filename)
-plt.show()
-print(f"Saved aggregated bar plot with error bars to {bar_plot_filename}")
+# --- save to CSV ---
+df = pd.DataFrame(all_stats)
+out_csv = f"qkv_stats.csv"
+df.to_csv(out_csv, index=False)
+print(f"Saved stats to {out_csv}")
