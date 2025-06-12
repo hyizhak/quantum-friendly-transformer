@@ -139,30 +139,3 @@ def train(
     history['test_metrics'] = test_metrics
 
     return history
-
-
-# === Example usage ===
-# from sklearn.metrics import f1_score, accuracy_score
-#
-# metric_fns = {'f1': f1_score, 'accuracy': accuracy_score}
-#
-# for model in [attn_sn_model, ffn_sn_model]:
-#     name = 'attn_sn_model' if model is attn_sn_model else 'ffn_sn_model'
-#     model.load_state_dict(
-#         torch.load(".../model/genomic_bench/vanilla_epoch_40.pth"),
-#         strict=False
-#     )
-#     history = train(
-#         model,
-#         train_loader,
-#         val_loader,
-#         test_loader,
-#         device=device,
-#         save_dir="/home/users/nus/e1310988/scratch/model/genomic_bench",
-#         save_prefix=name,
-#         metric_fns=metric_fns,
-#         num_epochs=200,
-#         lr=2e-6,
-#         freeze_transformer=True,
-#         is_sequence=False
-#     )
