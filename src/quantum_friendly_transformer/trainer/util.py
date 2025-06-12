@@ -105,7 +105,7 @@ def train(
     # Training loop
     for epoch in tqdm(range(1, num_epochs + 1)):
         model.train()
-        for batch in tqdm(train_loader):
+        for batch in train_loader:
             batch = {k: v.to(device) for k, v in batch.items()}
             x = batch['input_ids']
             y = batch['labels']

@@ -48,15 +48,11 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
         # If using an embedding layer, x will be token indices.
         if x.dtype == torch.long:
             x = self.embedding(x)
-        
-        # Self-attention expects (seq_len, batch_size, d_model)
-        x = x.transpose(0, 1)
 
         attn_output, _ = self.attn(x, x, x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
         x = x + attn_output  # Residual connection
         
         # Feed-forward network
-        x = x.transpose(0, 1)
         x = x + self.ffn(x)
         return x
     

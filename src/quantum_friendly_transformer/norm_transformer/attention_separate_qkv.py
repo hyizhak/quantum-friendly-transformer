@@ -507,26 +507,26 @@ class AttentionWithSeparateQKV(nn.Module):
         is_causal: bool = False,
     ) -> Tuple[Tensor, Optional[Tensor]]:
         # 1) Unpack seq-first
-        L, B, D = query.shape        # L = seq_len, B = batch, D = embed_dim
+        B, L, D = query.shape        # L = seq_len, B = batch, D = embed_dim
         H = self.num_heads
         head_dim = D // H
 
-        # 2) Linear projection stays seq-first:
-        q = self.q_linear(query)     # → (L, B, D)
-        k = self.k_linear(key)       # → (L, B, D)
-        v = self.v_linear(value)     # → (L, B, D)
+        # 2) Linear projection:
+        q = self.q_linear(query)     # → (B, L, D)
+        k = self.k_linear(key)       # → (B, L, D)
+        v = self.v_linear(value)     # → (B, L, D)
 
-        # 3) Split into heads (still seq-first):
-        #    from (L, B, D) to (L, B, H, d_h)
-        q = q.view(L, B, H, head_dim)
-        k = k.view(L, B, H, head_dim)
-        v = v.view(L, B, H, head_dim)
+        # 3) Split into heads and rope:
+        #    from (B, L, D) to (B, L, H, d_h)
+        q = self.rope(q.view(B, L, H, head_dim))
+        k = self.rope(k.view(B, L, H, head_dim))
+        v = v.view(B, L, H, head_dim)
 
         # 4) Bring batch & heads to front for matmul:
-        #    permute from (L, B, H, d_h) to (B, H, L, d_h)
-        q = q.permute(1, 2, 0, 3)    # → (B, H, L, head_dim)
-        k = k.permute(1, 2, 0, 3)
-        v = v.permute(1, 2, 0, 3)
+        #    permute from (B, L, H, d_h) to (B, H, L, d_h)
+        q = q.permute(0, 2, 1, 3)    # → (B, H, L, head_dim)
+        k = k.permute(0, 2, 1, 3)
+        v = v.permute(0, 2, 1, 3)
 
         if key_padding_mask is not None:
             # key_padding_mask: (B, L), True = pad  
@@ -541,8 +541,8 @@ class AttentionWithSeparateQKV(nn.Module):
             q, k, v, attn_mask=attn_mask, dropout_p=self.dropout, is_causal=is_causal
         )
 
-        # 5) Reshape back to (L, B, D):
-        attn_output = attn_output.permute(2, 0, 1, 3)    # → (L, B, H, d_h)
-        attn_output = attn_output.contiguous().view(L, B, D)
+        # 5) Reshape back to (B, L, D):
+        attn_output = attn_output.permute(0, 2, 1, 3)    # → (B, L, H, d_h)
+        attn_output = attn_output.contiguous().view(B, L, D)
 
         return attn_output, None
