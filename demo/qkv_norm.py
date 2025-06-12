@@ -8,7 +8,6 @@ import numpy as np
 
 model_name = "meta-llama/Llama-2-7b-chat-hf"
 
-
 # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)

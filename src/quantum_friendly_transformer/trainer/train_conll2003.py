@@ -6,30 +6,26 @@ from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 import os
 import numpy as np
+from sklearn.metrics import f1_score, accuracy_score
 
 from quantum_friendly_transformer.norm_transformer.spectral_normalized_transformer import SpectrallyNormalizedTransformerForTokenClassification
 from quantum_friendly_transformer.norm_transformer.frobenius_normalized_transformer import FrobeniuslyNormalizedTransformerForTokenClassification
-from quantum_friendly_transformer.util import tokenize_and_align_labels, compute_metrics, manual_seed
+from quantum_friendly_transformer.util import tokenize_and_align_labels, manual_seed
+from quantum_friendly_transformer.trainer.util import train
+
 
 # Set the seed
 manual_seed(42)
 
-cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
-
-os.environ['HF_HOME'] = cache_dir
-os.environ['HF_DATASETS_OFFLINE'] = '1'
-os.environ['HF_HUB_OFFLINE'] = '1'
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device: {device}")
 
-conll03 = load_dataset("eriktks/conll2003", cache_dir=f"{cache_dir}/datasets")
+conll03 = load_dataset("eriktks/conll2003")
 
 label_list = conll03["train"].features["pos_tags"].feature.names
 
 # Specify the model checkpoint for Llama2
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
-model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 
 # Load the tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -84,73 +80,15 @@ for model in [vanilla_model, sn_model, fn_model]:
     elif model == fn_model:
         model_name = "fn_model"
 
-    print("=" * 80)
-    print(model_name)
+    metric_fns = {'f1': lambda y_true, y_pred: f1_score(y_true, y_pred, average='macro'), 'accuracy': accuracy_score}
 
-    criterion = torch.nn.CrossEntropyLoss(ignore_index=-100)
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
-    scaler = GradScaler()
-
-    acc = []
-
-    for epoch in tqdm(range(1, 101)):
-        model.train()
-        for i, batch in enumerate(train_loader):
-            with autocast(device_type=str(device)):
-                batch = {k: v.to(device) for k, v in batch.items()}
-                x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
-
-                optimizer.zero_grad()
-                logits = model(x, key_padding_mask=(attn_mask == 0))
-                loss = criterion(logits.view(-1, logits.size(-1)), y.view(-1))
-                scaler.scale(loss).backward()
-                scaler.step(optimizer)
-                scaler.update()
-
-        # Evaluation
-        model.eval()
-        all_preds = []
-        all_labels = []
-
-        with torch.no_grad():
-            for batch in val_loader:
-                batch = {k: v.to(device) for k, v in batch.items()}
-                x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
-                logits = model(x, key_padding_mask=(attn_mask == 0))
-                # Argmax over the last dimension (num_labels) => shape [batch_size, seq_length]
-                preds = torch.argmax(logits, dim=-1)
-                
-                # Move to CPU for metric computation
-                preds = preds.detach().cpu().numpy()
-                labels = y.detach().cpu().numpy()
-
-                # Append to list (each element is shape [batch_size, seq_length])
-                all_preds.append(preds)
-                all_labels.append(labels)
-
-        # Concatenate along batch dimension => final shape [total_samples, seq_length]
-        all_preds = np.concatenate(all_preds, axis=0)
-        all_labels = np.concatenate(all_labels, axis=0)
-
-        # Now pass (preds, labels) to compute_metrics
-        metrics = compute_metrics(label_list, (all_preds, all_labels))
-        print(f'epoch: {epoch}, metrics: {metrics}')
-        acc.append(metrics['accuracy'])
-
-        if epoch <= 30:
-            if epoch % 10 == 0:
-                torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
-        elif epoch % 40 == 0:
-            torch.save(model.state_dict(), f"/home/users/nus/e1310988/scratch/model/conll03/{model_name}_epoch_{epoch}.pth")
-
-    # final evaluation
-    with torch.no_grad():
-        for batch in test_loader:
-            batch = {k: v.to(device) for k, v in batch.items()}
-            x, y, attn_mask = batch["input_ids"], batch["labels"], batch["attention_mask"]
-            logits = model(x, key_padding_mask=(attn_mask == 0))
-            
-            all_preds.extend(torch.argmax(logits, dim=1).tolist())
-            all_labels.extend(y.tolist())
-    metrics = compute_metrics(label_list, (all_preds, all_labels))
-    print(f'{model_name} final metrics: {metrics}')
+    history = train(
+        model,
+        train_loader,
+        val_loader,
+        test_loader,
+        device=device,
+        metric_fns=metric_fns,
+        save_dir=".../model/conll03",
+        save_prefix=model_name,
+    )

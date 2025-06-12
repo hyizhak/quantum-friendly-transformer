@@ -40,21 +40,18 @@ def get_qkv_weights(layer):
 
 all_stats = []
 
-# for model_name in [
-#     "meta-llama/Meta-Llama-3.1-8B-Instruct",
-#     "Qwen/Qwen2.5-3B-Instruct",
-#     "mistralai/Mistral-Nemo-Base-2407",
-#     'bert-base-uncased',
-#     'roberta-base',
-#     'distilgpt2',
-#     'gpt2',
-#     'openai-gpt',
-#     'meta-llama/Llama-2-7b-hf',
-#     'TinyLlama/Tinyllama-1.1B-chat-v1.0',
-#     'mistralai/Mistral-7B-v0.1',
-# ]:
 for model_name in [
-    'gpt2', 'gpt2-medium', 'gpt2-large', 'gpt2-xl',
+    "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "Qwen/Qwen2.5-3B-Instruct",
+    "mistralai/Mistral-Nemo-Base-2407",
+    'bert-base-uncased',
+    'roberta-base',
+    'distilgpt2',
+    'gpt2',
+    'openai-gpt',
+    'meta-llama/Llama-2-7b-hf',
+    'TinyLlama/Tinyllama-1.1B-chat-v1.0',
+    'mistralai/Mistral-7B-v0.1',
 ]:
     safe_name = model_name.replace('/', '_').replace('-', '_')
     tokenizer = AutoTokenizer.from_pretrained(model_name)

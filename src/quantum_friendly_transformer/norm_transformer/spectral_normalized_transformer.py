@@ -22,10 +22,10 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
             # consider wrapping the weight manually.
             self.embedding.weight.data = self.embedding.weight.data / torch.norm(self.embedding.weight.data, dim=1, keepdim=True)
 
-        self.RoPE = RotaryPositionalEmbedding(head_dim=d_model//nhead, max_seq_len=max_seq_len)
+        RoPE = RotaryPositionalEmbedding(head_dim=d_model//nhead, max_seq_len=max_seq_len)
         
         # Self-attention components
-        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=self.RoPE)
+        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=RoPE)
         if apply_attention_sn:
             # Apply SN to the projection matrices for Q, K, V manually if needed.
             self.attn.q_linear = spectral_norm(self.attn.q_linear)

@@ -134,28 +134,31 @@ def get_idx_to_label(label_list):
 def get_label_to_idx(label_list):
     return {label: idx for idx, label in enumerate(label_list)}
 
-def compute_metrics(label_list, p):
-    predictions, labels = p
+def compute_metrics(eval_preds):
+    """
+    eval_preds is a tuple: (logits, labels).
+    Something in 'logits' is causing an inhomogeneous shape, so let's print
+    them carefully to see what's inside.
+    """
+    all_model_outputs, labels = eval_preds  # all_model_outputs is a tuple
+    # all_model_outputs[0] is the real logits,
+    # and all_model_outputs[1] is hidden_states
+        # Check if hidden states are included. If so, logits should be the first element.
+    if isinstance(all_model_outputs, (list, tuple)):
+        if len(all_model_outputs) > 1:
+            logits = all_model_outputs[0]
+        else:
+            logits = all_model_outputs
+    else:
+        logits = all_model_outputs
 
-    true_predictions = [
-        [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
-        for prediction, label in zip(predictions, labels)
-    ]
-    true_labels = [
-        [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
-        for prediction, label in zip(predictions, labels)
-    ]
+    predictions = np.argmax(logits, axis=-1)
 
-    # Now flatten them into 1D lists of token-level predictions & labels
-    flat_preds = [token for seq in true_predictions for token in seq]
-    flat_labels = [token for seq in true_labels for token in seq]
-
-    # Finally, call classification_report on the flattened lists
-    report = {
-        'f1': f1_score(flat_labels, flat_preds, average='macro'),
-        'accuracy': accuracy_score(flat_labels, flat_preds)
+    from sklearn.metrics import f1_score, accuracy_score
+    return {
+        "f1": f1_score(labels, predictions),
+        "accuracy": accuracy_score(labels, predictions)
     }
-    return report
 
 class PrintMetricsCallback(TrainerCallback):
     """
@@ -187,5 +190,25 @@ class PrintMetricsCallback(TrainerCallback):
 
         return control
 
+def check_matrix_norm(model_path):
+    from safetensors import safe_open
 
+    tensors = {}
+    with safe_open(model_path, framework="pt", device=0) as f:
+        for k in f.keys():
+            tensors[k] = f.get_tensor(k)
+
+    gamma_list = []
+
+    for name, param in tensors.items():
+        if name.endswith(".g"):
+            g_value = param.data.cpu()  # move to CPU if needed
+            gamma_value = torch.sigmoid(g_value)
+            gamma_list.append(gamma_value)
+            print(f"Parameter: {name}")
+            print(f"g values:\n{g_value}")
+            print(f"gamma values:\n{gamma_value}\n")
+
+    print(np.mean(gamma_list))
+    print(np.var(gamma_list))
 

@@ -5,15 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# cache_dir = "/home/users/nus/e1310988/scratch/huggingface"
-
-# os.environ['HF_HOME'] = cache_dir
-# os.environ['HF_DATASETS_OFFLINE'] = '1'
-# os.environ['HF_HUB_OFFLINE'] = '1'
 
 # Specify the model checkpoint for Llama2
 # model_name = "meta-llama/Llama-2-7b-chat-hf"
-# model_name = f"{cache_dir}/hub/Llama-2-7b-chat-hf"
 
 # model_name = "meta-llama/Llama-3.2-11B-Vision"
 
@@ -29,7 +23,7 @@ model_name = "Qwen/Qwen2.5-14B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
 
-# conll03 = load_dataset("eriktks/conll2003", cache_dir=f"{cache_dir}/datasets")
+# conll03 = load_dataset("eriktks/conll2003")
 
 # label_list = conll03["train"].features["pos_tags"].feature.names
 
@@ -40,7 +34,7 @@ model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float
 #     apply_ffn_sn=False,
 # )
 
-# model.load_state_dict(torch.load("/home/users/nus/e1310988/scratch/model/conll03/vanilla_epoch_20.pth"), strict=False)
+# model.load_state_dict(torch.load(".../model/conll03/vanilla_epoch_20.pth"), strict=False)
 
 print(model)
 
