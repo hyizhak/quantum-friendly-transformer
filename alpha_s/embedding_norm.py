@@ -68,5 +68,5 @@ plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.xlim(0, 2)
-plt.savefig("emb_histogram_qwen_2.5_14b_5120.pdf")
+plt.savefig("./images/emb_histogram_qwen_2.5_14b_5120.pdf")
 plt.show()

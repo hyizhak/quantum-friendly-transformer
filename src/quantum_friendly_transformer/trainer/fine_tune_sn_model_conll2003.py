@@ -66,7 +66,7 @@ ffn_sn_model = SpectrallyNormalizedTransformerForTokenClassification(
 # Training
 for model in [attn_sn_model, ffn_sn_model]:
 
-    model_name = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
+    model_label = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
     model.load_state_dict(torch.load(".../model/conll03/vanilla_epoch_20.pth"), strict=False)
 
@@ -80,5 +80,5 @@ for model in [attn_sn_model, ffn_sn_model]:
         device=device,
         metric_fns=metric_fns,
         save_dir=".../model/conll03",
-        save_prefix=model_name
+        save_prefix=model_label
     )

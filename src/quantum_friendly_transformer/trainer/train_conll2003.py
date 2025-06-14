@@ -74,11 +74,11 @@ fn_model = FrobeniuslyNormalizedTransformerForTokenClassification(
 for model in [vanilla_model, sn_model, fn_model]:
 
     if model == vanilla_model:
-        model_name = "vanilla"
+        model_label = "vanilla"
     elif model == sn_model:
-        model_name = "sn_model"
+        model_label = "sn_model"
     elif model == fn_model:
-        model_name = "fn_model"
+        model_label = "fn_model"
 
     metric_fns = {'f1': lambda y_true, y_pred: f1_score(y_true, y_pred, average='macro'), 'accuracy': accuracy_score}
 
@@ -90,5 +90,5 @@ for model in [vanilla_model, sn_model, fn_model]:
         device=device,
         metric_fns=metric_fns,
         save_dir=".../model/conll03",
-        save_prefix=model_name,
+        save_prefix=model_label,
     )

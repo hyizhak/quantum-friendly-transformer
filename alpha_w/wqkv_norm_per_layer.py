@@ -48,6 +48,9 @@ for model_name in [
     'roberta-base',
     'distilgpt2',
     'gpt2',
+    'gpt2-medium',
+    'gpt2-large',
+    'gpt2-xl',
     'openai-gpt',
     'meta-llama/Llama-2-7b-hf',
     'TinyLlama/Tinyllama-1.1B-chat-v1.0',
@@ -90,6 +93,6 @@ for model_name in [
 
 # --- save to CSV ---
 df = pd.DataFrame(all_stats)
-out_csv = f"qkv_stats.csv"
+out_csv = f"./stats/qkv_stats.csv"
 df.to_csv(out_csv, index=False)
 print(f"Saved stats to {out_csv}")

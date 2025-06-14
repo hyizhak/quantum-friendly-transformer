@@ -84,11 +84,11 @@ fn_model = FrobeniuslyNormalizedTransformerForSequenceClassification(
 for model in [vanilla_model, sn_model, fn_model]:
 
     if model == vanilla_model:
-        model_name = "vanilla"
+        model_label = "vanilla"
     elif model == sn_model:
-        model_name = "sn_model"
+        model_label = "sn_model"
     elif model == fn_model:
-        model_name = "fn_model"
+        model_label = "fn_model"
 
     metric_fns = {'f1': f1_score, 'accuracy': accuracy_score}
 
@@ -100,6 +100,6 @@ for model in [vanilla_model, sn_model, fn_model]:
         device=device,
         metric_fns=metric_fns,
         save_dir=".../model/genomic_bench",
-        save_prefix=model_name,
+        save_prefix=model_label,
         is_sequence=False
     )

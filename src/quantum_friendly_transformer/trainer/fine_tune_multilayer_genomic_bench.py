@@ -36,7 +36,7 @@ norm_config_layernorm = FrobeniuslyNormalizedBertConfig.from_bert_config(
     apply_attn_fn=True,
     apply_ffn_fn=True,
     no_layer_norm=False,
-    max_gamma=2)
+    max_gamma=None)
 
 fn_model = FrobeniuslyNormalizedBertForSequenceClassification(norm_config_layernorm)
 
@@ -84,13 +84,17 @@ for model_obj, model_label in [
         fp16=True,
         eval_strategy="epoch",
         logging_strategy="epoch",
-        save_strategy="steps",
-        save_steps=20000,
+        save_strategy="epoch",
+        save_total_limit=5,
+        load_best_model_at_end=True,
+        metric_for_best_model="accuracy",
+        greater_is_better=True,   
         per_device_train_batch_size=128,
         per_device_eval_batch_size=256,
-        num_train_epochs=2,
+        num_train_epochs=200,
         weight_decay=0.01,
-        report_to="none"
+        report_to="none",
+        seed=3407,
     )
 
     # Create a new Trainer for each model
@@ -107,6 +111,7 @@ for model_obj, model_label in [
 
     train_result = trainer.train()
 
-    metrics = trainer.evaluate(test_dataset)
-    print(f"{model_label} final metrics: {metrics}")
+    test_metrics = trainer.evaluate(test_dataset)
+    trainer.log_metrics("test", test_metrics)
+    trainer.save_metrics("test", test_metrics)  
 

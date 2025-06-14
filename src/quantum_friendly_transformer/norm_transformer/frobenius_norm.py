@@ -1,3 +1,4 @@
+from typing import Optional
 import torch
 from torch import nn, Tensor
 from torch.nn.utils import parametrize
@@ -85,33 +86,16 @@ def frobenius_norm_with_scaling(
     module: nn.Module,
     name: str = "weight",
     eps: float = 1e-12,
-    max_gamma: float = 2.0
+    max_gamma: Optional[float] = 2.0
 ) -> nn.Module:
-    r"""
-    Applies Frobenius normalization with a learnable gamma scaling factor to a parameter in the given module.
-
-    The weight will be replaced by:
-    \[
-        \hat{W} = \gamma \cdot \frac{\mathbf{W}}{\|\mathbf{W}\|_F + \text{eps}},
-    \]
-    where \(\gamma = \text{max\_gamma} \times \sigma(g)\), with \( g \) a learnable parameter
-    that is initialized so that \(\gamma\) starts close to `init_gamma`.
-
-    Args:
-        module (nn.Module): The module that contains the parameter to be normalized.
-        name (str, optional): The name of the parameter to normalize. Default: "weight".
-        eps (float, optional): A small constant for numerical stability. Default: 1e-12.
-        init_gamma (float, optional): The initial scaling factor for gamma (must be less than max_gamma). Default: 1.0.
-        max_gamma (float, optional): The maximum allowed scaling factor for gamma. Default: 1.0.
-
-    Returns:
-        The original module with the new parametrization registered to the specified parameter.
-    """
     weight = getattr(module, name, None)
     if not isinstance(weight, Tensor):
         raise ValueError(f"Module '{module}' has no parameter or buffer with name '{name}'")
-    
-    # Register the parametrization with learnable gamma scaling
+
+    if max_gamma is None:
+        # Fallback to regular Frobenius norm
+        return frobenius_norm(module, name=name, eps=eps)
+
     parametrize.register_parametrization(
         module, name, _FrobeniusNormWithGamma(eps=eps, max_gamma=max_gamma)
     )

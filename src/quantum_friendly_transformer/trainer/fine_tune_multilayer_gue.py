@@ -86,19 +86,23 @@ for model_obj, model_label in [
     # Create a new TrainingArguments instance with the unique output_dir
     current_training_args = TrainingArguments(
         output_dir=current_output_dir,
-        learning_rate=3e-5,
+        learning_rate=8e-5,
         warmup_ratio=0.1,
         lr_scheduler_type="cosine",
         fp16=True,
         eval_strategy="epoch",
         logging_strategy="epoch",
-        save_strategy="steps",
-        save_steps=10000,
+        save_strategy="epoch",
+        save_total_limit=5,
+        load_best_model_at_end=True,
+        metric_for_best_model="accuracy",
+        greater_is_better=True,   
         per_device_train_batch_size=128,
         per_device_eval_batch_size=256,
-        num_train_epochs=100,
+        num_train_epochs=200,
         weight_decay=0.01,
-        report_to="none"
+        report_to="none",
+        seed=3407,
     )
 
     # Create a new Trainer for each model
@@ -114,6 +118,7 @@ for model_obj, model_label in [
     )
 
     train_result = trainer.train()
-    metrics = trainer.evaluate(test_dataset)
-    print(f"{model_label} final metrics: {metrics}")
+    test_metrics = trainer.evaluate(test_dataset)
+    trainer.log_metrics("test", test_metrics)
+    trainer.save_metrics("test", test_metrics)  
 

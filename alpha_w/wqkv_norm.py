@@ -73,4 +73,4 @@ plt.suptitle(r"Histograms of Column $\ell_2$ Norms for Wq, Wk, Wv Weights (Layer
 plt.tight_layout()
 
 # Save to file
-plt.savefig("qkv_col_norms_qwen_2.5_3b_2048.pdf")
+plt.savefig("./images/qkv_col_norms_qwen_2.5_3b_2048.pdf")

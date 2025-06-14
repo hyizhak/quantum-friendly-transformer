@@ -69,7 +69,7 @@ ffn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
 # Training
 for model in [attn_sn_model, ffn_sn_model]:
 
-    model_name = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
+    model_label = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
     model.load_state_dict(torch.load(".../model/genomic_bench/vanilla_epoch_40.pth"), strict=False)
 
@@ -83,6 +83,6 @@ for model in [attn_sn_model, ffn_sn_model]:
         device=device,
         metric_fns=metric_fns,
         save_dir=".../model/genomic_bench",
-        save_prefix=model_name,
+        save_prefix=model_label,
         is_sequence=False
     )

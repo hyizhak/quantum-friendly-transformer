@@ -1,14 +1,22 @@
 import torch
 from torch.nn import ConstantPad1d
 from collections import Counter
+import random
 import numpy as np
 from sklearn.metrics import f1_score, accuracy_score
 from transformers import TrainingArguments, Trainer, TrainerCallback, TrainerControl, TrainerState
+from transformers import set_seed as hf_set_seed
+
 
 def manual_seed(seed):
+    
+    random.seed(seed)
+    np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+
+    hf_set_seed(seed)
 
 
 class LetterTokenizer:
