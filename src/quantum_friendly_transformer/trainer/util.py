@@ -21,28 +21,23 @@ def evaluate(model, data_loader, device, metric_fns, is_sequence=True):
 
     with torch.no_grad():
         for batch in data_loader:
-            # Move inputs to device
             batch = {k: v.to(device) for k, v in batch.items()}
             x = batch['input_ids']
             y = batch['labels']
             attn_mask = batch['attention_mask']
 
-            # Forward pass
             logits = model(x, key_padding_mask=(attn_mask == 0))
             preds = torch.argmax(logits, dim=-1)
 
             if is_sequence:
-                # Flatten token-level predictions and labels, ignore padding index -100
                 preds_flat = preds[y != -100]
                 labels_flat = y[y != -100]
                 all_preds.extend(preds_flat.cpu().tolist())
                 all_labels.extend(labels_flat.cpu().tolist())
             else:
-                # Flatten batch-level classification
                 all_preds.extend(preds.cpu().tolist())
                 all_labels.extend(y.cpu().tolist())
 
-    # Compute all metrics
     results = {}
     for name, fn in metric_fns.items():
         results[name] = fn(all_labels, all_preds)
@@ -60,6 +55,7 @@ def train(
     metric_fns,
     num_epochs=200,
     lr=1e-5,
+    weight_decay=0.001,
     freeze_transformer=False,
     is_sequence=True,
     early_stopping=True,
@@ -68,9 +64,9 @@ def train(
     greater_is_better=True
 ):
     """
-    Train and evaluate a model with optional Early Stopping.
+    Train and evaluate a model with cosine lr scheduler.
 
-    Args:
+        Args:
         model: the model to train
         train_loader: DataLoader for training data
         val_loader: DataLoader for validation data
@@ -81,6 +77,7 @@ def train(
         metric_fns: dict of evaluation metrics
         num_epochs: maximum number of epochs to train
         lr: learning rate
+        weight_decay: l2 regularization
         freeze_transformer: whether to freeze transformer backbone
         is_sequence: True for sequence labeling, False for classification
         early_stopping: whether to enable Early Stopping
@@ -91,7 +88,6 @@ def train(
     Returns:
         history: dict with 'val_metrics' list and 'test_metrics'
     """
-    # Optionally freeze transformer backbone
     if freeze_transformer and hasattr(model, 'transformer'):
         for param in model.transformer.parameters():
             param.requires_grad = False
@@ -102,22 +98,21 @@ def train(
     else:
         criterion = torch.nn.CrossEntropyLoss()
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+    # Cosine annealing scheduler over epochs
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs)
     scaler = torch.amp.GradScaler()
 
     history = {'val_metrics': []}
-
-    # --- Early Stopping variables ---
     best_metric = None
     patience_counter = 0
     best_model_state = None
 
-    # Initial evaluation before any training
+    # Initial evaluation
     init_metrics = evaluate(model, val_loader, device, metric_fns, is_sequence)
     print(f"Initial validation metrics: {init_metrics}")
     history['val_metrics'].append({'epoch': 0, **init_metrics})
 
-    # Training loop
     for epoch in range(1, num_epochs + 1):
         model.train()
         for batch in train_loader:
@@ -142,7 +137,10 @@ def train(
         print(f"Epoch {epoch}: {val_metrics}")
         history['val_metrics'].append({'epoch': epoch, **val_metrics})
 
-        # --- Early Stopping check ---
+        # Step the scheduler once per epoch
+        scheduler.step()
+
+        # Early stopping check
         current_metric = val_metrics.get(metric_name)
         if current_metric is None:
             raise KeyError(f"Monitored metric '{metric_name}' not found in validation results.")
@@ -157,7 +155,6 @@ def train(
             best_metric = current_metric
             best_model_state = model.state_dict()
             patience_counter = 0
-            # Save a checkpoint of the current best model
             os.makedirs(save_dir, exist_ok=True)
             best_path = os.path.join(save_dir, f"{save_prefix}_best.pth")
             torch.save(best_model_state, best_path)
@@ -167,13 +164,13 @@ def train(
                 print(f"Early stopping at epoch {epoch} (no improvement for {early_stopping_patience} epochs)")
                 break
 
-        # Optional periodic checkpointing
+        # Periodic checkpointing
         if (epoch <= 30 and epoch % 10 == 0) or (epoch > 30 and epoch % 40 == 0):
             os.makedirs(save_dir, exist_ok=True)
             path = os.path.join(save_dir, f"{save_prefix}_epoch_{epoch}.pth")
             torch.save(model.state_dict(), path)
 
-    # Load the best model state if early stopping was used
+    # Load best state if early stopping used
     if early_stopping and best_model_state is not None:
         model.load_state_dict(best_model_state)
 

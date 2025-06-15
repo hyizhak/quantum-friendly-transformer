@@ -31,11 +31,14 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
             self.attn.q_linear = spectral_norm(self.attn.q_linear)
             self.attn.k_linear = spectral_norm(self.attn.k_linear)
             self.attn.v_linear = spectral_norm(self.attn.v_linear)
+
+        self.dropout = nn.Dropout(0.1)
         
         # Feed Forward Network
         self.ffn = nn.Sequential(
             nn.Linear(d_model, d_ff),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Linear(d_ff, d_model)
         )
         if apply_ffn_sn:
@@ -50,6 +53,7 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
             x = self.embedding(x)
 
         attn_output, _ = self.attn(x, x, x, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
+        attn_output = self.dropout(attn_output)
         x = x + attn_output  # Residual connection
         
         # Feed-forward network

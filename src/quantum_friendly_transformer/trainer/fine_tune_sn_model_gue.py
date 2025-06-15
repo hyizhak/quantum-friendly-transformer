@@ -40,7 +40,7 @@ tokenized_prom = prom_300_notata.map(lambda examples: tokenize_dna_sequence_gue(
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
+train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, generator=torch.Generator().manual_seed(42), collate_fn=data_collator)
 val_loader = DataLoader(tokenized_prom["dev"], batch_size=32, shuffle=False, collate_fn=data_collator)
 test_loader = DataLoader(tokenized_prom["test"], batch_size=32, shuffle=False,  collate_fn=data_collator)
 

@@ -86,7 +86,7 @@ for model_obj, model_label in [
     # Create a new TrainingArguments instance with the unique output_dir
     current_training_args = TrainingArguments(
         output_dir=current_output_dir,
-        learning_rate=8e-5,
+        learning_rate=2e-4,
         warmup_ratio=0.1,
         lr_scheduler_type="cosine",
         fp16=True,

@@ -46,7 +46,7 @@ tokenized_prom = notata_dataset.map(lambda examples: tokenize_dna_sequence_genom
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, collate_fn=data_collator)
+train_loader = DataLoader(tokenized_prom["train"], batch_size=32, shuffle=True, generator=torch.Generator().manual_seed(42), collate_fn=data_collator)
 
 split = tokenized_prom["test"].train_test_split(test_size=0.5, seed=42)
 val_dataset = split["train"]
@@ -97,9 +97,16 @@ for model in [vanilla_model, sn_model, fn_model]:
         train_loader,
         val_loader,
         test_loader,
+        num_epochs=100,
+        lr=8e-4,
         device=device,
         metric_fns=metric_fns,
         save_dir=".../model/genomic_bench",
-        save_prefix=model_label,
-        is_sequence=False
+        save_prefix=model_name,
+        freeze_transformer=False,
+        is_sequence=False,
+        early_stopping=False,
+        early_stopping_patience=10,
+        metric_name="f1",
+        greater_is_better=True,
     )
