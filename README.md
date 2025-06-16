@@ -10,6 +10,8 @@ To set up the environment, we recommend using a virtual environment or conda env
 bash setup.sh
 ```
 
+All dependencies should be installed in approximately 5 minutes. This may vary depending on your internet speed and the performance of your machine.
+
 To access Hugging Face datasets, you need to set up your Hugging Face token. You can do this by running:
 
 ```
