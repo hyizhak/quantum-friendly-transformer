@@ -2,6 +2,21 @@
 
 This repo serves as numerical experiments of quantum-friendly-transformer where we spectral-normalize / frobenius-normalize layers of transformers to understand how the block encoding affects model performance.
 
+## Setup
+
+To set up the environment, we recommend using a virtual environment or conda environment. The following instructions assume you are using a conda environment.
+
+```
+bash setup.sh
+```
+
+To access Hugging Face datasets, you need to set up your Hugging Face token. You can do this by running:
+
+```
+huggingface-cli login
+```
+or by setting the `HF_TOKEN` environment variable with your token.
+
 ## Matrix Norms in Transformers
 
 Before experiments showcasing the capability of normalized transformers, we provide scripts to check the norms of pretrained models, check `alpha_*` files:
@@ -38,17 +53,17 @@ Before experiments showcasing the capability of normalized transformers, we prov
     python wqkv_norm.py
     ```
 
-## Training and Fine-tuning Normalized Transformers
+### Runtime:
 
-After setting up the environment with (you may need to ensure your conda installation):
+All the above scripts utilize no GPU and on a commercial laptop. Once you have relevant models downloaded from huggingface, the runtime should be less than 10 minutes for each script. The runtime may vary depending on the model and the number of tokens.
 
-```
-bash setup.sh
-```
+## Training Normalized Transformers
 
-And make sure you have changed output directory in files under `src/quantum_friendly_transformer/trainer` to your desired location,
+All experiments run on a single NVIDIA A100 SXM4 GPU (40 GiB HBM2, driver 535.154.05, CUDA 12.2) paired with an AMD EPYC 7713 processor—of which 16 threads are allocated from the system’s 64-core/128-thread CPU (1.5–2.0 GHz base, boosting to ≈3.1 GHz; 32 KiB L1d/L1i, 512 KiB L2, 32 MiB L3 cache)—and 110 GiB of DDR4 RAM, all under Ubuntu 20.04 LTS.
 
-To train an single-layer transformer on the [Genomic Benchmarks non-tata promoter dataset](https://bmcgenomdata.biomedcentral.com/articles/10.1186/s12863-023-01123-8)(0-1 classification task), use:
+After setting up the environment, make sure you have changed output directory in files under `src/quantum_friendly_transformer/trainer` to your desired location,
+
+To train single-layer normalized transformers on the [Genomic Benchmarks non-tata promoter dataset](https://bmcgenomdata.biomedcentral.com/articles/10.1186/s12863-023-01123-8)(0-1 classification task), use:
 
 ```
 python src/quantum_friendly_transformer/trainer/train_genomic_bench.py
@@ -63,13 +78,16 @@ This result is reported in our paper and key hyperparameters are:
 
 We noted that more intricate hyperparameter tuning may be needed for the normalized models, as the optimization is slightly off the sweet point of current optimizers. For more details, please refer to the codebase.
 
+### Runtime:
+The training of 3 single-layer transformers (vanilla, spectral normalized, frobenius normalized) on the Genomic Benchmarks dataset with given hyperparameters takes approximately 1 hour the specified machine.
+
 To fine-tune the transformer on the same dataset with specific layer normalized, use:
 
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_sn_model_genomic_bench.py
 ```
 
-To fine-tune the frobenius normalized DNABert on the same dataset, use:
+To train a frobenius normalized DNABert on the same dataset, use:
 
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_multilayer_genomic_bench.py
@@ -84,6 +102,9 @@ This result is reported in our paper and key hyperparameters are:
   
 For more details, please refer to the codebase.
 
+### Runtime:
+The training of a multi-layer normalized Bert model on the Genomic Benchmarks dataset with given hyperparameters takes approximately 2 hour on the specified machine.
+
 To train an one-layer transformer on the [Genome Understanding Evaluation (GUE) notata promoter dataset](https://huggingface.co/datasets/leannmlindsey/GUE)(0-1 classification task), use:
 
 ```
@@ -96,7 +117,7 @@ To fine-tune the transformer on the same dataset with specific layer normalized,
 python src/quantum_friendly_transformer/trainer/fine_tune_sn_model_gue.py
 ```
 
-To fine-tune the frobenius normalized DNABert on the same dataset, use:
+To train a frobenius normalized DNABert on the same dataset, use:
 
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_multilayer_gue.py

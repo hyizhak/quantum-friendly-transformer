@@ -7,11 +7,11 @@ import os
 
 
 # Specify the model checkpoint for Llama2
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 
 # model_name = "meta-llama/Llama-3.2-11B-Vision"
 
-model_name = "Qwen/Qwen2.5-14B-Instruct"
+# model_name = "Qwen/Qwen2.5-14B-Instruct"
 
 # model_name = "google/gemma-3-4b-it"
 
@@ -61,12 +61,12 @@ plt.bar(bin_centers, counts, width=bin_edges[1]-bin_edges[0], edgecolor='black')
 
 plt.xlabel(r"$\ell_2$ Norm of Token Embeddings", fontsize=14)
 plt.ylabel("Frequency (Number of Tokens)", fontsize=14)
-plt.title(r"Histogram of $\ell_2$ Norms of Qwen2.5-$14b$ Token Embeddings", fontsize=14)
+plt.title(r"Histogram of $\ell_2$ Norms of Llama-2-$7b$ Token Embeddings", fontsize=14)
 
 # Set the tick font sizes as well
 plt.xticks(fontsize=14)
 plt.yticks(fontsize=14)
 
 plt.xlim(0, 2)
-plt.savefig("./images/emb_histogram_qwen_2.5_14b_5120.pdf")
+plt.savefig("./images/emb_histogram_llama_2_7b_4096.pdf")
 plt.show()

@@ -7,13 +7,13 @@ import os
 
 
 # Specify the model checkpoint for Llama2
-# model_name = "meta-llama/Llama-2-7b-chat-hf"
+model_name = "meta-llama/Llama-2-7b-chat-hf"
 
 # model_name = "meta-llama/Llama-3.2-11B-Vision"
 
 # model_name = "meta-llama/Llama-3.2-3B"
 
-model_name = "Qwen/Qwen2.5-3B-Instruct"
+# model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 # model_name = "google/gemma-2-2b-it"
 
@@ -69,8 +69,8 @@ plot_hist(axes[0], col_norms_Wq, r"Column $\ell_2$ Norm - Wq")
 plot_hist(axes[1], col_norms_Wk, r"Column $\ell_2$ Norm - Wk")
 plot_hist(axes[2], col_norms_Wv, r"Column $\ell_2$ Norm - Wv")
 
-plt.suptitle(r"Histograms of Column $\ell_2$ Norms for Wq, Wk, Wv Weights (Layer 0 of Qwen2.5-$3b$)", size=14)
+plt.suptitle(r"Histograms of Column $\ell_2$ Norms for Wq, Wk, Wv Weights (Layer 0 of Llama-2-$7b$)", size=14)
 plt.tight_layout()
 
 # Save to file
-plt.savefig("./images/qkv_col_norms_qwen_2.5_3b_2048.pdf")
+plt.savefig("./images/wqkv_col_norms_llama_2_7b_4096.pdf")
