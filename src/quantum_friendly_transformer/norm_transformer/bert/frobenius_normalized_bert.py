@@ -23,6 +23,7 @@ from transformers.modeling_utils import PreTrainedModel
 from transformers.models.bert.configuration_bert import BertConfig
 
 from ..frobenius_norm import frobenius_norm_with_scaling
+from ..normalization import UnitNormLayerNorm, UnitNormRMSNorm
 
 from .bert_padding import (index_first_axis,
                                             index_put_first_axis, pad_input,
@@ -127,6 +128,7 @@ class FrobeniuslyNormalizedBertConfig(BertConfig):
         apply_ffn_fn=False,
         no_layer_norm=False,
         max_gamma=2,
+        alibi_starting_size=512,
         **kwargs,
     ):
         super().__init__(pad_token_id=pad_token_id, **kwargs)
@@ -150,6 +152,7 @@ class FrobeniuslyNormalizedBertConfig(BertConfig):
         self.apply_ffn_fn = apply_ffn_fn
         self.no_layer_norm = no_layer_norm
         self.max_gamma = max_gamma
+        self.alibi_starting_size = alibi_starting_size
 
     @classmethod
     def from_bert_config(cls, config, apply_attn_fn=False, apply_ffn_fn=False, no_layer_norm=False, max_gamma=2):
@@ -171,21 +174,12 @@ class FrobeniuslyNormalizedBertConfig(BertConfig):
         # Return an instance of NormalizedBertConfig by passing the full dictionary.
         return cls(**config_dict)
     
-class RMSNorm(nn.Module):
-    def __init__(self, hidden_size, eps=1e-6):
-        """
-        equivalent to T5LayerNorm
-        """
-        super().__init__()
-        self.weight = nn.Parameter(torch.ones(hidden_size))
-        self.variance_epsilon = eps
+class RMSNorm(UnitNormRMSNorm):
+    """Backward-compatible name for the constrained RMSNorm implementation."""
 
-    def forward(self, hidden_states):
-        input_dtype = hidden_states.dtype
-        hidden_states = hidden_states.to(torch.float32)
-        variance = hidden_states.pow(2).mean(-1, keepdim=True)
-        hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)
-        return self.weight * hidden_states.to(input_dtype)
+    def __init__(self, hidden_size, eps=1e-6):
+        super().__init__(hidden_size, eps=eps)
+
 
 class FrobeniuslyNormalizedBertEmbeddings(nn.Module):
 
@@ -203,8 +197,10 @@ class FrobeniuslyNormalizedBertEmbeddings(nn.Module):
         if config.no_layer_norm:
             self.LayerNorm = nn.Identity() 
         else:
-            self.LayerNorm = nn.LayerNorm(config.hidden_size,
-                                      eps=config.layer_norm_eps)
+            self.LayerNorm = UnitNormLayerNorm(
+                config.hidden_size,
+                eps=config.layer_norm_eps,
+            )
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
         self.register_buffer('token_type_ids',
                              torch.zeros(config.max_position_embeddings,
@@ -376,8 +372,10 @@ class FrobeniuslyNormalizedBertSelfOutput(nn.Module):
         if config.no_layer_norm:
             self.LayerNorm = nn.Identity()
         else:
-            self.LayerNorm = nn.LayerNorm(config.hidden_size,
-                                      eps=config.layer_norm_eps)
+            self.LayerNorm = UnitNormLayerNorm(
+                config.hidden_size,
+                eps=config.layer_norm_eps,
+            )
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def forward(self, hidden_states: torch.Tensor,
@@ -469,8 +467,10 @@ class FrobeniuslyNormalizedBertGatedLinearUnitMLP(nn.Module):
         if config.no_layer_norm:
             self.layernorm = nn.Identity()
         else:
-            self.layernorm = nn.LayerNorm(config.hidden_size,
-                                      eps=config.layer_norm_eps)
+            self.layernorm = UnitNormLayerNorm(
+                config.hidden_size,
+                eps=config.layer_norm_eps,
+            )
 
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         """Compute new hidden states from current hidden states.
@@ -711,7 +711,7 @@ class BertPredictionHeadTransform(nn.Module):
             self.transform_act_fn = ACT2FN[config.hidden_act]
         else:
             self.transform_act_fn = config.hidden_act
-        self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=1e-12)
+        self.LayerNorm = UnitNormLayerNorm(config.hidden_size, eps=1e-12)
 
     def forward(self, hidden_states: torch.Tensor) -> torch.Tensor:
         hidden_states = self.dense(hidden_states)

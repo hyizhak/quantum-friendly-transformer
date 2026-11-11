@@ -1,6 +1,7 @@
+"""Training and evaluation helpers for the PyTorch reference classifiers."""
+
 import os
 import torch
-from tqdm import tqdm
 
 def evaluate(model, data_loader, device, metric_fns, is_sequence=True):
     """

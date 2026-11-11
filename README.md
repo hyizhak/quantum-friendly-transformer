@@ -1,8 +1,62 @@
 # quantum-friendly-transformer
 
-This repo serves as numerical experiments of quantum-friendly-transformer where we spectral-normalize / frobenius-normalize layers of transformers to understand how the block encoding affects model performance.
+An installable PyTorch library for Frobenius caps, spectral/Frobenius normalization,
+normalization affine constraints, and attention scaling. This repository also
+contains the experiments studying how these constraints affect Transformer models.
 
-## Setup
+## Library installation
+
+Python 3.10 or newer is required. From a source checkout:
+
+```bash
+python -m pip install .
+```
+
+The core library depends only on PyTorch. Choose optional dependencies for your workflow:
+
+```bash
+python -m pip install '.[hf]'             # Hugging Face and custom BERT models
+python -m pip install -e '.[experiments]'  # Repository experiment runners
+python -m pip install -e '.[dev]'          # Experiments, tests, and build tools
+```
+
+Install the PyTorch build appropriate for your CPU/CUDA environment first if you
+need a particular accelerator version. The older pinned environment in `reqs/`
+is retained for reproducing the original experiments.
+
+## Library usage
+
+```python
+import torch
+from torch import nn
+from quantum_friendly_transformer import UnitNormLayerNorm, learnable_frobenius_cap
+
+projection = learnable_frobenius_cap(nn.Linear(16, 16), max_gamma=2.0)
+model = nn.Sequential(projection, UnitNormLayerNorm(16))
+output = model(torch.randn(2, 8, 16))
+```
+
+Use `apply_learnable_frobenius_caps(model, max_gamma=24.0)` to adapt supported
+Transformer attention and MLP projections. Normalization, capping, and attention
+scaling are separate operations. The original `norm_transformer` import paths
+remain supported.
+
+See [the library guide](docs/library.md) for APIs, supported attention adapters,
+checkpoint loading, optional integrations, and release validation. A CPU example
+that needs no downloads is available at `examples/library_quickstart.py`.
+
+| Location | Purpose |
+|---|---|
+| `src/quantum_friendly_transformer/` | Distributable library and compatibility entrypoints |
+| `experiments/runners/` and `experiments/configs/` | Research workflows, including original recipes in `runners/legacy/` |
+| `alpha_s/`, `alpha_w/`, `results/` | Analysis scripts and reported artifacts |
+| `tests/` | CPU unit tests and research-runner tests |
+
+The wheel contains the library only. The source distribution additionally contains
+the library guide, example, and core tests; datasets, checkpoints, and research
+outputs are excluded from both artifacts.
+
+## Conda setup
 
 To set up the environment, we recommend using a virtual environment or conda environment. The following instructions assume you are using a conda environment.
 
@@ -10,7 +64,10 @@ To set up the environment, we recommend using a virtual environment or conda env
 bash setup.sh
 ```
 
-All dependencies should be installed in approximately 5 minutes. This may vary depending on your internet speed and the performance of your machine.
+This updates the `q-transformer` environment to Python 3.11 and installs the
+library with its experiment dependencies. `environment.yml` and
+`reqs/requirements.txt` retain the historical Python 3.8 environment; they are
+not the setup specification for the current library.
 
 To access Hugging Face datasets, you need to set up your Hugging Face token. You can do this by running:
 
@@ -63,7 +120,9 @@ All the above scripts utilize no GPU and on a commercial laptop. Once you have r
 
 All experiments run on a single NVIDIA A100 SXM4 GPU (40 GiB HBM2, driver 535.154.05, CUDA 12.2) paired with an AMD EPYC 7713 processor—of which 16 threads are allocated from the system’s 64-core/128-thread CPU (1.5–2.0 GHz base, boosting to ≈3.1 GHz; 32 KiB L1d/L1i, 512 KiB L2, 32 MiB L3 cache)—and 110 GiB of DDR4 RAM, all under Ubuntu 20.04 LTS.
 
-After setting up the environment, make sure you have changed output directory in files under `src/quantum_friendly_transformer/trainer` to your desired location,
+After setting up the environment, configure output directories in the recipes
+under `experiments/runners/legacy/`. The historical commands below continue to
+work from an installed source checkout.
 
 To train single-layer normalized transformers on the [Genomic Benchmarks non-tata promoter dataset](https://bmcgenomdata.biomedcentral.com/articles/10.1186/s12863-023-01123-8)(0-1 classification task), use:
 
@@ -136,4 +195,3 @@ To fine-tune the transformer on the same dataset with specific layer normalized,
 ```
 python src/quantum_friendly_transformer/trainer/fine_tune_sn_model_conll2003.py
 ```
-

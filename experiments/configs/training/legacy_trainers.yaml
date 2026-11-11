@@ -1,0 +1,9 @@
+runs:
+  - recipe: train_gue
+  - recipe: train_genomic_bench
+  - recipe: train_conll2003
+  - recipe: fine_tune_sn_gue
+  - recipe: fine_tune_sn_genomic_bench
+  - recipe: fine_tune_sn_conll2003
+  - recipe: fine_tune_multilayer_gue
+  - recipe: fine_tune_multilayer_genomic_bench

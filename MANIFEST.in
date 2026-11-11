@@ -1,0 +1,13 @@
+include LICENSE README.md pyproject.toml
+include docs/library.md
+include examples/library_quickstart.py
+prune tests
+include tests/test_attention_scaling.py
+include tests/test_normalization.py
+include tests/test_library.py
+include tests/test_distribution.py
+prune experiments
+prune alpha_s
+prune alpha_w
+prune results
+global-exclude __pycache__ *.py[cod] *.pt *.pth *.npy *.parquet
