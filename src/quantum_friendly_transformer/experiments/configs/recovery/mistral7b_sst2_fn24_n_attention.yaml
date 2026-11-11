@@ -1,0 +1,22 @@
+protocol: glue_sequence_classifier
+args:
+  model: mistralai/Mistral-7B-v0.1
+  task: sst2
+  caps: [24]
+  checkpoints: [0, 100, 300, 500]
+  baseline_target: 0.9174311926605505
+  tolerance: 0.01
+  max_length: 128
+  pad_to_max_length: true
+  attention_scaling: sequence_length
+  batch_size: 1
+  eval_batch_size: 1
+  grad_accum_steps: 4
+  learning_rate: 0.001
+  weight_decay: 0.0
+  optimizer: adamw
+  train_scope: head_caps
+  dtype: bfloat16
+  cap_norm_dtype: native
+  gradient_checkpointing: true
+  output: experiments/outputs/raw/recovery_sst2_mistral7b_fn24_n_attention_steps500.json

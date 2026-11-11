@@ -1,0 +1,22 @@
+protocol: glue_sequence_classifier
+args:
+  model: mistralai/Mistral-7B-v0.1
+  task: sst2
+  caps: [24, 48, 96]
+  checkpoints: [0, 100, 300, 500]
+  include_baseline: true
+  baseline_selection: best
+  tolerance: 0.01
+  max_length: 128
+  pad_to_max_length: true
+  batch_size: 1
+  eval_batch_size: 1
+  grad_accum_steps: 4
+  learning_rate: 0.001
+  weight_decay: 0.0
+  optimizer: adamw
+  train_scope: head_caps
+  dtype: bfloat16
+  cap_norm_dtype: native
+  gradient_checkpointing: true
+  output: experiments/outputs/raw/dscale_sst2_mistral7b_N128_caps24_48_96_steps500_headcaps.json

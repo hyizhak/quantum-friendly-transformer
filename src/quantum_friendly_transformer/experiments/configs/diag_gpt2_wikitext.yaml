@@ -1,0 +1,10 @@
+model: gpt2
+dataset: wikitext
+config: wikitext-103-raw-v1
+split: validation
+max_tokens: 200000
+seq_lens: [512, 1024]
+batch_size: 4
+dtype: float32
+seed: 42
+output: experiments/outputs/raw/diag_gpt2_wikitext.parquet

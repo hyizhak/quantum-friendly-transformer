@@ -1,0 +1,9 @@
+model: gpt2
+dataset: wikitext
+config: wikitext-103-raw-v1
+variants: [baseline, fn:1, fn:2, fn:4, fn:8]
+eval_only: true
+seq_len: 1024
+batch_size: 4
+seed: 42
+output: experiments/outputs/raw/norm_gpt2_wikitext.json

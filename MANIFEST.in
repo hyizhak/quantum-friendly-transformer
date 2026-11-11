@@ -1,11 +1,17 @@
 include LICENSE README.md pyproject.toml
 include docs/library.md
+include docs/evidence.md
+include tools/build_evidence.py
 include examples/library_quickstart.py
 prune tests
 include tests/test_attention_scaling.py
 include tests/test_normalization.py
 include tests/test_library.py
 include tests/test_distribution.py
+include tests/test_evidence.py
+include tests/test_experiments.py
+include tests/test_recovery_trainable_attention_scaling.py
+include tests/test_aggregate_bounded_attention_recovery.py
 prune experiments
 prune alpha_s
 prune alpha_w

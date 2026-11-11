@@ -1,0 +1,22 @@
+protocol: glue_sequence_classifier
+args:
+  model: allenai/OLMo-1B-0724-hf
+  task: sst2
+  caps: [24]
+  checkpoints: [0, 500, 1000, 2000, 3000, 4000, 5000, 6315]
+  baseline_target: 0.9334862385321101
+  tolerance: 0.01
+  max_length: 128
+  pad_to_max_length: true
+  attention_scaling: sequence_length
+  batch_size: 8
+  eval_batch_size: 8
+  grad_accum_steps: 4
+  learning_rate: 2e-5
+  weight_decay: 0.0
+  optimizer: adamw
+  train_scope: all
+  dtype: bfloat16
+  cap_norm_dtype: float32
+  gradient_checkpointing: true
+  output: experiments/outputs/raw/recovery_sst2_olmo_1b_fn24_n_attention_steps6315.json

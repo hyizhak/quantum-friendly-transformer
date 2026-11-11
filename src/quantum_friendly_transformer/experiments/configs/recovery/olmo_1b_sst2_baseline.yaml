@@ -1,0 +1,21 @@
+protocol: glue_sequence_classifier
+args:
+  model: allenai/OLMo-1B-0724-hf
+  task: sst2
+  checkpoints: [0, 500, 1000, 2000, 3000, 4000, 5000, 6315]
+  include_baseline: true
+  baseline_selection: best
+  tolerance: 0.01
+  max_length: 128
+  pad_to_max_length: true
+  batch_size: 8
+  eval_batch_size: 8
+  grad_accum_steps: 4
+  learning_rate: 2e-5
+  weight_decay: 0.0
+  optimizer: adamw
+  train_scope: all
+  dtype: bfloat16
+  cap_norm_dtype: float32
+  gradient_checkpointing: true
+  output: experiments/outputs/raw/baseline_sst2_olmo_1b_0724_fullfinetune_bsz32_lr2e5_3epochs.json

@@ -4,14 +4,15 @@
 
 The distribution is named `quantum-friendly-transformer`; Python imports use
 `quantum_friendly_transformer`. Python 3.10+ and PyTorch 2.4+ (below 3.0) are
-required. Version 0.2.0 organizes the existing research components into a library
-without changing their attention formulas or experiment results.
+required. Version 0.3.0 also packages the NLP experiment runners, configurations,
+recorded result tables, and an API for the full evidence archive. Attention
+formulas and recorded experiment results are unchanged.
 
 From a checkout, install with `python -m pip install .`. For development, use
 `python -m pip install -e '.[dev]'`. A built wheel can be shared directly:
 
 ```bash
-python -m pip install /path/to/quantum_friendly_transformer-0.2.0-py3-none-any.whl
+python -m pip install /path/to/quantum_friendly_transformer-0.3.0-py3-none-any.whl
 ```
 
 These commands do not assume a PyPI publication.
@@ -161,6 +162,12 @@ not required. The base model returns encoded states and an optional pooled outpu
 
 ## Research recipes
 
+NLP recovery, partition-function and normalization diagnostics, depth
+measurements, and report generation are installed under
+`quantum_friendly_transformer.experiments`. Use `qft-experiment --list` for
+entrypoints and `qft-evidence list` for the recorded artifacts. See the
+[evidence guide](evidence.md) for package contents and companion archive access.
+
 Fixed dataset/checkpoint/output recipes live in `experiments/runners/legacy/`.
 The historical `src/quantum_friendly_transformer/trainer/*.py` entrypoints
 forward there from a source checkout. An installed wheel contains only the
@@ -183,7 +190,7 @@ python -m pip install -e '.[dev]'
 python -m pytest
 python -m compileall src alpha_s alpha_w experiments
 python -m build
-python -m twine check dist/*
+python -m twine check dist/*.whl dist/*.tar.gz
 python examples/library_quickstart.py
 ```
 
@@ -198,7 +205,8 @@ Core tests need no GPU, datasets, or model downloads:
 python -m pytest tests/test_library.py tests/test_distribution.py tests/test_normalization.py tests/test_attention_scaling.py
 ```
 
-The optional BERT smoke test skips when its dependencies are absent. Repository
-runner tests additionally need the `experiments` dependencies and the checkout.
-The source archive includes core tests, the library guide, and the CPU example
-alongside package code and metadata. Build commands do not publish the package.
+The optional BERT smoke test skips when its dependencies are absent. NLP runner
+tests additionally need the `experiments` dependencies. The source archive
+includes core and research tests, both guides, the CPU example, and the evidence
+builder alongside package code and compact evidence. Raw data and checkpoint
+contents remain in the companion archive. Build commands do not publish them.

@@ -1,0 +1,41 @@
+protocol: glue_sequence_classifier
+args:
+  model: allenai/OLMo-1B-0724-hf
+  task: sst2
+  caps: [24]
+  checkpoints: [0, 500, 1000, 2000, 3000, 4000, 5000, 6315]
+  baseline_target: 0.9334862385321101
+  tolerance: 0.01
+  max_length: 128
+  pad_to_max_length: true
+  attention_scaling: alpha_s_alpha_w
+  alpha_s: 45.254833995939045
+  alpha_w: 24
+  trainable_attention_scaling: true
+  shared_attention_scale: true
+  attention_scale_learning_rate: 1.0e-6
+  attention_scale_adam_eps: 1.0e-12
+  attention_scale_native_regularization: 0.001
+  attention_scale_prior_warmup_steps: 25
+  attention_scale_prior_warmup_learning_rate: 0.3
+  attention_scale_prior_warmup_snap_native: true
+  alpha_s_calibration_batches: 28
+  alpha_s_calibration_margin: 1.05
+  batch_size: 8
+  eval_batch_size: 32
+  grad_accum_steps: 4
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  lr_scheduler: linear
+  optimizer: adamw
+  train_scope: all
+  dtype: bfloat16
+  cap_norm_dtype: float32
+  gradient_checkpointing: true
+  max_grad_norm: 1.0
+  device: cuda:0
+  offline: true
+  early_stop_on_recovery: true
+  save_recovery_checkpoint: true
+  output: experiments/outputs/raw/recovery_sst2_olmo_1b_fn24_trainable_alpha_attention_tasktrainable_steps6315.json

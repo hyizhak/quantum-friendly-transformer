@@ -1,0 +1,33 @@
+# Quantum-Friendly Transformer paper figure style, version 1.
+figure.figsize: 7, 4.2
+figure.dpi: 100
+savefig.dpi: 220
+savefig.transparent: False
+
+font.family: sans-serif
+font.sans-serif: DejaVu Sans
+font.size: 10
+axes.titlesize: 10
+axes.labelsize: 10
+axes.titleweight: normal
+axes.linewidth: 0.8
+axes.axisbelow: True
+axes.grid: True
+axes.prop_cycle: cycler('color', ['1f77b4', 'ff7f0e', '2ca02c', 'd62728', '9467bd', '8c564b', 'e377c2', '7f7f7f', 'bcbd22', '17becf'])
+
+xtick.labelsize: 9
+ytick.labelsize: 9
+xtick.direction: out
+ytick.direction: out
+
+legend.fontsize: 8
+legend.frameon: False
+lines.linewidth: 1.6
+lines.markersize: 4.5
+
+grid.alpha: 0.25
+grid.linewidth: 0.8
+grid.linestyle: -
+
+pdf.fonttype: 42
+ps.fonttype: 42

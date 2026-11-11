@@ -1,0 +1,50 @@
+protocol: glue_sequence_classifier
+defaults:
+  protocol: glue_sequence_classifier
+  args:
+    task: sst2
+    caps: [24]
+    checkpoints: [0, 100, 300, 600, 1000, 1500, 2000, 3000, 4000, 5000]
+    metric: accuracy
+    tolerance: 0.01
+    max_length: 128
+    pad_to_max_length: true
+    attention_scaling: alpha_s_alpha_w
+    alpha_w: 24
+    trainable_attention_scaling: true
+    shared_attention_scale: true
+    attention_scale_learning_rate: 0.03
+    attention_scale_adam_eps: 1.0e-12
+    attention_scale_native_regularization: 0.001
+    alpha_s_calibration_batches: 28
+    alpha_s_calibration_margin: 1.05
+    batch_size: 16
+    eval_batch_size: 32
+    grad_accum_steps: 2
+    learning_rate: 2.0e-4
+    weight_decay: 0.01
+    warmup_ratio: 0.06
+    optimizer: adamw
+    train_scope: all
+    dtype: bfloat16
+    cap_norm_dtype: float32
+    max_grad_norm: 1.0
+    force_decoder_wrapper: true
+    seed: 42
+    device: cuda:0
+    offline: true
+    early_stop_on_recovery: true
+    save_recovery_checkpoint: true
+runs:
+  - name: tinystories_33m_fn24_trainable_alpha_attention_retry_native_prior
+    args:
+      model: roneneldan/TinyStories-33M
+      alpha_s: 27.712812921102035
+      baseline_target: 0.8451834862385321
+      output: experiments/outputs/raw/recovery_sst2_tinystories_33m_fn24_trainable_alpha_attention_retry_native_prior_steps5000.json
+  - name: tinystories_2layers_33m_fn24_trainable_alpha_attention_retry_native_prior
+    args:
+      model: roneneldan/TinyStories-2Layers-33M
+      alpha_s: 32.0
+      baseline_target: 0.8577981651376146
+      output: experiments/outputs/raw/recovery_sst2_tinystories_2layers_33m_fn24_trainable_alpha_attention_retry_native_prior_steps5000.json

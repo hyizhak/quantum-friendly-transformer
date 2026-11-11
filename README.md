@@ -16,7 +16,7 @@ The core library depends only on PyTorch. Choose optional dependencies for your 
 
 ```bash
 python -m pip install '.[hf]'             # Hugging Face and custom BERT models
-python -m pip install -e '.[experiments]'  # Repository experiment runners
+python -m pip install -e '.[experiments]'  # Packaged experiment runners
 python -m pip install -e '.[dev]'          # Experiments, tests, and build tools
 ```
 
@@ -48,13 +48,27 @@ that needs no downloads is available at `examples/library_quickstart.py`.
 | Location | Purpose |
 |---|---|
 | `src/quantum_friendly_transformer/` | Distributable library and compatibility entrypoints |
-| `experiments/runners/` and `experiments/configs/` | Research workflows, including original recipes in `runners/legacy/` |
+| `src/quantum_friendly_transformer/experiments/` | Packaged NLP research runners, configs, and reporting |
+| `src/quantum_friendly_transformer/evidence/` | Evidence API, checksummed catalog, and bundled records/tables |
+| `experiments/runners/` and `experiments/configs/` | Compatibility scripts and original recipes in `runners/legacy/` |
 | `alpha_s/`, `alpha_w/`, `results/` | Analysis scripts and reported artifacts |
 | `tests/` | CPU unit tests and research-runner tests |
 
-The wheel contains the library only. The source distribution additionally contains
-the library guide, example, and core tests; datasets, checkpoints, and research
-outputs are excluded from both artifacts.
+The wheel includes the library, NLP experiment runners, and 541 recorded result,
+metadata, table, and report files. Large raw measurements and checkpoints are
+organized in a separate companion archive, accessible through the same library.
+See [experiments and evidence](docs/evidence.md) for the inventory, archive layout,
+checkpoint semantics, and reproduction commands.
+
+```bash
+qft-evidence list --group sst2
+qft-evidence extract --destination ./research
+qft-experiment --list
+qft-experiment recovery.dispatcher --config recovery/tinystories_sst2_fn24_bounded_alpha_attention.yaml
+```
+
+The dispatcher prints commands unless `--execute` is supplied. Bundled evidence
+works without downloading models or running training.
 
 ## Conda setup
 
@@ -115,6 +129,25 @@ Before experiments showcasing the capability of normalized transformers, we prov
 ### Runtime:
 
 All the above scripts utilize no GPU and on a commercial laptop. Once you have relevant models downloaded from huggingface, the runtime should be less than 10 minutes for each script. The runtime may vary depending on the model and the number of tokens.
+
+## NLP Revision Experiments
+
+The NLP runners and portable configurations are installed with the library:
+
+```bash
+qft-experiment recovery.dispatcher --config recovery/tinystories_sst2_fn24_strict_recovery.yaml
+qft-experiment recovery.dispatcher --config recovery/tinystories_sst2_fn24_bounded_alpha_attention.yaml
+```
+
+The dispatcher prints commands by default. Add `--execute` to run a configuration.
+Use `qft-experiment --list-configs` for all available configurations and
+`qft-experiment --list` for diagnostics and report generators.
+
+`qft-evidence extract --destination ./research` restores the compact result
+records, tables, reports, and response draft included in the package. Raw
+measurements and saved checkpoints require the companion evidence archive.
+See [the evidence guide](docs/evidence.md) for Python access, verification,
+full extraction, and recovery-report reproduction.
 
 ## Training Normalized Transformers
 

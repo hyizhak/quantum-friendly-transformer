@@ -178,3 +178,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Original measurements/checkpoints are distributed in the evidence companion archive.
+/experiments/outputs/
