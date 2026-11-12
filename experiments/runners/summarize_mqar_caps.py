@@ -16,33 +16,37 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiments.lib.reviewer import save_csv,save_json
+from experiments.lib.mqar_reporting import cohort_config, protocol_summary
+from experiments.lib.experiment import save_csv,save_json
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output",type=Path,default=ROOT/"results/reviewer/mqar_cap_comparison")
+    parser.add_argument("--output",type=Path,required=True)
+    parser.add_argument("--standard-results", type=Path, required=True)
+    parser.add_argument("--reference-results", type=Path, required=True)
+    parser.add_argument("--capped-results", type=Path, required=True)
     args=parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=True)
-    models=[("standard","Standard Transformer",ROOT/"results/reviewer/mqar_standard","native"),
-            ("cap64","QFT adaptation (cap 64)",ROOT/"results/reviewer/mqar_variance_init","native"),
-            ("cap48","QFT adaptation (cap 48)",ROOT/"results/reviewer/mqar_cap48","native"),
-            ("uniform64","Uniform control (cap 64)",ROOT/"results/reviewer/mqar_variance_init","uniform"),
-            ("uniform48","Uniform control (cap 48)",ROOT/"results/reviewer/mqar_cap48","uniform")]
+    models=[("standard","Standard Transformer",args.standard_results,"native"),
+            ("cap64","QFT adaptation (cap 64)",args.reference_results,"native"),
+            ("cap48","QFT adaptation (cap 48)",args.capped_results,"native"),
+            ("uniform64","Uniform control (cap 64)",args.reference_results,"uniform"),
+            ("uniform48","Uniform control (cap 48)",args.capped_results,"uniform")]
     records,norms,inputs=[],[],{}
     for model,title,root,variant in models:
         audit_path=root/"audit.json"
         audit=json.loads(audit_path.read_text())
         if audit["status"]!="passed":
             raise AssertionError("Each cohort must pass its audit")
-        inputs[str(audit_path.relative_to(ROOT))]=hashlib.sha256(audit_path.read_bytes()).hexdigest()
+        inputs[str(audit_path.resolve())]=hashlib.sha256(audit_path.read_bytes()).hexdigest()
         for seed in (11,22,33):
             folder=root/f"{variant}_seed{seed}"
             path=folder/"result.json"
             result=json.loads(path.read_text())
             if result["smoke"]:
                 raise AssertionError("Smoke result in benchmark summary")
-            inputs[str(path.relative_to(ROOT))]=hashlib.sha256(path.read_bytes()).hexdigest()
+            inputs[str(path.resolve())]=hashlib.sha256(path.read_bytes()).hexdigest()
             for row in result["evaluation"]:
                 records.append({"model":model,"label":title,"seed":seed,
                     **{k:v for k,v in row.items() if k!="layer_diagnostics"}})
@@ -73,14 +77,18 @@ def main():
     save_json(args.output/"summary.json",{"new_models":6,"total_comparison_models":15,
         "all_seeds_retained":True,"cap_change":[64,48],"results":aggregates,"cap_activity":norms,
         "source_result_sha256":inputs,"scope":"Exploratory cap sensitivity for the MQAR adaptation; same official data and training budget."})
+    report_config = cohort_config(args.reference_results)
+    summary_path = args.output / "summary.json"
+    summary_record = json.loads(summary_path.read_text())
+    summary_record.update(configuration=report_config,
+                          workflow_validation=bool(report_config.get("workflow_validation")))
+    save_json(summary_path, summary_record)
     lines=["MQAR: CAP 64 TO CAP 48", "",
         "Cap48 retrained from scratch, with the same raw initial parameters, official MQAR data,",
-        "native attention temperature, unit-norm LayerNorm, and 32-epoch budget as cap64.",
+        protocol_summary(report_config),
         "Three seeds (11,22,33); fixed final checkpoints; answer labels only.",
         "All 12 Transformer projection matrices are capped; the vocabulary readout is uncapped.",
         "Effective initial weights can differ because the smaller cap is enforced from the start.",
-        "Training: N=256, 16 memory pairs, 20,000 sequences; vocabulary 8,192.",
-        "Testing: 1,000 identical sequences per condition, shared with the cap64 and standard baselines.",
         "Numbers are mean +/- sample SD across all three seeds. All prior cohorts are preserved.", ""]
     for n,k in conditions:
         lines.append(f"N={n}, memory pairs={k}")

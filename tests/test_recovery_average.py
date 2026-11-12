@@ -4,8 +4,8 @@ import pytest
 import torch
 from transformers import OlmoConfig, OlmoModel
 
-from experiments.runners.reviewer_recovery_large import build_model
-from experiments.runners.reviewer_recovery_average import apply_average
+from experiments.runners.recovery_large import build_model
+from experiments.runners.recovery_average import apply_average
 
 
 def test_average_parameters_preserves_bounds_and_rejects_different_buffers(tmp_path):

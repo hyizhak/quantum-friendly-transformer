@@ -5,8 +5,8 @@ import pytest
 import torch
 from transformers import OlmoConfig, OlmoModel
 
-from experiments.runners.reviewer_recovery_large import build_model
-from experiments.runners.reviewer_recovery_curriculum import load_parent_state
+from experiments.runners.recovery_large import build_model
+from experiments.runners.recovery_curriculum import load_parent_state
 
 
 def test_bounded_parent_restores_outputs_and_rejects_changed_constraint(tmp_path):
@@ -37,7 +37,7 @@ def test_bounded_parent_restores_outputs_and_rejects_changed_constraint(tmp_path
     with pytest.raises(AssertionError):
         load_parent_state(restored, invalid, 'olmo1b')
 
-    from experiments.runners.reviewer_recovery_head import build_model as head_builder
+    from experiments.runners.recovery_head import build_model as head_builder
     probe, _, _ = head_builder(tmp_path, 'olmo1b', config, 151, 'bounded', torch.device('cpu'))
     before = {k: v.clone() for k, v in probe.state_dict().items()}
     assert [n for n, p in probe.named_parameters() if p.requires_grad] == ['score.weight']

@@ -1,0 +1,102 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    101,
+    102,
+    103,
+    104
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 100,
+  "log_every": 100,
+  "threads": 4,
+  "models": {
+    "2layers33m": {
+      "model_id": "roneneldan/TinyStories-2Layers-33M",
+      "revision": "f9cb5b1e9f9664843c179b9f7115d610c6df1be0",
+      "alpha_s": 32.0,
+      "baseline_target": 0.8577981651376146,
+      "learning_rate": 5e-05,
+      "steps": 0
+    }
+  },
+  "cohort": "exploratory_single_model_parameter_average_pairs",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "selection_protocol": "official_validation",
+  "training_sampling_protocol": "no_new_training",
+  "candidate_coefficients": {
+    "101": [
+      0.5,
+      0.5,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "102": [
+      0.5,
+      0.0,
+      0.5,
+      0.0,
+      0.0
+    ],
+    "103": [
+      0.5,
+      0.0,
+      0.0,
+      0.5,
+      0.0
+    ],
+    "104": [
+      0.5,
+      0.0,
+      0.0,
+      0.0,
+      0.5
+    ]
+  },
+  "seed_role": "candidate identifier; no new training seed",
+  "parent_checkpoints": [
+    {
+      "path": "recovery_2layer_seed_extension/2layers33m_bounded_seed17/selected.pth",
+      "sha256": "4c7ba5242daf12b656372155bda18ba54195548130f273eb374419fd7d9830a4",
+      "result_path": "recovery_2layer_seed_extension/2layers33m_bounded_seed17/result.json",
+      "selected_step": 3200
+    },
+    {
+      "path": "recovery_2layer_seed_extension/2layers33m_bounded_seed11/selected.pth",
+      "sha256": "4297c9985d10f700433b5a82c3377c9b68da76068658a9fb394581a71361d033",
+      "result_path": "recovery_2layer_seed_extension/2layers33m_bounded_seed11/result.json",
+      "selected_step": 3400
+    },
+    {
+      "path": "recovery_2layer_seed_extension/2layers33m_bounded_seed71/selected.pth",
+      "sha256": "d475d1f5b2c6f7b26f4ed29e191f705232ba88883f9d87063ae79756e12bebc4",
+      "result_path": "recovery_2layer_seed_extension/2layers33m_bounded_seed71/result.json",
+      "selected_step": 3900
+    },
+    {
+      "path": "recovery_matched_protocol/2layers33m_bounded_seed43/selected.pth",
+      "sha256": "00d3d1d9ab22aba04248cee3163efd1a09b2c33c5d60b6bf2bef4501f9bf805f",
+      "result_path": "recovery_matched_protocol/2layers33m_bounded_seed43/result.json",
+      "selected_step": 3000
+    },
+    {
+      "path": "recovery_2layer_seed_extension/2layers33m_bounded_seed47/selected.pth",
+      "sha256": "ee531afc1a111bcdbc8ac422f10d2cdecd1d310e1ac540b8a22a9b97bbaa2880",
+      "result_path": "recovery_2layer_seed_extension/2layers33m_bounded_seed47/result.json",
+      "selected_step": 3400
+    }
+  ]
+}

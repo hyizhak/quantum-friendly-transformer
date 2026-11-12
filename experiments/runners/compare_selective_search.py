@@ -12,7 +12,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 
 import numpy as np
 
-from experiments.lib.reviewer import manifest, save_csv, save_json
+from experiments.lib.experiment import manifest, save_csv, save_json
 
 
 def main(args):
@@ -67,7 +67,7 @@ def main(args):
                     'queries':q,'trials':count,'success_count':int((found==marked).sum())})
     save_csv(output/'query_counts.csv',rows)
     save_csv(output/'simulated_trials.csv',trials)
-    save_json(output/'manifest.json',manifest(config,[Path(__file__),ROOT/'experiments/lib/reviewer.py'],
+    save_json(output/'manifest.json',manifest(config,[Path(__file__),ROOT/'experiments/lib/experiment.py'],
         parent_manifest_sha256=hashlib.sha256((root/'manifest.json').read_bytes()).hexdigest(),
         success_target=target,output_error=config['output_error'],
         scope='Ideal query-model comparison with errors allowed in both classical promise cases; not hardware runtime or a new proof of a lower bound.'))
@@ -80,5 +80,5 @@ def main(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--results',type=Path,default=Path('results/reviewer/selective_layer'))
+    parser.add_argument('--results',type=Path,required=True)
     main(parser.parse_args())

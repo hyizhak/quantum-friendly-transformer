@@ -9,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 
-from experiments.lib.reviewer import save_csv, save_json
+from experiments.lib.experiment import save_csv, save_json
 
 
 def summarize(root):
@@ -128,5 +128,5 @@ def summarize(root):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--results', type=Path, default=ROOT / 'results/reviewer')
+    parser.add_argument('--results', type=Path, required=True)
     summarize(parser.parse_args().results)

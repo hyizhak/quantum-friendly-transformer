@@ -24,12 +24,12 @@ def main():
                         help='Audit/replay only this recorded seed or candidate ID (repeatable).')
     args = parser.parse_args()
     if args.large or args.low_rank or args.full_dense:
-        from experiments.runners import reviewer_recovery_extension as core
-        from experiments.runners.reviewer_recovery_large import build_model, LargeAttentionInputMonitor
+        from experiments.runners import recovery_extension as core
+        from experiments.runners.recovery_large import build_model, LargeAttentionInputMonitor
         if args.low_rank:
-            from experiments.runners.reviewer_recovery_low_rank import build_model
+            from experiments.runners.recovery_low_rank import build_model
         if args.full_dense:
-            from experiments.runners import reviewer_recovery_full_dense as full_dense
+            from experiments.runners import recovery_full_dense as full_dense
 
             def build_model(assets, name, config, seed, mode, device):
                 assert name == 'mistral7b' and mode == 'bounded'

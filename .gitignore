@@ -185,8 +185,8 @@ cython_debug/
 # Original measurements/checkpoints are distributed in the evidence companion archive.
 /experiments/outputs/
 
-# Local reviewer runs and release drafts are separate from the code repository.
-/results/reviewer/
+# Generated experiment outputs and local drafts are not source code.
+/results/*/
 /response*.tex
 /rebuttal*.tex
 /reproduction-assets/

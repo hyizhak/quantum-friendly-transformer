@@ -81,5 +81,5 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--results', type=Path, default=Path('results/reviewer/selective_layer'))
+    parser.add_argument('--results', type=Path, required=True)
     main(parser.parse_args())

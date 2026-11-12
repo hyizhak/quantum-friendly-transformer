@@ -10,13 +10,13 @@ import pyarrow.parquet as pq
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--assets', type=Path, default=Path('/tmp/qft-recovery-search-assets'))
+    parser.add_argument('--assets', type=Path, required=True)
     parser.add_argument('--root-parquet', type=Path,
-                        default=Path('/tmp/qft-sst-root-assets/default/train/0000.parquet'))
+                        required=True)
     parser.add_argument('--alignment', type=Path,
-                        default=Path('experiments/configs/reviewer/sst_root_training_indices.json'))
+                        default=(Path(__file__).resolve().parents[1] / 'configs/recovery/sst_root_training_indices.json'))
     parser.add_argument('--output', type=Path,
-                        default=Path('results/reviewer/root_membership_reconstruction.json'))
+                        required=True)
     args = parser.parse_args()
     alignment = json.loads(args.alignment.read_text())
     train_path = args.assets / 'data/sst2/train-00000-of-00001.parquet'

@@ -15,7 +15,7 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 from experiments.lib.recovery_full_dense import file_sha256
-from experiments.lib.reviewer import manifest, save_json
+from experiments.lib.experiment import manifest, save_json
 
 TEACHER_ID = 'textattack/roberta-base-SST-2'
 TEACHER_REVISION = '84ee248b91053ef5d0c748bbac4edfba1cf89584'
@@ -60,14 +60,14 @@ def main(args):
                         'teacher_id': TEACHER_ID, 'teacher_revision': TEACHER_REVISION,
                         'split': 'train'}, args.output / 'training_logits.pth')
         else:
-            from experiments.lib.reviewer import save_csv
+            from experiments.lib.experiment import save_csv
             save_csv(args.output / 'teacher_validation_predictions.csv', [
                 {'example_id': int(i), 'label': int(y), 'prediction': int(p)}
                 for i, y, p in zip(ids, labels, logits.argmax(-1))])
     assert metrics['validation']['accuracy'] > .90, 'Check teacher class mapping or checkpoint quality'
     asset_hashes = {p.name: file_sha256(p) for p in args.teacher_assets.iterdir() if p.is_file()}
     payload = manifest({}, [Path(__file__), ROOT / 'experiments/lib/recovery_full_dense.py',
-                           ROOT / 'experiments/lib/reviewer.py'], teacher_id=TEACHER_ID,
+                           ROOT / 'experiments/lib/experiment.py'], teacher_id=TEACHER_ID,
         teacher_revision=TEACHER_REVISION, teacher_assets_sha256=asset_hashes,
         training_logits_sha256=file_sha256(args.output / 'training_logits.pth'),
         dataset_id='nyu-mll/glue', dataset_revision='bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c',

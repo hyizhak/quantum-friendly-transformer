@@ -23,7 +23,7 @@ def test_prepare_and_train_from_extracted_source_zip(tmp_path):
     archive = tmp_path / "source.zip"
     with zipfile.ZipFile(archive, "w") as bundle:
         for directory in ["experiments/lib", "experiments/runners",
-                          "experiments/configs/reviewer", "experiments/vendor/zoology",
+                          "experiments/configs", "experiments/vendor/zoology",
                           "src/quantum_friendly_transformer"]:
             for path in (root / directory).rglob("*"):
                 if path.is_file() and path.suffix in {".py", ".json", ".txt"}:
@@ -32,7 +32,7 @@ def test_prepare_and_train_from_extracted_source_zip(tmp_path):
     with zipfile.ZipFile(archive) as bundle:
         bundle.extractall(source)
     assert not (source / ".git").exists()
-    runner = source / "experiments/runners/reviewer_mqar.py"
+    runner = source / "experiments/runners/mqar.py"
     assets, output = tmp_path / "assets", tmp_path / "run"
     for arguments in [
         ["prepare", "--output", str(assets)],

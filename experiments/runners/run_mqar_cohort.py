@@ -14,11 +14,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--variant", choices=["native", "uniform"], required=True)
     parser.add_argument("--device", required=True)
-    parser.add_argument("--runner", type=Path, default=ROOT / "experiments/runners/reviewer_mqar.py")
-    parser.add_argument("--config", type=Path, default=ROOT / "experiments/configs/reviewer/mqar.json")
-    parser.add_argument("--assets", type=Path, default=ROOT / "results/reviewer/mqar_data")
-    parser.add_argument("--output", type=Path, default=ROOT / "results/reviewer/mqar")
+    parser.add_argument("--runner", type=Path, default=ROOT / "experiments/runners/mqar.py")
+    parser.add_argument("--config", type=Path, default=ROOT / "experiments/configs/mqar/mqar.json")
+    parser.add_argument("--assets", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    for name in ("runner", "config", "assets", "output"):
+        setattr(args, name, getattr(args, name).resolve())
     config = json.loads(args.config.read_text())
     args.output.mkdir(parents=True, exist_ok=True)
     for seed in config["seeds"]:

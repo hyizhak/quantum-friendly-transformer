@@ -119,7 +119,7 @@ def build(root: Path, package: Path, bundle: Path | None) -> dict:
                 print(f"Catalogued {index}/{len(paths)} files", flush=True)
     catalog = {
         "schema_version": 1,
-        "description": "Recorded research outputs; inclusion does not imply successful recovery or complete reviewer evidence.",
+        "description": "Recorded research outputs; inclusion does not imply successful recovery or complete experimental evidence.",
         "layout": "Original paths relative to the repository root; compact records ship in records.zip, other entries in the companion ZIP.",
         "groups": "Filename-based discovery labels; consult each record and metadata for measured fields and sampling.",
         "checkpoints": "Recovery checkpoints contain trainable_state_dict and require the corresponding base model and adapters.",

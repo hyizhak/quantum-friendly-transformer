@@ -13,9 +13,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', choices=['2layers33m', 'olmo1b', 'mistral7b'], required=True)
     parser.add_argument('--device', required=True)
+    parser.add_argument('--results', type=Path, required=True)
+    parser.add_argument('--assets', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--prior-root', type=Path, required=True)
     args = parser.parse_args()
-    root = Path('results/reviewer')
-    prior = root / ('recovery_low_rank' if args.model == 'mistral7b' else 'recovery_curriculum')
+    root = args.results.resolve()
+    prior = args.prior_root.resolve()
     required = 3 if args.model == '2layers33m' else 1
 
     def completed():
@@ -46,7 +50,7 @@ def main():
     config['parent_checkpoint'] = {'path': str(path.parent / 'selected.pth'),
                                    'sha256': result['checkpoint_sha256'], 'result_path': str(path),
                                    'selected_step': result['selected_step']}
-    out = root / 'recovery_head'
+    out = args.output.resolve()
     (out / 'logs').mkdir(parents=True, exist_ok=True)
     config_path = out / (args.model + '_config.json')
     with config_path.open('x') as handle:
@@ -55,8 +59,8 @@ def main():
     name = f'{args.model}_bounded_seed151'
     print(f'Adapting classifier from {path}: {result["evaluation"]}', flush=True)
     with (out / 'logs' / (name + '.log')).open('w') as log:
-        subprocess.run([sys.executable, 'experiments/runners/reviewer_recovery_head.py', '--model', args.model,
-                        '--config', str(config_path), '--assets', '/tmp/qft-recovery-search-assets',
+        subprocess.run([sys.executable, str(Path(__file__).with_name('recovery_head.py')), '--model', args.model,
+                        '--config', str(config_path), '--assets', str(args.assets.resolve()),
                         '--output', str(out / name), '--seed', '151', '--device', args.device],
                        stdout=log, stderr=subprocess.STDOUT, check=True)
     result = json.loads((out / name / 'result.json').read_text())

@@ -16,7 +16,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=ROOT / "experiments/configs/reviewer/recovery_positive_control.json")
+    parser.add_argument("--config", type=Path, default=ROOT / "experiments/configs/recovery/recovery_positive_control.json")
     parser.add_argument("--assets", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--single-run", action="store_true")
@@ -25,7 +25,7 @@ def main():
     parser.add_argument("--device")
     args = parser.parse_args()
     if args.single_run:
-        from experiments.runners.reviewer_recovery_extension import run
+        from experiments.runners.recovery_extension import run
         assert args.mode is not None and args.seed is not None and args.device is not None
         run(argparse.Namespace(config=args.config, assets=args.assets, output=args.output,
                                model="3m", mode=args.mode, seed=args.seed, device=args.device,

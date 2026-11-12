@@ -13,8 +13,8 @@ sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 import torch
 
 from experiments.lib.long_recall import input_certificate, matrix_records, paired_batch
-from experiments.runners.reviewer_long_recall import make_model, state_hash
-from experiments.runners.reviewer_recall_8192_recovery import initial_model
+from experiments.runners.long_recall import make_model, state_hash
+from experiments.runners.recall_8192_recovery import initial_model
 
 
 def read_csv(path):
@@ -103,7 +103,7 @@ def audit_run(run, device):
         assert float((direct-logits[:4]).abs().max()) < 1e-9
         assert float((hidden-diagnostics["hidden"][:4]).abs().max()) < 1e-9
         replayed += len(labels)
-    return {"run": str(run.relative_to(ROOT)), "status": "passed", "seed": seed,
+    return {"run": str(run.resolve()), "status": "passed", "seed": seed,
             "variant": variant, "cap": config["cap"], "evaluation_role": config["evaluation_role"],
             "stored_predictions_audited": len(predictions), "fresh_predictions_replayed": replayed,
             "maximum_replay_margin_error": max_error, "checkpoint_sha256": checkpoint_hash,

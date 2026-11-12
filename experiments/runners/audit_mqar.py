@@ -14,8 +14,8 @@ import torch
 from torch.nn import functional as F
 
 from experiments.lib.mqar import MQARTransformer, state_hash, weight_records
-from experiments.lib.reviewer import save_json
-from experiments.runners.reviewer_mqar import load_data, sha256
+from experiments.lib.experiment import save_json
+from experiments.runners.mqar import load_data, sha256
 
 
 def audit_run(run, assets, device):
@@ -89,8 +89,8 @@ def audit_run(run, assets, device):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=ROOT / "results/reviewer/mqar")
-    parser.add_argument("--assets", type=Path, default=ROOT / "results/reviewer/mqar_data")
+    parser.add_argument("--results", type=Path, required=True)
+    parser.add_argument("--assets", type=Path, required=True)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     torch.set_num_threads(4)

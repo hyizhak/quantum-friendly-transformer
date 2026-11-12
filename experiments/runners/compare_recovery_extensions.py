@@ -15,7 +15,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from experiments.lib.reviewer import save_csv, save_json
+from experiments.lib.experiment import save_csv, save_json
 
 
 def compare(root, allow_partial):
@@ -28,7 +28,7 @@ def compare(root, allow_partial):
             continue
         summary = json.loads((root / directory / "summary.json").read_text())
         missing_by_cohort[label] = summary['missing']
-        config = json.loads((ROOT / "experiments/configs/reviewer" / config_file).read_text())
+        config = json.loads((ROOT / "experiments/configs/recovery" / config_file).read_text())
         if summary["missing"] and not allow_partial:
             raise ValueError(f"Incomplete cohort {label}")
         for row in summary["summary"]:
@@ -67,7 +67,7 @@ def compare(root, allow_partial):
               "- The alpha denominator floor is enforced during training and evaluation; the supplied alpha_s values do not certify the whole input-matrix bound.",
               "- Input-matrix norm exceedances are recorded. These results cannot be described as validation of all theorem assumptions.",
               "- Short-sentence classification and recovery against a historical threshold do not establish selective routing, long-context performance, or quantum advantage.",
-              "", "Reproduction and limitations: experiments/configs/reviewer/RECOVERY_EXTENSION_PROTOCOL.txt.",
+              "", "Reproduction and limitations: experiments/configs/recovery/RECOVERY_EXTENSION_PROTOCOL.txt.",
               "Per-run configs, source/asset hashes, split indices, predictions, selected checkpoints, and diagnostics are in the cohort directories."]
     (root / "recovery_extension_comparison.txt").write_text("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -123,7 +123,7 @@ def compare(root, allow_partial):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=Path("results/reviewer"))
+    parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--allow-partial", action="store_true")
     args = parser.parse_args()
     compare(args.results, args.allow_partial)

@@ -1,4 +1,4 @@
-"""Summarize the classical native-temperature cap comparison for Comment 4."""
+"""Summarize the classical native-temperature cap comparison."""
 
 import argparse
 import csv
@@ -25,7 +25,7 @@ def save_csv(path,rows):
 
 
 def summarize(root):
-    output=root/"comment4_native_caps"
+    output=root/"native_cap_comparison"
     output.mkdir(exist_ok=True)
     audit=json.loads((output/"audit.json").read_text())
     assert audit["all_checks_passed"]
@@ -74,7 +74,7 @@ def summarize(root):
     (output/"summary.json").write_text(json.dumps({"new_training_runs":18,"existing_checkpoints_reevaluated":18,
         "shared_test_seed":1279933,"auxiliary_matching_index_supervision":True,"aggregates":aggregates,"audit":audit},indent=2)+"\n")
     lookup={(r["cap"],r["train_N"],r["variant"],r["N"]):r for r in aggregates}
-    lines=["COMMENT 4: NATIVE ATTENTION TEMPERATURE, CAP24 VS CAP64","",
+    lines=["NATIVE ATTENTION TEMPERATURE, CAP24 VS CAP64","",
         "Classical training/evaluation only. Both caps use the same task, initialization, training batches, optimizer, budget and fresh test set.",
         "18 cap64 runs are new; 18 cap24 checkpoints are reevaluated without retraining.",
         "All three seeds11,22,33 are retained. Reported SD is sample SD across training seeds.",
@@ -134,5 +134,5 @@ def summarize(root):
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results",type=Path,default=ROOT/"results/reviewer")
+    parser.add_argument("--results",type=Path,required=True)
     summarize(parser.parse_args().results)

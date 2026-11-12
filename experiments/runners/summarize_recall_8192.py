@@ -1,5 +1,6 @@
 """Report every validation recipe and the reserved-test N8192 comparison."""
 
+import argparse
 import csv
 import hashlib
 import json
@@ -11,7 +12,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "results/reviewer/long_recall_train8192_summary"
 
 
 def write_csv(path, rows):
@@ -22,11 +22,19 @@ def write_csv(path, rows):
 
 
 def main():
-    selection = json.loads((OUT / "selection.json").read_text())
-    validation_audit = json.loads((OUT / "validation_audit.json").read_text())
-    test_audit = json.loads((OUT / "final_test_audit.json").read_text())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--selection', type=Path, required=True)
+    parser.add_argument('--validation-audit', type=Path, required=True)
+    parser.add_argument('--test-audit', type=Path, required=True)
+    parser.add_argument('--results', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=True)
+    selection = json.loads(args.selection.read_text())
+    validation_audit = json.loads(args.validation_audit.read_text())
+    test_audit = json.loads(args.test_audit.read_text())
     assert validation_audit["status"] == test_audit["status"] == "passed"
-    final_root = ROOT / "results/reviewer/long_recall_train8192_final"
+    final_root = args.results
     groups = [("selected_cap24", "Selected cap24", "native_sqrt_d"),
               ("reference_cap64", "Cap64 reference", "native_sqrt_d"),
               ("uniform_cap24", "Uniform cap24", "uniform")]
@@ -37,7 +45,7 @@ def main():
             path = run / "result.json"
             result = json.loads(path.read_text())
             config = json.loads((run / "config.json").read_text())
-            hashes[str(path.relative_to(ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
+            hashes[str(path.resolve())] = hashlib.sha256(path.read_bytes()).hexdigest()
             for row in result["evaluation"]:
                 per_seed.append({"group": group, "label": label, "seed": seed,
                                  "cap": config["cap"], "training_steps": config["steps"],
@@ -65,13 +73,13 @@ def main():
                "verdict": verdict, "aggregates": aggregates,
                "validation_audit": validation_audit, "final_test_audit": test_audit,
                "source_result_sha256": hashes}
-    (OUT / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    write_csv(OUT / "per_seed.csv", per_seed)
-    write_csv(OUT / "aggregate.csv", aggregates)
-    write_csv(OUT / "validation_recipes.csv", selection["recipes"])
+    (args.output / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    write_csv(args.output / "per_seed.csv", per_seed)
+    write_csv(args.output / "aggregate.csv", aggregates)
+    write_csv(args.output / "validation_recipes.csv", selection["recipes"])
     def score(row):
         return f"{100*row['accuracy_mean']:.3f} +/- {100*row['accuracy_sd']:.3f}%"
-    lines = ["COMMENT 4: CAP24 TRAINING THROUGH N=8192", "",
+    lines = ["CAP24 TRAINING THROUGH N=8192", "",
              "Frozen continuous-key single-query task; d32; all six matrices capped; native sqrt(32) scaling.",
              "Not MQAR and not pretrained SST-2 recovery. Input and LayerNorm constraints retained.",
              "Every recipe retains all three seeds11,22,33. Fixed final checkpoints.",
@@ -93,7 +101,7 @@ def main():
               "The original8192 scores from models trained through1024/2048 remain separate historical results.",
               "All stored predictions audited; fresh first-batch inference replays at every length; not a second full test.",
               "A failure of these recipes is not a proof that no cap24 architecture or training procedure can succeed."]
-    (OUT / "summary.txt").write_text("\n".join(lines) + "\n")
+    (args.output / "summary.txt").write_text("\n".join(lines) + "\n")
     table = [r"\begin{table}[tbp]", r"\centering\small", r"\begin{tabular}{rrrr}", r"\hline",
              r"Test $N$ & Selected cap 24 & Cap 64 reference & Uniform cap 24 \\", r"\hline"]
     for n in sorted({r["N"] for r in aggregates}):
@@ -102,8 +110,8 @@ def main():
         table.append(f"{n} & " + " & ".join(values) + r" \\")
     table += [r"\hline", r"\end{tabular}",
               r"\caption{Additional single-query recall experiment with training through $N=8192$, separate from MQAR. Accuracy (\%), mean $\pm$ sample standard deviation over all three seeds, on the reserved final test (2048 independent counterfactual pairs per length). The cap-24 recipe is selected by validation accuracy; its training history and additional resources are disclosed in the text. Every projection, including the classifier, remains capped, and native attention scaling is unchanged.}",
-              r"\label{tab:comment4-cap24-train8192}", r"\end{table}"]
-    (OUT / "results_table.tex").write_text("\n".join(table) + "\n")
+              r"\label{tab:cap24-train8192}", r"\end{table}"]
+    (args.output / "results_table.tex").write_text("\n".join(table) + "\n")
     fig, ax = plt.subplots(figsize=(8,4.5), constrained_layout=True)
     for group,label,_ in groups:
         rows = [r for r in aggregates if r["group"] == group]
@@ -117,7 +125,7 @@ def main():
            title="Single-query recall: training through 8192, reserved final test")
     ax.grid(alpha=.2);ax.legend()
     for suffix in ('pdf','png'):
-        fig.savefig(OUT / f"recall8192.{suffix}",dpi=180)
+        fig.savefig(args.output / f"recall8192.{suffix}",dpi=180)
     plt.close(fig)
     print("\n".join(lines))
 

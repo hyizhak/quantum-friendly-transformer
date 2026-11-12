@@ -6,10 +6,10 @@ from pathlib import Path
 import torch
 
 from experiments.lib.recovery_extension import indices_hash
-from experiments.runners import reviewer_recovery_matched as matched
+from experiments.runners import recovery_matched as matched
 
 ROOT = Path(__file__).resolve().parents[2]
-ALIGNMENT = ROOT / 'experiments/configs/reviewer/sst_root_training_indices.json'
+ALIGNMENT = ROOT / 'experiments/configs/recovery/sst_root_training_indices.json'
 
 
 def restrict_to_roots(datasets, metadata, alignment):

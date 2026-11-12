@@ -28,7 +28,7 @@ def compare_predictions(before, after):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--results', type=Path, default=Path('results/reviewer'))
+    parser.add_argument('--results', type=Path, required=True)
     args = parser.parse_args()
     root = args.results
     cohorts = ['recovery_trajectory', 'recovery_guided', 'recovery_classifier_fit', 'recovery_guided_restart']

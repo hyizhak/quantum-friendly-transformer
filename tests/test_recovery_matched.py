@@ -1,5 +1,5 @@
 import torch
-from experiments.runners import reviewer_recovery_matched as matched
+from experiments.runners import recovery_matched as matched
 
 
 def test_matched_policy_uses_all_training_but_no_validation_rows(monkeypatch):
@@ -20,7 +20,7 @@ def test_matched_policy_uses_all_training_but_no_validation_rows(monkeypatch):
 
 
 def test_length_weighting_changes_only_training_sampling(monkeypatch):
-    from experiments.runners import reviewer_recovery_length_weighted as weighted
+    from experiments.runners import recovery_length_weighted as weighted
     mask = torch.zeros(2, 32, dtype=torch.long)
     mask[0, :2] = 1
     mask[1, :25] = 1

@@ -12,8 +12,8 @@ sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 
 import torch
 from experiments.lib.recovery_full_dense import file_sha256
-from experiments.lib.reviewer import save_json
-from experiments.runners import reviewer_recovery_extension as core
+from experiments.lib.experiment import save_json
+from experiments.runners import recovery_extension as core
 
 
 def main(args):
@@ -44,9 +44,9 @@ def main(args):
         config_path = args.output / f'config_seed{seed}.json'
         save_json(config_path, config)
         run = args.output / f'2layers33m_bounded_seed{seed}'
-        command = [sys.executable, '-u', str(ROOT / 'experiments/runners/reviewer_recovery_guided.py'),
+        command = [sys.executable, '-u', str(ROOT / str(Path(__file__).with_name('recovery_guided.py'))),
                    '--config', str(config_path), '--assets', str(args.assets), '--model', '2layers33m',
-                   '--seed', str(seed), '--devices', args.device, '--output', str(run)]
+                   '--seed', str(seed), '--devices', args.device, '--output', str(run), '--teacher', str(args.teacher)]
         with (args.output / f'run_seed{seed}.log').open('w') as log:
             outcome = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT)
         if outcome.returncode:
@@ -68,6 +68,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--template', type=Path, required=True)
+    parser.add_argument('--teacher', type=Path, required=True)
     parser.add_argument('--assets', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--seeds', nargs='+', type=int, default=[811, 812, 813])

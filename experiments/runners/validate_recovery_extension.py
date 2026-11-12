@@ -16,7 +16,7 @@ sys.path[:0] = [str(ROOT / "src"), str(ROOT)]
 import torch
 
 from experiments.lib.recovery_extension import indices_hash, validate_scale_records
-from experiments.lib.reviewer import save_csv, save_json
+from experiments.lib.experiment import save_csv, save_json
 from quantum_friendly_transformer.norm_transformer import collect_attention_scaling_stats
 
 
@@ -210,7 +210,7 @@ def validate(args):
                 if args.replay:
                     from transformers import AutoTokenizer
                     import pyarrow.parquet as pq
-                    from experiments.runners.reviewer_recovery_extension import build_model, evaluate
+                    from experiments.runners.recovery_extension import build_model, evaluate
                     device = torch.device(args.device)
                     if name not in tokenized_evaluation:
                         tokenizer = AutoTokenizer.from_pretrained(args.assets / name, local_files_only=True)
@@ -255,9 +255,9 @@ def validate(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=Path("results/reviewer/recovery_extension"))
-    parser.add_argument("--config", type=Path, default=Path("experiments/configs/reviewer/recovery_extension.json"))
-    parser.add_argument("--assets", type=Path, default=Path("/tmp/qft-recovery-assets"))
+    parser.add_argument("--results", type=Path, required=True)
+    parser.add_argument("--config", type=Path, default=(Path(__file__).resolve().parents[1] / 'configs/recovery/recovery_extension.json'))
+    parser.add_argument("--assets", type=Path, required=True)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--replay", action="store_true")
     parser.add_argument("--allow-partial", action="store_true")

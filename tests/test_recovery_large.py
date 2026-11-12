@@ -4,7 +4,7 @@ import pytest
 import torch
 from transformers import MistralConfig, MistralModel, OlmoConfig, OlmoModel
 
-from experiments.runners.reviewer_recovery_large import LargeAttentionInputMonitor, build_model
+from experiments.runners.recovery_large import LargeAttentionInputMonitor, build_model
 from experiments.lib.recovery_extension import validate_scale_records
 from quantum_friendly_transformer.norm_transformer import collect_attention_scaling_stats, project_attention_scales_
 

@@ -15,30 +15,33 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiments.lib.reviewer import save_csv,save_json
+from experiments.lib.mqar_reporting import cohort_config, protocol_summary
+from experiments.lib.experiment import save_csv,save_json
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output",type=Path,default=ROOT/"results/reviewer/mqar_comparison")
+    parser.add_argument("--output",type=Path,required=True)
+    parser.add_argument("--standard-results", type=Path, required=True)
+    parser.add_argument("--capped-results", type=Path, required=True)
     args=parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=True)
-    models=[("standard","Standard Transformer",ROOT/"results/reviewer/mqar_standard","native"),
-            ("qft_adaptation","QFT adaptation (cap 64)",ROOT/"results/reviewer/mqar_variance_init","native"),
-            ("uniform","Uniform control (cap 64)",ROOT/"results/reviewer/mqar_variance_init","uniform")]
+    models=[("standard","Standard Transformer",args.standard_results,"native"),
+            ("qft_adaptation","QFT adaptation (cap 64)",args.capped_results,"native"),
+            ("uniform","Uniform control (cap 64)",args.capped_results,"uniform")]
     records,audits,input_files=[],{},{}
     for model,title,root,variant in models:
         audit_path=root/"audit.json"
         audits[model]=json.loads(audit_path.read_text())
         if audits[model]["status"]!="passed":
             raise AssertionError("Every reported model must pass its audit")
-        input_files[str(audit_path.relative_to(ROOT))]=hashlib.sha256(audit_path.read_bytes()).hexdigest()
+        input_files[str(audit_path.resolve())]=hashlib.sha256(audit_path.read_bytes()).hexdigest()
         for seed in (11,22,33):
             path=root/f"{variant}_seed{seed}"/"result.json"
             result=json.loads(path.read_text())
             if result["smoke"]:
                 raise AssertionError("Smoke run in benchmark comparison")
-            input_files[str(path.relative_to(ROOT))]=hashlib.sha256(path.read_bytes()).hexdigest()
+            input_files[str(path.resolve())]=hashlib.sha256(path.read_bytes()).hexdigest()
             for row in result["evaluation"]:
                 records.append({"model":model,"label":title,"seed":seed,
                     **{k:v for k,v in row.items() if k!="layer_diagnostics"}})
@@ -60,11 +63,16 @@ def main():
     save_json(args.output/"summary.json",{"models":9,"seeds_per_model":3,
         "identical_data":True,"results":aggregated,"source_result_sha256":input_files,
         "interpretation":"Matched exploratory comparison; QFT adaptation is a newly implemented MQAR model, not the original legacy model class."})
+    report_config = cohort_config(args.capped_results)
+    summary_path = args.output / "summary.json"
+    summary_record = json.loads(summary_path.read_text())
+    summary_record.update(configuration=report_config,
+                          workflow_validation=bool(report_config.get("workflow_validation")))
+    save_json(summary_path, summary_record)
     lines=["MQAR: STANDARD TRANSFORMER AND QFT ADAPTATION", "",
         "Same official MQAR inputs/labels, vocabulary 8,192, three seeds (11,22,33).",
-        "Train N=256, 16 memory pairs, 20,000 sequences; 1,000 validation and test sequences.",
+        protocol_summary(report_config),
         "Two layers, d=64, FFN width 128, native attention denominator sqrt(64).",
-        "Answer-token labels only, same AdamW settings and minibatch permutations, 32 epochs, 5,024 updates.",
         "Fixed final checkpoints, no seed or checkpoint selection. Mean +/- sample SD over model seeds.", "",
         "Standard Transformer: ordinary trainable LayerNorm (gamma initially 1, epsilon 1e-5),",
         "uncapped projection/readout weights, input features scaled to ordinary per-coordinate variance.",
@@ -80,7 +88,7 @@ def main():
     lines += ["All baseline data tensors were checked against the QFT follow-up and match exactly.",
         "All stored predictions were audited; checkpoint replay covers the first batch per test condition.",
         "This is an exploratory comparison added after the first experiment. The complete initial",
-        "QFT initialization cohort remains in results/reviewer/mqar and mqar_summary.",
+        "QFT initialization cohort remains in its separately supplied result directory.",
         "Longer contexts also contain more memory pairs, so those tests change both length and memory load.",
         "Scores alone establish neither statistical equivalence nor a computational advantage.", ""]
     (args.output/"summary.txt").write_text("\n".join(lines))

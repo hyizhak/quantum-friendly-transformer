@@ -1,0 +1,53 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    902
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 64,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 50,
+  "log_every": 50,
+  "threads": 4,
+  "models": {
+    "2layers33m": {
+      "model_id": "roneneldan/TinyStories-2Layers-33M",
+      "revision": "f9cb5b1e9f9664843c179b9f7115d610c6df1be0",
+      "alpha_s": 32.0,
+      "baseline_target": 0.8577981651376146,
+      "learning_rate": 5e-06,
+      "steps": 2000,
+      "layer_lr_decay": 1.0,
+      "embedding_lr_multiplier": 1.0,
+      "head_lr_multiplier": 1.0,
+      "train_scope": "all",
+      "master_dtype": "float32"
+    }
+  },
+  "cohort": "exploratory_sharpness_aware_continuation",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "selection_protocol": "official_validation",
+  "training_sampling_protocol": "half_root_half_phrase_training_mixture",
+  "parent_checkpoint": {
+    "path": "recovery_2layer_seed_extension/2layers33m_bounded_seed17/selected.pth",
+    "sha256": "4c7ba5242daf12b656372155bda18ba54195548130f273eb374419fd7d9830a4",
+    "selected_step": 3200,
+    "result_path": "recovery_2layer_seed_extension/2layers33m_bounded_seed17/result.json"
+  },
+  "root_fraction": 0.5,
+  "cycle_steps": 1000,
+  "minimum_lr_fraction": 0.1,
+  "compile": true,
+  "protocol_note": "Gold-label SAM continuation, fixed parent and constraints. Same minibatch and dropout randomness in both passes; exact weight restoration before AdamW update. Stop all remaining attempts on first recovery.",
+  "sam_radius": 0.05
+}

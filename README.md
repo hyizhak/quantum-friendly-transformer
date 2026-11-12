@@ -50,8 +50,9 @@ that needs no downloads is available at `examples/library_quickstart.py`.
 | `src/quantum_friendly_transformer/` | Distributable library and compatibility entrypoints |
 | `src/quantum_friendly_transformer/experiments/` | Packaged NLP research runners, configs, and reporting |
 | `src/quantum_friendly_transformer/evidence/` | Evidence API, checksummed catalog, and bundled records/tables |
-| `experiments/lib/`, `experiments/runners/`, and `experiments/configs/` | Source-checkout reviewer experiments, compatibility scripts, and original recipes in `runners/legacy/` |
+| `experiments/lib/`, `experiments/runners/`, and `experiments/configs/` | Source-checkout research experiments, compatibility scripts, and original recipes in `runners/legacy/` |
 | `experiments/vendor/zoology/` | Pinned MQAR data generator, upstream provenance, and license |
+| `artifacts/` | Completed experimental results, per-example predictions, figure source tables, and checksums |
 | `alpha_s/`, `alpha_w/`, `results/` | Analysis scripts and reported artifacts |
 | `tests/` | CPU unit tests and research-runner tests |
 
@@ -71,14 +72,15 @@ qft-experiment recovery.dispatcher --config recovery/tinystories_sst2_fn24_bound
 The dispatcher prints commands unless `--execute` is supplied. Bundled evidence
 works without downloading models or running training.
 
-The later reviewer experiments cover long-context paired recall, MQAR with
+The later research experiments cover long-context paired recall, MQAR with
 ordinary Transformer and capped/uniform baselines, and cap24 recovery with
 training through length 8192. Their code, fixed configurations, protocols,
 auditors, and tests are versioned in this repository and run from a source
-checkout. Start with the [reviewer experiment map](experiments/README.md#reviewer-experiment-map)
-and [reviewer code guide](docs/reviewer_code.txt). Generated runs and checkpoints
-are distributed separately from the code; the historical wheel evidence remains
-a separate snapshot.
+checkout. Start with the [research experiment map](experiments/README.md#experiment-map)
+and [experiment guide](docs/experiments.txt). Completed result records and
+predictions are committed under [artifacts/](artifacts/README.md). They include
+all retained training seeds; model weights and raw tensor datasets are omitted.
+The historical wheel evidence remains a separate snapshot.
 
 The MQAR commands also work from an extracted source ZIP; Git metadata is
 optional, and source-file checksums are retained in each run's manifest.
@@ -143,15 +145,15 @@ Before experiments showcasing the capability of normalized transformers, we prov
 
 All the above scripts utilize no GPU and on a commercial laptop. Once you have relevant models downloaded from huggingface, the runtime should be less than 10 minutes for each script. The runtime may vary depending on the model and the number of tokens.
 
-## NLP Revision Experiments
+## NLP Experiments
 
-The additional reviewer experiment code is in `experiments/lib/`,
-`experiments/runners/reviewer_*.py`, and `experiments/configs/reviewer/`.
+The additional research experiment code is in `experiments/lib/`,
+`experiments/runners/*.py`, and `experiments/configs/`.
 It covers bounded SST-2 recovery, matched uniform controls, associative recall,
 pretrained diagnostics, and selective-layer examples. See
-[the reviewer code guide](docs/reviewer_code.txt) for entrypoints and tests.
-These additions run from a source checkout. New experiment outputs and trained
-checkpoints are not included in the code commit.
+[the experiment guide](docs/experiments.txt) for entrypoints and tests.
+These additions run from a source checkout. The [recorded data](artifacts/README.md)
+supports table reaggregation without training or downloading checkpoints.
 
 The NLP runners and portable configurations are installed with the library:
 

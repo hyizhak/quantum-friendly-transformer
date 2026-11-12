@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-from experiments.lib.reviewer import save_csv, save_json
+from experiments.lib.experiment import save_csv, save_json
 from quantum_friendly_transformer.evidence import EvidenceStore
 
 
@@ -69,7 +69,7 @@ def summarize(root, config, allow_partial):
             if a is not None and b is not None:
                 paired.append({"name": name, "seed": seed, "bounded_accuracy": a["accuracy"],
                                "uniform_accuracy": b["accuracy"], "difference_percentage_points": 100 * (a["accuracy"] - b["accuracy"])})
-    store = EvidenceStore(cache_dir="/tmp/qft-recovery-evidence")
+    store = EvidenceStore()
     historical = store.read_csv("experiments/outputs/aggregate_bounded_attention_recovery/summary.csv")
     old_best = {r["model"]: float(r["best_accuracy"]) for r in historical}
     for filename, rows in [("per_seed", results), ("summary", summary), ("paired_control", paired)]:
@@ -137,8 +137,8 @@ def summarize(root, config, allow_partial):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=Path("results/reviewer/recovery_extension"))
-    parser.add_argument("--config", type=Path, default=Path("experiments/configs/reviewer/recovery_extension.json"))
+    parser.add_argument("--results", type=Path, required=True)
+    parser.add_argument("--config", type=Path, default=(Path(__file__).resolve().parents[1] / 'configs/recovery/recovery_extension.json'))
     parser.add_argument("--allow-partial", action="store_true")
     args = parser.parse_args()
     summarize(args.results, json.loads(args.config.read_text()), args.allow_partial)

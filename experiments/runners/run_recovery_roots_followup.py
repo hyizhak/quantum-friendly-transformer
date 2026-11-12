@@ -13,9 +13,13 @@ def main():
     parser.add_argument('--model', choices=['2layers33m', 'olmo1b'], required=True)
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--device', required=True)
+    parser.add_argument('--results', type=Path, required=True)
+    parser.add_argument('--assets', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--prior-root', type=Path, required=True)
     args = parser.parse_args()
-    root = Path('results/reviewer')
-    prior = root / ('recovery_length_weighted' if args.model == '2layers33m' else 'recovery_large_adaptation')
+    root = args.results.resolve()
+    prior = args.prior_root.resolve()
     required = 3 if args.model == '2layers33m' else 1
     def recovered():
         for p in root.glob(f'recovery*/*{args.model}_bounded_seed*/result.json'):
@@ -30,15 +34,15 @@ def main():
             return
         time.sleep(10)
     config = json.loads(args.config.read_text())
-    out = root / 'recovery_roots'
+    out = args.output.resolve()
     (out / 'logs').mkdir(parents=True, exist_ok=True)
     for seed in config['seeds']:
         if recovered():
             print(f'{args.model} already recovered; stopping.', flush=True)
             return
         name = f'{args.model}_bounded_seed{seed}'
-        command = [sys.executable, 'experiments/runners/reviewer_recovery_roots.py', '--model', args.model,
-                   '--config', str(args.config), '--assets', '/tmp/qft-recovery-search-assets',
+        command = [sys.executable, str(Path(__file__).with_name('recovery_roots.py')), '--model', args.model,
+                   '--config', str(args.config), '--assets', str(args.assets.resolve()),
                    '--device', args.device, '--seed', str(seed), '--output', str(out / name)]
         print(f'Starting {name} on matched original training sentences.', flush=True)
         with (out / 'logs' / f'{name}.log').open('w') as log:

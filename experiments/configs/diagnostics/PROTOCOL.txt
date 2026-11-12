@@ -1,0 +1,177 @@
+Research experiment protocol
+============================
+
+Purpose
+-------
+Address attention scaling and classical sampling, concentration,
+masking and normalization measurements, bounded interface-noise
+sensitivity, cap activity, illustrative resource
+accounting, and residual-stream measurements.
+
+These experiments do not claim a quantum implementation or speedup. Frozen
+interventions do not answer whether fine-tuning under the constraints recovers
+quality. No SST-2 training-seed comparison or statistical equivalence claim is
+made. The scalar selective-family check is not a proof of a query lower bound.
+
+Reproduction from the repository root
+------------------------------------
+Use Python 3.10+ with the repository's experiments and test dependencies.
+The tested package versions and exact source hashes are recorded in each run's
+manifest.json. Downloaded model and data revisions are recorded in assets.json.
+No private data, authentication token, or remote model code is required.
+
+python experiments/runners/prepare_experiment_assets.py --output ./assets/diagnostics --model-revision 21def0189f5705e2521767faed922f1f15e7d7db --dataset-revision b08601e04326c79dfdd32d625aee71d232d685c3
+OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 python experiments/runners/synthetic.py --output results/synthetic
+OPENBLAS_NUM_THREADS=4 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 HF_HUB_OFFLINE=1 python experiments/runners/pretrained.py --assets ./assets/diagnostics --output results/pretrained
+CUBLAS_WORKSPACE_CONFIG=:4096:8 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 python experiments/runners/recall.py --output results/recall
+python experiments/runners/summarize_diagnostics.py --results results
+python -m pytest tests/test_experiment_numerics.py tests/test_attention_scaling.py tests/test_normalization.py tests/test_library.py
+
+Choose a new output directory when repeating a run; runners refuse to overwrite
+an existing directory. All three runners accept --config for a JSON protocol file.
+Pretrained runs additionally accept --suite scaling or --suite noise.
+The recall config requests CUDA; change device to cpu to run it without a GPU.
+
+Synthetic comparison
+--------------------
+synthetic.json is the full configuration. Unit-norm rows, d=64; five random
+instances per sequence length from 256 to 65536. Random Q/K/V weights are divided
+by their spectral norm. A second case uses identity projections and an exact
+query copy among the keys. Compare native sqrt(d) scaling, a Frobenius encoding
+denominator ||S||_F^2, and a spectral encoding denominator ||S||_2^2. Weight bounds
+are one in this synthetic comparison.
+
+Each row-sampling estimate uses uniform samples with replacement. It computes
+logits only for sampled rows and applies W_v after weighted pooling. It does not
+access precomputed probabilities or values. Query-side O(d^2) preparation is
+separate. There are 20 draws per random instance and sample count. Sampled
+indices are paired across scales. The primary error is absolute Euclidean error,
+matching the theorem's attention-output metric. Relative errors can grow when
+zero-mean attention outputs shrink and are not the matched-error comparison.
+
+The selective scalar case has one marked key among N visible keys, with logits
+plus/minus log(N)/2 and values plus/minus one. The marked-key probability is
+N/(2N-1), the exact output is 1/(2N-1), and the probability of missing it in T
+uniform draws is (1-1/N)^T. We use 2000 repetitions per seed. This is a check of
+the scalar formula in response.tex, not its full residual/LayerNorm construction.
+
+Resource accounting
+-------------------
+resource_proxies.csv uses the response's Taylor construction for exp(kappa*x/2).
+The sufficient degree satisfies
+  exp(kappa/2) * (kappa/2)^(ell+1) / (ell+1)! <= delta.
+For unit rows with Frobenius access, the physical logit bound is kappa/N, so
+  Z_lower = N * exp(-kappa/N),
+  delta = row_state_error * sqrt(Z_lower) / (8*sqrt(N)).
+The coefficient upper bound used is sqrt(N)+exp(kappa/2), which conservatively
+omits the minus-one improvement. We report log10(ell*C_upper/sqrt(Z_lower)) and
+the layer/readout proxy obtained by multiplying by
+  sqrt(N)*alpha_w*alpha_m^3/(varsigma*varsigma') * d/readout_error,
+with the stated illustrative conditioning product 4. The unknown leading
+constants, logarithmic overheads, oracle ancillas, amplification implementation,
+and tomography failure budgets are not assigned fictitious values. These are
+numerical proxies and sufficient polynomial degrees, not exact oracle totals,
+gate counts, hardware costs, or practical crossover predictions.
+
+Pretrained comparison
+---------------------
+pretrained.json is the full configuration. Public GPT-Neo 125M, float32 CPU,
+eager attention, no KV cache, model.eval(), four compute threads. This model has
+12 blocks, width 768, 12 heads, maximum context 2048, and alternating global/local
+attention; local attention has a 256-key window. The actual boolean mask is used
+when reporting visible keys. The native GPT-Neo implementation uses unscaled dot
+products; no assumption that every pretrained model uses sqrt(head_dim) is made.
+
+Data: WikiText-2 raw validation split, joined in dataset order by double newlines.
+Use its first 16 disjoint 2048-token blocks. At every N in {256,512,1024,2048},
+feed the last N tokens of the same block and score the same final 128 targets
+(2048 scored tokens per condition). Positions start at zero in each context.
+This is paired-window perplexity, not a published full-corpus WikiText score.
+No evaluation condition is chosen by validation performance.
+
+Variants:
+  native: original pretrained model.
+  cap_only: cap the 72 Q/K/V/attention-output/MLP projection matrices.
+  constrained_native: caps plus fixed unit-norm affine gains in the 24 block LNs.
+  constrained_theorem: same constraints, score denominator N*24^2.
+  constrained_uniform: same constraints, zero query projections, giving uniform
+    probabilities over the existing causal/local masks.
+
+Cap parameterization is min(1,gamma/||W||_F)*W with max_gamma=24 and initial
+gamma=24*16/17, approximately 22.588. Parameters are frozen in the sense that no
+optimizer steps are performed. Report raw norms, effective norms, gamma, and cap
+activity for every targeted matrix; a cap label alone is not evidence of activity.
+Embeddings, biases, final output LayerNorm, and LM head are retained. Block LNs
+are constrained separately to avoid trivially changing the final readout scale.
+The complete pre-LN, multihead GPT-Neo architecture differs from the theorem's
+specified layer. Do not present these interventions as a validation of that full
+architecture. For constrained variants, every attention input matrix's measured
+Frobenius norm is checked against sqrt(N), including epsilon effects.
+
+For each input window, layer and head, record final-query logit range, entropy,
+maximum probability, participation ratio, partition function, and visible keys.
+For each block LN and every token, measure the population-variance denominator
+and the centered Euclidean norm at its actual input; save min, 1st/5th/50th/95th
+percentiles, and max per window/layer. These are empirical samples, never universal
+lower bounds. Residual diagnostics are at block input and block output, before
+the following LayerNorm. Saved rows identify the boundary and reference layer.
+
+Interface-noise experiment
+--------------------------
+Use the original pretrained model at N=1024, the first eight paired windows,
+and the same 128 scored targets. After each of the first 1, 4, or 12 blocks, write
+x=||x||_2*u and perturb u coordinatewise with bound epsilon_rel/sqrt(d); return
+||x||_2*(u+noise) without renormalization. Equivalently, the native-coordinate
+bound is epsilon_rel*RMS(x). The native residual stream is not assumed unit norm.
+Uniform independent bounded noise uses three RNG seeds. Deterministic rounding
+uses a grid with spacing twice the coordinate bound, and is evaluated once.
+Record realized bound checks and paired changes in NLL. This is a sensitivity
+surrogate; it is not the joint error distribution of a quantum tomography routine.
+
+Trained associative-recall experiment
+------------------------------------
+recall.json specifies five paired seeds and three attention variants, all with
+identical initialization and fresh training batches within each seed. Each
+example has N-1 fresh continuous random keys with independent random values in
+four classes, followed by a query copying exactly one key. The target value is
+absent from the query. Input features have dimension 16: eight key coordinates,
+four value coordinates, a query-type indicator, and three unused coordinates.
+Every row has norm one. No positional encoding or pretrained embeddings are used.
+
+The model computes one query row through single-head attention, residual,
+UnitNormLayerNorm, a GELU feed-forward block, residual, UnitNormLayerNorm, and a
+linear classifier. All six matrices, including the classifier, are Frobenius
+capped at 24. There are no biases or dropout. The three score denominators are
+sqrt(16), N*24^2, and uniform attention over the N-1 key rows, respectively. The
+whole input matrix has a certified Frobenius bound sqrt(N). Record every trained
+matrix norm, both normalization denominators, and actual attention concentration.
+
+Train for a prespecified 1500 AdamW updates, batch size 128, at N=64. Use the final
+checkpoint, without selection on validation/test accuracy. Evaluate all models
+on the same independent 2048 examples at each N in {32,64,128,256,512}. The test
+keys/values are generated by a separate fixed seed. The five training seeds are
+11,22,33,44,55; report mean and sample standard deviation across trained models.
+Longer contexts test length generalization, not training at each context length.
+Chance accuracy is 25%; uniform attention can exploit finite-sample value-frequency
+information, so its realized performance need not equal exactly 25%.
+
+This is a trained controlled task, not an SST-2 replication or pretrained-model
+fine-tuning. A failed variant under this finite training protocol is not a proof
+that no optimizer, architecture, or downstream computation can succeed.
+
+Aggregation and limitations
+---------------------------
+Perplexity is exp(mean token NLL), not an average of window perplexities.
+Attention medians pool explicitly identified window/layer/head measurements,
+separately for global and local layers. They are descriptive statistics.
+Conditioning minima are the minimum of all saved per-window/per-layer minima;
+the median of per-window/per-layer 1st percentiles is labeled as such and is not
+misrepresented as a pooled percentile.
+Bootstrap intervals resample token windows. For noise, average noise seeds within
+each window before bootstrapping. These intervals do not quantify training-seed
+variation; windows can also belong to the same document. Preserve this limitation.
+
+The legacy single-layer evaluation-dropout bug was fixed separately. Its historical
+scores were not silently recalculated or replaced. The new pretrained experiments
+use their own tested evaluation path. Existing genomic and SST-2 results are not
+reclassified as theorem-scaled results.

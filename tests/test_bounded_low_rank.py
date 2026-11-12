@@ -41,7 +41,7 @@ def test_composed_weight_cap_gradients_and_reload(dtype, tmp_path):
 @pytest.mark.parametrize('dtype', ['float32', 'bfloat16'])
 def test_mistral_adapter_preserves_effective_bounds(tmp_path, dtype):
     from transformers import MistralConfig, MistralModel
-    from experiments.runners.reviewer_recovery_low_rank import build_model
+    from experiments.runners.recovery_low_rank import build_model
     from experiments.lib.recovery_extension import validate_scale_records
     from quantum_friendly_transformer.norm_transformer import collect_attention_scaling_stats, project_attention_scales_
     from quantum_friendly_transformer.norm_transformer.frobenius_cap import target_weight_modules

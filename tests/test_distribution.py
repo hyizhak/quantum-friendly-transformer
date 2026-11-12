@@ -17,7 +17,7 @@ def test_source_distribution_builds_a_self_contained_wheel(tmp_path):
     source.mkdir()
     for name in ["pyproject.toml", "MANIFEST.in", "LICENSE", "README.md"]:
         shutil.copy2(root / name, source / name)
-    (source / "response.tex").write_text("Private reviewer correspondence")
+    (source / "response.tex").write_text("Private correspondence")
     for name in ["src", "docs", "examples", "tests", "tools"]:
         shutil.copytree(
             root / name,

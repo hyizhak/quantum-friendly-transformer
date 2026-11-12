@@ -19,8 +19,8 @@ import torch
 from torch.nn import functional as F
 
 from experiments.lib.long_recall import input_certificate, matrix_records, paired_batch
-from experiments.lib.reviewer import save_json
-from experiments.runners.reviewer_long_recall import make_model, state_hash
+from experiments.lib.experiment import save_json
+from experiments.runners.long_recall import make_model, state_hash
 
 COHORTS = ("long_recall_1024", "long_recall_2048", "long_recall_routing_1024", "long_recall_routing_2048")
 
@@ -184,7 +184,7 @@ def validate(root, device):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=ROOT / "results/reviewer")
+    parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     torch.set_num_threads(4)

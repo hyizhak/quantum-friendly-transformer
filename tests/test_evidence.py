@@ -147,7 +147,7 @@ def test_evidence_builder_keeps_private_response_out_of_archives(tmp_path):
     raw.mkdir(parents=True)
     (raw / "run.json").write_text('{"accuracy": 0.8}')
     (raw / "run.pt").write_bytes(b"checkpoint fixture")
-    (source / "response.tex").write_text("Private reviewer correspondence")
+    (source / "response.tex").write_text("Private correspondence")
     package = tmp_path / "package"
     companion = tmp_path / "companion.zip"
 

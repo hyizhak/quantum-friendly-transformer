@@ -15,14 +15,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiments.lib.reviewer import save_csv, save_json
+from experiments.lib.mqar_reporting import cohort_config, protocol_summary
+from experiments.lib.experiment import save_csv, save_json
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "results/reviewer/mqar_summary")
-    parser.add_argument("--initial-results", type=Path, default=ROOT / "results/reviewer/mqar")
-    parser.add_argument("--followup-results", type=Path, default=ROOT / "results/reviewer/mqar_variance_init")
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--initial-results", type=Path, required=True)
+    parser.add_argument("--followup-results", type=Path, required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     cohorts = [("initial", args.initial_results, "Default initialization"),
@@ -71,15 +72,19 @@ def main():
         "benchmark":"Official Zoology MQAR generator and full-vocabulary query-token accuracy",
         "scope":"Selected standard condition with an initialization follow-up; not a full published sweep reproduction",
         "aggregates":aggregates,"cap_activity":norms,"audits":audits})
+    report_config = cohort_config(args.initial_results)
+    summary_path = args.output / "summary.json"
+    summary_record = json.loads(summary_path.read_text())
+    summary_record.update(configuration=report_config,
+                          workflow_validation=bool(report_config.get("workflow_validation")))
+    save_json(summary_path, summary_record)
     lines = ["MQAR BENCHMARK EVALUATION", "",
         "Official source: https://github.com/HazyResearch/zoology/tree/1ad20d193b6113cae1e8f3c655c300d7b4b3f4bb",
         "Paper: https://arxiv.org/abs/2312.04927", "",
-        "Vocabulary 8,192, random filler tokens, power_a=.01, one context pass.",
-        "Primary condition: N=256, 16 key-value pairs; 20,000 train, 1,000 validation, 1,000 test sequences.",
+        protocol_summary(report_config),
         "Answer-token supervision only. Full-vocabulary argmax at every official nonignored query.",
         "Two layers, d=64, FFN width 128, cap 64, native attention sqrt(64), unit-norm LayerNorms.",
         "All 12 Transformer projections capped; token inputs row-normalized; vocabulary readout uncapped.",
-        "32 full epochs, 5,024 updates, paired initialization/data order; fixed final checkpoints; all 3 seeds.",
         "Initial cohort retained in full. Initialization follow-up motivated by validation/training failure",
         "and evaluated on a fresh test stream. It is exploratory, not an unselected confirmatory protocol.",
         "Values below are mean +/- sample SD over training seeds. Queries within a sequence are dependent.", ""]
@@ -143,44 +148,9 @@ def main():
                 cells.append(f"${100*r['accuracy_mean']:.3f}\\pm{100*r['accuracy_sd']:.3f}$")
             latex.append(f"{label} & {variant} & " + " & ".join(cells) + r" \\")
     latex += [r"\hline",r"\end{tabular}",
-        r"\caption{Official-generator MQAR query-token accuracy (\%), mean $\pm$ sample SD across all three seeds. Vocabulary 8192; training uses 20000 sequences at $N=256,K=16$, 32 epochs, and answer labels only. All complete Transformer projections have cap 64; native temperature is $\sqrt{64}$. The vocabulary readout is uncapped. The initialization follow-up is exploratory and uses a fresh test stream. Longer contexts also contain more memory pairs and are outside the training distribution. Both complete cohorts are retained.}",
+        r"\caption{Official-generator MQAR query-token accuracy (\%), mean $\pm$ sample SD across all three seeds. Answer-token supervision only; the training budget is recorded in the run configuration. All complete Transformer projections have cap 64; native temperature is $\sqrt{64}$. The vocabulary readout is uncapped. The initialization follow-up is exploratory and uses a fresh test stream. Longer contexts also contain more memory pairs and are outside the training distribution. Both complete cohorts are retained.}",
         r"\label{tab:mqar-benchmark}",r"\end{table}"]
     (args.output / "mqar_table.tex").write_text("\n".join(latex)+"\n")
-    def percentage(cohort,variant,n,k):
-        r=next(r for r in aggregates if (r["cohort"],r["variant"],r["N"],r["pairs"]) == (cohort,variant,n,k))
-        return f"${100*r['accuracy_mean']:.3f}\\pm{100*r['accuracy_sd']:.3f}\\%$"
-    paragraph = r"""\textbf{Established associative-recall benchmark.}
-We additionally evaluated the Multi-Query Associative Recall (MQAR) benchmark
-using the official Zoology generator pinned to commit
-\texttt{1ad20d193b6113cae1e8f3c655c300d7b4b3f4bb}. The vocabulary contains 8192
-tokens; random non-query tokens and the original power-law query placement are
-retained. Accuracy is measured at every official labeled query over the full
-vocabulary. The primary condition uses $N=256$ and 16 key--value pairs, with 20000
-training sequences and separate 1000-sequence validation and test sets. This is
-a selected standard condition, not a reproduction of the complete published sweep.
-
-The two-layer model has $d=64$, native temperature $\sqrt{64}$, both residuals,
-fixed unit-norm LayerNorms, and Frobenius caps of 64 on all 12 Transformer
-projection matrices. Token inputs are row-normalized; the separate vocabulary
-readout is uncapped. We train all three seeds for 32 epochs using answer-token
-labels only, with no matching-index supervision, and evaluate fixed final
-checkpoints. Separately trained causal uniform-attention controls use paired
-initial weights and training orders. There is no claimed exact 50\% ceiling for
-this multilayer MQAR control.
-
-The original initialization was unstable across seeds. We retain that complete
-cohort and report an exploratory follow-up that adjusts projection initialization
-for unit-norm activations while retaining the architecture, caps, attention
-temperature, data and optimization budget. This adjustment was motivated by
-training/validation failure; the follow-up uses a fresh test stream. It is not
-an unselected confirmatory training protocol.
-
-"""
-    paragraph += f"The original native cohort scores {percentage('initial','native',256,16)} on the primary condition. With the adjusted initialization, native attention achieves {percentage('variance_init','native',256,16)}, compared with {percentage('variance_init','uniform',256,16)} for the trained uniform control (mean and sample standard deviation across all three seeds). "
-    paragraph += f"At $N=2048$ with 128 memory pairs, native accuracy falls to {percentage('variance_init','native',2048,128)}; sequence length and memory load both increase relative to training. "
-    paragraph += "The results establish successful retrieval for the primary benchmark configuration, with limited generalization to the harder conditions. They are not FN24 recovery results or evidence of computational advantage. All seeds, the original cohort, per-query predictions, cap diagnostics and replay checks are retained.\n\n"
-    paragraph += r"\input{results/reviewer/mqar_summary/mqar_table.tex}" + "\n"
-    (args.output / "comment4_mqar_insert.tex").write_text(paragraph)
     print("\n".join(lines))
 
 

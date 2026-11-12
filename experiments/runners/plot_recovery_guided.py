@@ -8,7 +8,7 @@ from pathlib import Path
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--results', type=Path, default=Path('results/reviewer'))
+    parser.add_argument('--results', type=Path, required=True)
     args = parser.parse_args()
     root = args.results
     summary = json.loads((root / 'recovery_guided_summary.json').read_text())

@@ -13,8 +13,8 @@ import sys
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--assets", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=Path("results/reviewer/recovery_extension"))
-    parser.add_argument("--config", type=Path, default=Path("experiments/configs/reviewer/recovery_extension.json"))
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--config", type=Path, default=(Path(__file__).resolve().parents[1] / 'configs/recovery/recovery_extension.json'))
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
     logs = args.output / "logs"
@@ -37,7 +37,7 @@ def main():
                 continue
             if output.exists():
                 raise RuntimeError(f"Incomplete prior output; inspect before retrying: {output}")
-            command = [sys.executable, "experiments/runners/reviewer_recovery_extension.py",
+            command = [sys.executable, str(Path(__file__).with_name('recovery_extension.py')),
                        "--config", str(args.config), "--assets", str(args.assets),
                        "--model", model, "--mode", mode, "--seed", str(seed),
                        "--device", device, "--compile", "--output", str(output)]

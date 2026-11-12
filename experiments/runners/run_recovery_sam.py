@@ -9,14 +9,14 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / 'src')]
 from experiments.lib.recovery_full_dense import file_sha256
-from experiments.lib.reviewer import save_json
+from experiments.lib.experiment import save_json
 
 
 def main(args):
     args.output.mkdir(parents=True, exist_ok=False)
     plan = []
     for seed in range(901, 907):
-        config = ROOT / f'experiments/configs/reviewer/recovery_sam_seed{seed}.json'
+        config = ROOT / f'experiments/configs/recovery/recovery_sam_seed{seed}.json'
         plan.append({'seed': seed, 'config': str(config), 'config_sha256': file_sha256(config), 'status': 'planned'})
     save_json(args.output / 'attempt_plan.json', plan)
     for item in plan:
@@ -25,9 +25,9 @@ def main(args):
         item['status'] = 'running'
         save_json(args.output / 'attempt_plan.json', plan)
         with (args.output / f'run_seed{seed}.log').open('w') as handle:
-            outcome = subprocess.run([sys.executable, '-u', str(ROOT / 'experiments/runners/reviewer_recovery_sam.py'),
+            outcome = subprocess.run([sys.executable, '-u', str(ROOT / str(Path(__file__).with_name('recovery_sam.py'))),
                 '--config', item['config'], '--assets', str(args.assets), '--output', str(run),
-                '--seed', str(seed), '--device', args.device], stdout=handle, stderr=subprocess.STDOUT)
+                '--seed', str(seed), '--device', args.device, '--checkpoint-root', str(args.checkpoint_root)], stdout=handle, stderr=subprocess.STDOUT)
         if outcome.returncode:
             item['status'] = 'failed'
             save_json(args.output / 'attempt_plan.json', plan)
@@ -49,6 +49,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--checkpoint-root', type=Path, required=True)
     parser.add_argument('--assets', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--device', default='cuda:0')

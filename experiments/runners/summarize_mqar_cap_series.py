@@ -16,7 +16,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-from experiments.lib.reviewer import save_csv,save_json
+from experiments.lib.mqar_reporting import cohort_config, protocol_summary
+from experiments.lib.experiment import save_csv,save_json
 
 
 def file_hash(path):
@@ -25,13 +26,16 @@ def file_hash(path):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--caps",type=int,nargs="+",default=[64,48,24])
-    parser.add_argument("--output",type=Path,default=ROOT/"results/reviewer/mqar_cap24_comparison")
+    parser.add_argument("--cap-results", nargs=2, action="append", required=True,
+                        metavar=("CAP", "DIRECTORY"), help="Repeat for each trained cap cohort")
+    parser.add_argument("--standard-results", type=Path, required=True)
+    parser.add_argument("--output",type=Path,required=True)
     args=parser.parse_args()
+    args.caps = [int(cap) for cap, _ in args.cap_results]
     if len(args.caps)!=len(set(args.caps)) or any(cap<=0 for cap in args.caps):
         raise ValueError("Supply distinct positive caps")
-    models=[("standard","Standard Transformer",ROOT/"results/reviewer/mqar_standard","native",None)]
-    roots={cap:ROOT/("results/reviewer/mqar_variance_init" if cap==64 else f"results/reviewer/mqar_cap{cap}") for cap in args.caps}
+    models=[("standard","Standard Transformer",args.standard_results,"native",None)]
+    roots={int(cap): Path(directory) for cap, directory in args.cap_results}
     models += [(f"cap{cap}",f"QFT adaptation (cap {cap})",roots[cap],"native",cap) for cap in args.caps]
     models += [(f"uniform{cap}",f"Uniform control (cap {cap})",roots[cap],"uniform",cap) for cap in args.caps]
     records,norms,inputs=[],[],{}
@@ -41,7 +45,7 @@ def main():
         audit=json.loads(audit_path.read_text())
         if audit["status"]!="passed":
             raise AssertionError(f"Audit not passed: {root}")
-        inputs[str(audit_path.relative_to(ROOT))]=file_hash(audit_path)
+        inputs[str(audit_path.resolve())]=file_hash(audit_path)
         for seed in (11,22,33):
             folder=root/f"{variant}_seed{seed}"
             result_path=folder/"result.json"
@@ -53,13 +57,13 @@ def main():
             if config["cap"]!=cap:
                 raise AssertionError("Cap label differs from actual run configuration")
             for path in (result_path,config_path):
-                inputs[str(path.relative_to(ROOT))]=file_hash(path)
+                inputs[str(path.resolve())]=file_hash(path)
             for row in result["evaluation"]:
                 records.append({"model":model,"label":title,"cap":cap,"seed":seed,
                     **{k:v for k,v in row.items() if k!="layer_diagnostics"}})
             for stage in ("initial","final"):
                 path=folder/f"weights_{stage}.csv"
-                inputs[str(path.relative_to(ROOT))]=file_hash(path)
+                inputs[str(path.resolve())]=file_hash(path)
                 with path.open() as stream:
                     targets=[r for r in csv.DictReader(stream) if r["capped"]=="True"]
                 if cap is not None and (len(targets)!=12 or any(float(r["effective_frobenius"])>cap*(1+1e-6) for r in targets)):
@@ -87,12 +91,16 @@ def main():
     save_json(args.output/"summary.json",{"caps":args.caps,"total_models":len(models)*3,
         "all_seeds_retained":True,"results":aggregated,"cap_activity":norms,
         "source_result_sha256":inputs,"scope":"Exploratory matched cap comparison of the MQAR adaptation; every cohort trained from scratch."})
+    report_config = cohort_config(roots[args.caps[0]])
+    summary_path = args.output / "summary.json"
+    summary_record = json.loads(summary_path.read_text())
+    summary_record.update(configuration=report_config,
+                          workflow_validation=bool(report_config.get("workflow_validation")))
+    save_json(summary_path, summary_record)
     lines=["MQAR CAP SERIES: "+", ".join(map(str,args.caps)),"",
         "Same official MQAR data, raw random initial parameters, native attention denominator sqrt(64),",
-        "unit-norm LayerNorm, optimizer, minibatch orders and 32-epoch training budget across capped models.",
+        protocol_summary(report_config),
         "All three seeds (11,22,33); fixed final checkpoints; answer-token supervision only.",
-        "Training: N=256, 16 memory pairs, 20,000 sequences, vocabulary 8,192.",
-        "Testing: 1,000 shared sequences per condition; full-vocabulary query-token accuracy.",
         "All 12 complete Transformer projection matrices capped; the vocabulary readout remains uncapped.",
         "Effective initial weights differ when a smaller cap clips the same raw initial parameters.",
         "These are MQAR adaptations, not the legacy model class or pretrained SST-2 recovery runs.",

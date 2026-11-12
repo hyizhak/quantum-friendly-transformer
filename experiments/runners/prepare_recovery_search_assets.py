@@ -11,22 +11,25 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--data', type=Path, required=True,
+                        help='Directory containing the prepared dataset files')
+    parser.add_argument('--reuse-assets', type=Path, action='append', default=[],
+                        help='Search these prepared model directories before downloading')
     args = parser.parse_args()
     config = json.loads(args.config.read_text())
+    if not args.data.is_dir():
+        parser.error('--data must name an existing prepared dataset directory')
     args.output.mkdir(parents=True, exist_ok=True)
     for name, model in config['models'].items():
-        if name in ['1m', '8m', '33m']:
-            original = Path('/tmp/qft-recovery-assets') / name
-        elif name == '3m':
-            original = Path('/tmp/qft-recovery-positive-control-assets') / name
-        else:
-            original = None
+        original = next((directory / name for directory in args.reuse_assets
+                         if (directory / name).is_dir()), None)
         destination = args.output / name
         if original is not None and original.exists():
             if not destination.exists():
-                destination.symlink_to(original, target_is_directory=True)
+                destination.symlink_to(original.resolve(), target_is_directory=True)
         else:
-            weights = ['pytorch_model.bin'] if name in ['28m', '1layer21m', '2layers33m'] else ['model*.safetensors', 'model.safetensors.index.json']
+            weights = ['pytorch_model*.bin', 'pytorch_model.bin.index.json',
+                       'model*.safetensors', 'model.safetensors.index.json']
             snapshot_download(model['model_id'], revision=model['revision'], token=False,
                               allow_patterns=weights + ['config.json', 'tokenizer.json', 'tokenizer.model',
                               'tokenizer_config.json', 'special_tokens_map.json', 'vocab.json', 'merges.txt'],
@@ -34,7 +37,7 @@ def main():
         print(f'Prepared {name}', flush=True)
     data = args.output / 'data'
     if not data.exists():
-        data.symlink_to('/tmp/qft-recovery-assets/data', target_is_directory=True)
+        data.symlink_to(args.data.resolve(), target_is_directory=True)
     files = {}
     for directory in [args.output / name for name in config['models']] + [data]:
         for path in sorted(directory.rglob('*')):

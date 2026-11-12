@@ -1,0 +1,140 @@
+"""Numerical and artifact helpers for reproducible research experiments."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import importlib.metadata
+import json
+import math
+import platform
+import subprocess
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def softmax(logits):
+    logits = np.asarray(logits, dtype=np.float64)
+    weights = np.exp(logits - logits.max())
+    return weights / weights.sum()
+
+
+def attention_statistics(logits):
+    logits = np.asarray(logits, dtype=np.float64)
+    p = softmax(logits)
+    entropy = float(-np.sum(p * np.log(np.maximum(p, np.finfo(float).tiny))))
+    return {"visible_keys": len(p), "logit_min": float(logits.min()),
+            "logit_max": float(logits.max()), "logit_range": float(np.ptp(logits)),
+            "max_probability": float(p.max()), "max_probability_times_keys": float(p.max() * len(p)),
+            "entropy": entropy, "normalized_entropy": entropy / math.log(len(p)) if len(p) > 1 else 1.0,
+            "participation_ratio": float(1.0 / np.sum(p * p)),
+            "log_partition": float(logits.max() + np.log(np.exp(logits - logits.max()).sum()))}
+
+
+def sampled_attention(rows, query_coefficient, value_weight, indices):
+    """Uniform row sampler; no access to precomputed logits or value rows."""
+    sampled_rows = rows[indices]
+    probabilities = softmax(sampled_rows @ query_coefficient)
+    return (probabilities @ sampled_rows) @ value_weight
+
+
+def taylor_degree(kappa, delta):
+    """Sufficient degree for exp(kappa*x/2), x in [-1,1], via Taylor remainder."""
+    if kappa < 0 or not 0 < delta < 1:
+        raise ValueError("Require kappa >= 0 and 0 < delta < 1")
+    if kappa == 0:
+        return 0
+    a = kappa / 2
+
+    def sufficient(degree):
+        return a + (degree + 1) * math.log(a) - math.lgamma(degree + 2) <= math.log(delta)
+
+    low, high = max(0, int(a)), max(1, int(4 * a + 10))
+    while not sufficient(high):
+        high *= 2
+    while low < high:
+        mid = (low + high) // 2
+        if sufficient(mid):
+            high = mid
+        else:
+            low = mid + 1
+    return low
+
+
+def save_csv(path, rows):
+    if not rows:
+        return
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields = list(dict.fromkeys(key for row in rows for key in row))
+    with path.open("w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def save_json(path, data):
+    Path(path).write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
+
+
+def load_config(path, checkpoint_root=None):
+    """Load a recipe, resolving its input checkpoints under a caller's root.
+
+    Checked-in recipes describe checkpoint identities and hashes. They never
+    assume that an experiment's outputs live in the source checkout.
+    """
+    config = json.loads(Path(path).read_text())
+
+    def resolve(value):
+        location = Path(value)
+        if not location.is_absolute():
+            if checkpoint_root is None:
+                raise ValueError("This recipe has relative checkpoint paths; supply --checkpoint-root")
+            location = Path(checkpoint_root) / location
+        return str(location.resolve())
+
+    references = list(config.get("parent_checkpoints", []))
+    if config.get("parent_checkpoint"):
+        references.append(config["parent_checkpoint"])
+    for reference in references:
+        for key in ("path", "result_path"):
+            if reference.get(key):
+                reference[key] = resolve(reference[key])
+    if config.get("warm_start_root"):
+        config["warm_start_root"] = resolve(config["warm_start_root"])
+    return config
+
+
+def git_commit():
+    """Return this checkout's commit when available; source ZIPs have none."""
+    # Avoid attributing an extracted archive to an unrelated parent repository.
+    # A worktree has a .git file rather than a directory.
+    if not (ROOT / ".git").exists():
+        return None
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
+def manifest(config, source_files, **extra):
+    versions = {}
+    for package in ["numpy", "torch", "transformers", "matplotlib", "scipy", "huggingface-hub"]:
+        try:
+            versions[package] = importlib.metadata.version(package)
+        except importlib.metadata.PackageNotFoundError:
+            pass
+    return {"utc": datetime.now(timezone.utc).isoformat(), "config": config,
+            "git_commit": git_commit(),
+            "source_sha256": {str(p): hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in source_files},
+            "python": sys.version, "executable": sys.executable, "platform": platform.platform(),
+            "packages": versions, **extra}

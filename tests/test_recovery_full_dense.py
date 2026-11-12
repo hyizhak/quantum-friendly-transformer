@@ -8,7 +8,7 @@ from experiments.lib.recovery_full_dense import (
     file_sha256, gradient_audit, load_verified_parent, materialize_dense,
     parameter_inventory, parameter_probes, place_model, probe_indices,
 )
-from experiments.runners.reviewer_recovery_low_rank import build_model
+from experiments.runners.recovery_low_rank import build_model
 from experiments.lib.recovery_extension import validate_scale_records
 from quantum_friendly_transformer.norm_transformer import collect_attention_scaling_stats, project_attention_scales_
 from quantum_friendly_transformer.norm_transformer.frobenius_cap import target_weight_modules
@@ -84,7 +84,7 @@ def test_dense_conversion_and_all_parameter_training(tmp_path, devices):
     model.eval()
     with torch.no_grad(), torch.autocast(device.type, dtype=torch.bfloat16):
         trained = model(**batch).logits.clone()
-    from experiments.runners.reviewer_recovery_full_dense import build_model as dense_builder
+    from experiments.runners.recovery_full_dense import build_model as dense_builder
     dense_recipe = copy.deepcopy(recipe)
     dense_recipe['models']['mistral7b'].update(master_dtype='float32', train_scope='all')
     restored, _, _, _, _ = dense_builder(tmp_path, dense_recipe, 202, devices, initialize_parent=False)

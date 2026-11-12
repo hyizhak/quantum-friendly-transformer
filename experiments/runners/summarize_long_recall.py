@@ -54,7 +54,7 @@ def write_table(output, aggregate):
     table += [r"\end{tabular}",
               r"\caption{Long-context paired associative recall, accuracy (\%) as mean $\pm$ sample standard deviation over all three fixed training seeds. The second protocol adds matching-index supervision during training only. Both protocols use a curriculum (500 updates at $N=64$, 500 at $N=256$, 2000 at the stated maximum). Evaluation uses 2048 independently drawn pairs per length; the two members of a pair are dependent. No checkpoint or seed is selected on these tests.}",
               r"\label{tab:long-paired-recall}", r"\end{table}"]
-    (output / "comment4_table.tex").write_text("\n".join(table) + "\n")
+    (output / "recall_table.tex").write_text("\n".join(table) + "\n")
 
 
 def summarize(root, allow_partial=False):
@@ -95,7 +95,7 @@ def summarize(root, allow_partial=False):
                     "kappa": float(batches[0]["kappa"]),
                     "maximum_effective_weight_norm": max(float(r["effective_frobenius"]) for r in weights),
                     "active_matrix_caps": sum(r["cap_active"] == "True" for r in weights),
-                    "result_path": str(run.relative_to(ROOT) / "result.json"),
+                    "result_path": str((run / "result.json").resolve()),
                 })
     if pending and not allow_partial:
         raise RuntimeError(f"Incomplete cohorts: {pending}")
@@ -217,7 +217,7 @@ def summarize(root, allow_partial=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results", type=Path, default=ROOT / "results/reviewer")
+    parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--allow-partial", action="store_true")
     args = parser.parse_args()
     summarize(args.results.resolve(), args.allow_partial)

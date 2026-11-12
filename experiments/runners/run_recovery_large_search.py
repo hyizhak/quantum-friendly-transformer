@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--model', required=True)
     parser.add_argument('--device', required=True)
     parser.add_argument('--wait-for-search-models', nargs='*', default=[])
-    parser.add_argument('--search-output', type=Path, default=Path('results/reviewer/recovery_seed_search'))
+    parser.add_argument('--search-output', type=Path, required=True)
     parser.add_argument('--max-seeds', type=int, default=1)
     args = parser.parse_args()
     config = json.loads(args.config.read_text())
@@ -31,7 +31,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     logs = args.output / 'logs'
     logs.mkdir(exist_ok=True)
-    prefix = [sys.executable, 'experiments/runners/reviewer_recovery_large.py', '--config', str(args.config),
+    prefix = [sys.executable, str(Path(__file__).with_name('recovery_large.py')), '--config', str(args.config),
               '--assets', str(args.assets), '--model', args.model, '--device', args.device]
     smoke = Path('/tmp') / f'qft-recovery-{args.model}-{args.config.stem}-smoke'
     if not (smoke / 'manifest.json').exists():

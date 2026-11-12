@@ -11,16 +11,16 @@ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
 import torch
 
 from experiments.lib.mqar_standard import MQARStandardTransformer
-from experiments.lib.reviewer import save_json
+from experiments.lib.experiment import save_json
 from experiments.runners import audit_mqar as audit
-from experiments.runners.reviewer_mqar import load_data
+from experiments.runners.mqar import load_data
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results",type=Path,default=ROOT/"results/reviewer/mqar_standard")
-    parser.add_argument("--assets",type=Path,default=ROOT/"results/reviewer/mqar_standard_data")
-    parser.add_argument("--reference-assets",type=Path,default=ROOT/"results/reviewer/mqar_variance_init_data")
+    parser.add_argument("--results",type=Path,required=True)
+    parser.add_argument("--assets",type=Path,required=True)
+    parser.add_argument("--reference-assets",type=Path,required=True)
     parser.add_argument("--device",default="cuda:1")
     args=parser.parse_args()
     torch.set_num_threads(4)

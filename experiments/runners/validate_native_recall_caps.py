@@ -1,4 +1,4 @@
-"""Audit the Comment 4 native-temperature cap comparison and replay test batches."""
+"""Audit the native-temperature cap comparison and replay test batches."""
 
 import argparse
 import csv
@@ -12,7 +12,7 @@ sys.path[:0]=[str(ROOT),str(ROOT/"src")]
 
 import torch
 from experiments.lib.long_recall import input_certificate,matrix_records,paired_batch
-from experiments.runners.reviewer_long_recall import make_model,state_hash
+from experiments.runners.long_recall import make_model,state_hash
 
 
 def read_csv(path):
@@ -120,7 +120,7 @@ def validate(root,device):
         old={k:v for k,v in configs[24,n].items() if k not in ("cap","protocol")}
         new={k:v for k,v in configs[64,n].items() if k not in ("cap","protocol")}
         assert old==new,"Unmatched cap comparison"
-    output=root/"comment4_native_caps"
+    output=root/"native_cap_comparison"
     output.mkdir(exist_ok=True)
     payload={"all_checks_passed":True,"models":len(reports),"new_training_runs":18,"saved_checkpoints_reevaluated":18,
         "stored_predictions_audited":sum(r["stored_predictions"] for r in reports.values()),
@@ -134,7 +134,7 @@ def validate(root,device):
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--results",type=Path,default=ROOT/"results/reviewer")
+    parser.add_argument("--results",type=Path,required=True)
     parser.add_argument("--device",default="cuda:0")
     args=parser.parse_args()
     torch.set_num_threads(4)

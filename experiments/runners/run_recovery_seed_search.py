@@ -33,7 +33,7 @@ def main():
             if not (output / 'manifest.json').exists():
                 if output.exists():
                     raise RuntimeError(f'Preserved incomplete attempt requires inspection: {output}')
-                command = [sys.executable, 'experiments/runners/reviewer_recovery_search.py',
+                command = [sys.executable, str(Path(__file__).with_name('recovery_search.py')),
                            '--config', str(args.config), '--assets', str(args.assets),
                            '--model', model, '--seed', str(seed), '--device', args.device,
                            '--output', str(output)]

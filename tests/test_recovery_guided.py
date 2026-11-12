@@ -58,7 +58,7 @@ def test_average_learns_parameters_but_preserves_inference_buffers():
 
 def test_learning_rate_groups_cover_a_capped_model_and_prioritize_head(tmp_path):
     from transformers import MistralConfig, MistralModel
-    from experiments.runners.reviewer_recovery_large import build_model
+    from experiments.runners.recovery_large import build_model
     hf = MistralConfig(vocab_size=32, hidden_size=16, intermediate_size=32,
                        num_hidden_layers=2, num_attention_heads=2, num_key_value_heads=2)
     MistralModel(hf).save_pretrained(tmp_path / 'mistral7b')
