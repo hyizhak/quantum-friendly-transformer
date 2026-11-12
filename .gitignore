@@ -187,6 +187,7 @@ cython_debug/
 
 # Local reviewer runs and release drafts are separate from the code repository.
 /results/reviewer/
-/response.tex
+/response*.tex
+/rebuttal*.tex
 /reproduction-assets/
 /reproduced/

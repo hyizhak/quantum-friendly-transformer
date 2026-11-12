@@ -125,6 +125,7 @@ def test_symlink_cannot_escape_extraction_directory(fixture_store, tmp_path):
 
 def test_shipped_catalog_covers_records_measurements_and_checkpoints(tmp_path):
     store = EvidenceStore(cache_dir=tmp_path)
+    assert all(item.path != "response.tex" for item in store.list_artifacts())
     assert {"sst2", "partition", "layernorm", "depth", "checkpoints"} <= set(store.groups)
     assert store.verify() == {}
     checkpoints = store.list_artifacts("checkpoints")
@@ -136,6 +137,30 @@ def test_shipped_catalog_covers_records_measurements_and_checkpoints(tmp_path):
     depth = store.artifact("token_l2_norm_across_layers.parquet")
     assert not depth.bundled
     assert "depth" in depth.groups
+
+
+def test_evidence_builder_keeps_private_response_out_of_archives(tmp_path):
+    from tools.build_evidence import build
+
+    source = tmp_path / "source"
+    raw = source / "experiments/outputs/raw"
+    raw.mkdir(parents=True)
+    (raw / "run.json").write_text('{"accuracy": 0.8}')
+    (raw / "run.pt").write_bytes(b"checkpoint fixture")
+    (source / "response.tex").write_text("Private reviewer correspondence")
+    package = tmp_path / "package"
+    companion = tmp_path / "companion.zip"
+
+    catalog = build(source, package, companion)
+
+    assert {row["path"] for row in catalog["artifacts"]} == {
+        "experiments/outputs/raw/run.json", "experiments/outputs/raw/run.pt",
+    }
+    assert "response" not in catalog
+    with zipfile.ZipFile(package / "records.zip") as archive:
+        assert archive.namelist() == ["experiments/outputs/raw/run.json"]
+    with zipfile.ZipFile(companion) as archive:
+        assert archive.namelist() == ["experiments/outputs/raw/run.pt"]
 
 
 @pytest.mark.parametrize("name", ["../escape", "/absolute", "a/../../escape", "a\\escape"])

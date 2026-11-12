@@ -24,14 +24,11 @@ def evidence_paths(root: Path) -> list[Path]:
     ]
     paths += list((root / "results").glob("*.md"))
     paths += list((root / "experiments/reports").glob("*.md"))
-    response = root / "response.tex"
-    if response.exists():
-        paths.append(response)
     return sorted(paths)
 
 
 def belongs_in_wheel(relative: Path) -> bool:
-    if relative.suffix in {".json", ".md", ".tex"}:
+    if relative.suffix in {".json", ".md"}:
         return True
     return relative.suffix == ".csv" and "raw" not in relative.parts
 
@@ -126,7 +123,6 @@ def build(root: Path, package: Path, bundle: Path | None) -> dict:
         "layout": "Original paths relative to the repository root; compact records ship in records.zip, other entries in the companion ZIP.",
         "groups": "Filename-based discovery labels; consult each record and metadata for measured fields and sampling.",
         "checkpoints": "Recovery checkpoints contain trainable_state_dict and require the corresponding base model and adapters.",
-        "response": "response.tex is the historical response draft, not a certification that its claims are supported.",
         "artifact_count": len(entries),
         "bundled_count": sum(entry["bundled"] for entry in entries),
         "artifacts": entries,

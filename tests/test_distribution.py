@@ -1,6 +1,8 @@
 """Build and inspect both artifacts without downloads or model execution."""
 
 import email
+import io
+import json
 import shutil
 import subprocess
 import sys
@@ -15,6 +17,7 @@ def test_source_distribution_builds_a_self_contained_wheel(tmp_path):
     source.mkdir()
     for name in ["pyproject.toml", "MANIFEST.in", "LICENSE", "README.md"]:
         shutil.copy2(root / name, source / name)
+    (source / "response.tex").write_text("Private reviewer correspondence")
     for name in ["src", "docs", "examples", "tests", "tools"]:
         shutil.copytree(
             root / name,
@@ -58,12 +61,17 @@ def test_source_distribution_builds_a_self_contained_wheel(tmp_path):
         assert "quantum_friendly_transformer/experiments/styles/qft-paper-v1.mplstyle" in members
         assert "quantum_friendly_transformer/evidence/catalog.json" in members
         assert "quantum_friendly_transformer/evidence/records.zip" in members
+        catalog = json.loads(package.read("quantum_friendly_transformer/evidence/catalog.json"))
+        assert all(row["path"] != "response.tex" for row in catalog["artifacts"])
+        with zipfile.ZipFile(io.BytesIO(package.read("quantum_friendly_transformer/evidence/records.zip"))) as records:
+            assert "response.tex" not in records.namelist()
         # Historical script modules must be shims, not the actual training recipes.
         shim = package.read("quantum_friendly_transformer/trainer/train_gue.py").decode()
         assert "run_legacy_trainer_recipe" in shim
         assert "load_dataset" not in shim
     for names in [members, source_members]:
         assert not any("research-output" in name for name in names)
+        assert not any(name.endswith("/response.tex") for name in names)
         assert not any(name.endswith((".pt", ".pth", ".parquet", ".npy")) for name in names)
     assert any(name.endswith("/tests/test_library.py") for name in source_members)
     assert any(name.endswith("/tests/test_recovery_trainable_attention_scaling.py") for name in source_members)

@@ -1,11 +1,10 @@
 # Experiments and recorded evidence
 
-For the later reviewer experiments and the release handoff for Comments 4 and
-8, see [reviewer_release.txt](reviewer_release.txt). That separate source/results
-archive includes the new `results/reviewer/` records and explicitly inventories
-omitted weights. The historical 0.3.0 snapshot described below is unchanged;
-its builder does not collect the later reviewer experiments. Neither local
-packaging workflow publishes an update to Figshare.
+For the later reviewer experiments, see the
+[experiment map](../experiments/README.md#reviewer-experiment-map). Their
+`results/reviewer/` records and checkpoints are separate from the historical
+snapshot below. Peer-review correspondence is excluded from the code and
+bundled evidence. Local packaging does not publish an update to Figshare.
 
 Version 0.3.0 includes the NLP research runners in
 `quantum_friendly_transformer.experiments` and recorded evidence in
@@ -18,11 +17,11 @@ Installing the library does not run experiments or download model weights.
 |---|---|
 | Recovery, forward diagnostics, normalization, depth measurements, reporting | Packaged Python modules under `quantum_friendly_transformer.experiments` |
 | Portable YAML configs and plotting style | Package resources, available through the experiment CLI |
-| SST-2 run JSON, measurement metadata, aggregate CSVs, result reports, historical response draft | `evidence/records.zip`, included in the wheel and source distribution |
+| SST-2 run JSON, measurement metadata, aggregate CSVs, result reports | `evidence/records.zip`, included in the wheel and source distribution |
 | All recorded file paths, sizes, SHA-256 checksums, groups, related files | `evidence/catalog.json`, included in both distributions |
 | Raw Parquet/NumPy measurements, the large token-level LayerNorm CSV, figures, saved trainable states | Companion ZIP, distributed separately from the Python package |
 
-The current snapshot contains 1,306 files: 541 compact files in the library and
+The current snapshot contains 1,305 files: 540 compact files in the library and
 765 files in the companion bundle. There are 65 SST-2 JSON files excluding
 metadata, 134 Parquet files overall, and 13 recovery checkpoint files.
 The companion ZIP is about 5.84 GB; its filename for this version is
@@ -34,15 +33,14 @@ created under `dist/` and must be shared separately. There is no automatic
 remote download or assumed public archive URL. `qft-evidence list` clearly marks
 each entry as `wheel` or `companion`.
 
-All original file contents are preserved, including run failures, provenance,
+All retained experiment file contents are preserved, including run failures, provenance,
 sampling information, and historical paths. Catalog groups are discovery labels,
 not validation that a run meets a paper claim. Some diagnostics omit entropy or
 other measurements; inspect the saved metadata and columns before combining runs.
 The retained bounded-attention report records three recoveries out of nine;
 the separate trainable-attention report records nine out of nine. These use
 different constraints. Packaging does not add seeds, held-out evaluations, or new
-measurements. `response.tex` is included as a historical draft, not an endorsed
-statement that every reviewer request has been resolved.
+measurements.
 
 ## Read records through Python
 
@@ -100,7 +98,7 @@ qft-evidence verify --include-bulk --bundle /path/to/quantum_friendly_transforme
 qft-evidence extract --include-bulk --bundle /path/to/quantum_friendly_transformer-0.3.0-evidence.zip --destination ./research
 ```
 
-The commands restore `experiments/outputs/`, `results/`, and `response.tex`
+The commands restore `experiments/outputs/` and `results/`
 under the destination. Existing files with different contents cause an error;
 use a new destination to preserve subsequent experiments. Checksums cover
 uncompressed original bytes, whether the source is a directory or a ZIP.
@@ -225,8 +223,8 @@ python experiments/runners/validate_long_recall.py --device cuda:0
 ```
 
 Add `--smoke` and use another output directory for an inexpensive implementation
-check. The summary writes all per-seed results, aggregates, figures, and a proposed
-Comment 4 LaTeX addendum under `results/reviewer/long_recall_summary/`. The audit
+check. The summary writes all per-seed results, aggregates, figures, and a
+LaTeX result table under `results/reviewer/long_recall_summary/`. The audit
 checks every stored prediction and freshly replays the first test batch at each
 length for every checkpoint; it does not claim a full independent test replay.
 Focused tests are in `tests/test_long_recall.py`.
@@ -257,7 +255,6 @@ python experiments/runners/reevaluate_long_recall_caps.py --train-length 1024 --
 python experiments/runners/reevaluate_long_recall_caps.py --train-length 2048 --output results/reviewer/long_recall_native24_2048 --device cuda:0
 python experiments/runners/validate_native_recall_caps.py --device cuda:0
 python experiments/runners/summarize_native_recall_caps.py
-python tools/assemble_comment4_experiments.py
 ```
 
 The reevaluation requires the original `long_recall_routing_1024` and 2048
@@ -265,9 +262,3 @@ checkpoints, and performs no training. The audit checks every stored prediction
 and freshly replays the first batch at each length. The summary writes the cap
 comparison, all per-seed results and an exportable figure under
 `results/reviewer/comment4_native_caps/`.
-
-The response assembler requires the local response and previous SST-2 response
-snippet. It creates `results/reviewer/comment4_update/response_comment4_only.tex`
-and verifies that only the response body for Comment 4 changed. All quoted
-reviewer text, every other response, and the original `response.tex` remain
-unchanged. The new response text concerns classical experiments only.

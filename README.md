@@ -55,7 +55,7 @@ that needs no downloads is available at `examples/library_quickstart.py`.
 | `alpha_s/`, `alpha_w/`, `results/` | Analysis scripts and reported artifacts |
 | `tests/` | CPU unit tests and research-runner tests |
 
-The wheel includes the library, NLP experiment runners, and 541 recorded result,
+The wheel includes the library, NLP experiment runners, and 540 recorded result,
 metadata, table, and report files. Large raw measurements and checkpoints are
 organized in a separate companion archive, accessible through the same library.
 See [experiments and evidence](docs/evidence.md) for the inventory, archive layout,
@@ -77,8 +77,8 @@ training through length 8192. Their code, fixed configurations, protocols,
 auditors, and tests are versioned in this repository and run from a source
 checkout. Start with the [reviewer experiment map](experiments/README.md#reviewer-experiment-map)
 and [reviewer code guide](docs/reviewer_code.txt). Generated runs and checkpoints
-use the separate [release workflow](docs/reviewer_release.txt); the historical
-wheel evidence remains a separate snapshot.
+are distributed separately from the code; the historical wheel evidence remains
+a separate snapshot.
 
 ## Conda setup
 
@@ -162,7 +162,7 @@ Use `qft-experiment --list-configs` for all available configurations and
 `qft-experiment --list` for diagnostics and report generators.
 
 `qft-evidence extract --destination ./research` restores the compact result
-records, tables, reports, and response draft included in the package. Raw
+records, tables, and reports included in the package. Raw
 measurements and saved checkpoints require the companion evidence archive.
 See [the evidence guide](docs/evidence.md) for Python access, verification,
 full extraction, and recovery-report reproduction.

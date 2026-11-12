@@ -113,9 +113,9 @@ The summarize_* and validate_* runners consume separately supplied results.
 tools/verify_reviewer_records.py checks compact prediction tables and source
 hashes without model inference. tools/summarize_reviewer_caps.py extracts
 matrix-norm evidence from the historical archive and supplied new audit tables.
-tools/assemble_reviewer_response.py and tools/build_reviewer_release.py require
-the local response/result inputs documented in their command-line help or
-module descriptions. A code-only checkout cannot regenerate missing results
+tools/build_reviewer_release.py packages separately supplied experiment records
+and selected checkpoints, excluding peer-review correspondence. A code-only
+checkout cannot regenerate missing results
 or restore omitted checkpoints by running an aggregation script.
 
 Training sources used by completed runs retain their recorded bytes. Runtime

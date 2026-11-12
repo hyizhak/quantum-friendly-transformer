@@ -78,7 +78,7 @@ def main(args):
         'The configured pretrained alpha_s values do not certify complete input-matrix bounds or the theorem architecture.',
         'The selective-family construction supplies numerical support; the formal lower bound remains a mathematical claim.',
         f"Cumulative audit coverage: {coverage['artifact_verified_attempts']}/{coverage['completed_bounded_attempts']} completed new bounded attempts; {coverage['fresh_prediction_replays']} fresh replays.", '',
-        'Artifacts: recovery_sam_attempts.csv, recovery_story_table.tex, recovery_response_addendum.tex,',
+        'Artifacts: recovery_sam_attempts.csv, recovery_story_table.tex,',
         'figures/recovery_sam.pdf, selective_layer/selective_layer.pdf, selective_layer/construction.txt.',
         'Method references: https://arxiv.org/abs/2010.01412 and https://arxiv.org/abs/quant-ph/9605043']
     (root / 'positive_evidence_summary.txt').write_text('\n'.join(lines)+'\n')

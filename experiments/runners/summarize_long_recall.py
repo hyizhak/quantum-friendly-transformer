@@ -29,8 +29,8 @@ def save_csv(path, rows):
         writer.writerows(rows)
 
 
-def write_addendum(output, aggregate, per_seed):
-    """Generate the table and response from all completed fixed-seed records."""
+def write_table(output, aggregate):
+    """Generate the result table from all completed fixed-seed records."""
     lookup = {(r["protocol"], r["train_N"], r["variant"], r["N"]): r for r in aggregate}
     if len(aggregate) != 96 or any(r["training_seeds"] != 3 for r in aggregate):
         return
@@ -55,91 +55,6 @@ def write_addendum(output, aggregate, per_seed):
               r"\caption{Long-context paired associative recall, accuracy (\%) as mean $\pm$ sample standard deviation over all three fixed training seeds. The second protocol adds matching-index supervision during training only. Both protocols use a curriculum (500 updates at $N=64$, 500 at $N=256$, 2000 at the stated maximum). Evaluation uses 2048 independently drawn pairs per length; the two members of a pair are dependent. No checkpoint or seed is selected on these tests.}",
               r"\label{tab:long-paired-recall}", r"\end{table}"]
     (output / "comment4_table.tex").write_text("\n".join(table) + "\n")
-    auxiliary = [r for r in per_seed if r["protocol"] == "routing_auxiliary" and r["variant"] == "general_alpha1"]
-    long_rows = [r for r in auxiliary if r["N"] == 8192]
-    sigma1 = min(r["minimum_sigma1"] for r in auxiliary)
-    sigma2 = min(r["minimum_sigma2"] for r in auxiliary)
-    target_min = min(r["mean_target_probability"] for r in long_rows)
-    target_max = max(r["mean_target_probability"] for r in long_rows)
-    gaps = [r["mean_pair_hidden_gap"] for r in long_rows]
-    noise_min = min(100*r["noise_0.1_accuracy"] for r in long_rows)
-    shuffle_min = min(100*r["shuffled_query_accuracy"] for r in long_rows)
-    shuffle_max = max(100*r["shuffled_query_accuracy"] for r in long_rows)
-    active = sorted({r["active_matrix_caps"] for r in auxiliary})
-    max_norm = max(r["maximum_effective_weight_norm"] for r in auxiliary)
-    addendum = r"""% Proposed addition to the response to Comment 4. Does not replace response.tex.
-\paragraph{Long-context recall and an exact mean-pooling control.}
-We added a controlled synthetic retrieval experiment at $d=32$, with separate
-curricula ending in 2000 training updates at $N=1024$ or $N=2048$ and held-out
-evaluation through $N=8192$ ($N/d=256$). Each input contains $N-2$ random
-continuous-key memory tokens, a public marker, and a query copying one memory
-key. The target is that memory's binary value. Fresh keys are generated for
-every training batch. Counterfactual pairs share keys and queries but reverse
-all balanced binary values. Consequently the two inputs have exactly the same
-row mean and opposite labels. Any linear value projection followed by uniform
-pooling and the same query-dependent downstream computation must give identical
-outputs on the pair, and hence exactly $50\%$ accuracy on complete pairs.
-This control rules out this mean-pooling explanation of above-chance accuracy;
-it does not rule out arbitrary nonlinear per-token pooling architectures.
-
-The model contains one selected-row attention layer, both residual connections,
-both LayerNorms, a GELU feed-forward block, and a binary classifier. LayerNorm
-uses fixed $\gamma_i=1/\sqrt d$, $\beta_i=0$, and zero additive epsilon. All six
-complete matrices ($W_q,W_k,W_v,M_1,M_2$ and the classifier) are learned under
-Frobenius caps of 24 enforced on every forward pass. There are no learned
-embeddings or attention-output projection in this controlled architecture.
-All input rows have norm at most one by construction; float64 checks of every
-training and test batch establish $\|S\|_F\le\sqrt N$ for the evaluated inputs.
-We explicitly compare $\alpha_0=576N$ (strict Frobenius scaling, $\kappa=1$),
-$\alpha_0=1$ (general scaling, $\kappa=576N$), native $\sqrt d$ scaling, and
-uniform attention. The general-scaling outcomes do not validate selective
-routing under the strict denominator.
-
-For each of two training protocols we ran all four variants at both training
-lengths and all three fixed seeds (11, 22, 33), for 48 completed runs. Every run
-uses 3000 updates and its final checkpoint. Variants share initialized weights
-and training batches within each seed and cohort. Test sets contain 2048 independently generated
-pairs (4096 sequences) per length. The test RNG differs from training and is
-shared across variants and training seeds. The follow-up protocol uses a new
-predetermined test RNG. We report all seeds and sample standard deviations;
-there is no selection of seeds or checkpoints on the evaluation set.
-
-The first protocol uses binary classification labels alone. The general-scaling
-model reached $100\%$ at the training length for two of three seeds at each
-length, while the remaining seed stayed near chance, giving substantial seed
-variation. Motivated by the first completed run, we then defined a separately
-reported exploratory follow-up adding cross-entropy supervision on the known
-matching-memory index, with weight one. This is additional training information,
-not an input to inference. All variants receive the same auxiliary objective;
-for uniform attention it is the constant $\log N$ and has no routing gradient.
-This follow-up must not be described as classification-only training or as a
-confirmatory protocol selected without observing earlier results.
-
-"""
-    addendum += ("With this auxiliary supervision, general-scaling accuracy is $" + result("routing_auxiliary", 1024, "general_alpha1", 8192)
-                 + r"\%$ and $" + result("routing_auxiliary", 2048, "general_alpha1", 8192)
-                 + r"\%$ at $N=8192$ for the two training lengths, respectively. "
-                 + "Replacing attention by uniform weights gives exactly $50\\%$ for every model and length. "
-                 + f"Shuffling query keys across independent pairs gives ${shuffle_min:.2f}$--${shuffle_max:.2f}\\%$ at $N=8192$ across the six auxiliary general-scaling runs. "
-                 + f"Their mean attention mass on the matching token is ${target_min:.3f}$--${target_max:.3f}$ (uniform: $1/8192$), and their mean post-LayerNorm counterfactual output separation is ${min(gaps):.3f}$--${max(gaps):.3f}$ in Euclidean norm. "
-                 + f"Accuracy remains at least ${noise_min:.2f}\\%$ with random attention-output perturbations of Euclidean norm $0.1$; this is an empirical random-noise diagnostic, not a worst-case robustness guarantee.\n\n")
-    addendum += (f"The auxiliary general-scaling models have {','.join(map(str, active))} of six matrix caps active at the final checkpoint (Q and K); "
-                 + f"their maximum effective matrix norm is ${max_norm:.4f}<24$. "
-                 + f"The minimum observed LayerNorm centered norms across their test lengths and seeds are ${sigma1:.4f}$ and ${sigma2:.4f}$. "
-                 + "These are empirical minima, not uniform lower bounds over all possible inputs. Raw/effective norms, cap activity, input bounds, conditioning minima, predictions, training logs, and source/checkpoint hashes are retained.\n\n")
-    addendum += r"""The strict Frobenius-scaled models remain approximately at $50\%$, including
-with auxiliary supervision. Thus the experiment supports a concrete, trained
-separation from mean pooling for the general-scaling model with explicit norm
-constraints, while retaining the limitation of the simplified $\kappa=1$
-regime. These are fixed-budget comparisons, not an exhaustive optimization of
-each scaling. At $N=8192$ the former has $\kappa=4{,}718{,}592$ under the stated
-full-matrix bounds; this large factor is distinct from the measured logit
-range. Neither the recall scores nor the observed conditioning establish an
-efficient quantum implementation or a quantum--classical speedup. These
-synthetic single-layer results also do not establish natural-language quality.
-See Table~\ref{tab:long-paired-recall} and the complete per-seed results.
-"""
-    (output / "comment4_addendum.tex").write_text(addendum)
 
 
 def summarize(root, allow_partial=False):
@@ -202,7 +117,7 @@ def summarize(root, allow_partial=False):
                       maximum_effective_weight_norm=max(r["maximum_effective_weight_norm"] for r in rows),
                       maximum_kappa=max(r["kappa"] for r in rows))
         aggregate.append(record)
-    write_addendum(output, aggregate, per_seed)
+    write_table(output, aggregate)
     save_csv(output / "per_seed.csv", per_seed)
     save_csv(output / "aggregate.csv", aggregate)
     (output / "summary.json").write_text(json.dumps({"completed_models": len(per_seed) // 6,

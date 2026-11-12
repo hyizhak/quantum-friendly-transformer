@@ -11,6 +11,7 @@ from contextlib import ExitStack
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import zipfile
@@ -32,6 +33,16 @@ EXTRA_WEIGHTS = (
 )
 
 
+def is_correspondence(path, root):
+    relative = path.relative_to(root)
+    if {"comment4_update", "private_correspondence"} & set(relative.parts):
+        return True
+    tokens = set(re.split(r"[_.-]+", relative.name.lower()))
+    if {"response", "responses", "rebuttal", "reply", "addendum"} & tokens:
+        return True
+    return relative.name in {"reviewer_check.txt", "reviewer_release.txt"}
+
+
 def digest_stream(stream):
     digest = hashlib.sha256()
     for block in iter(lambda: stream.read(1024 * 1024), b""):
@@ -48,16 +59,17 @@ def inventory(root):
     compact = set()
     for directory in ("src", "experiments", "tests", "tools", "docs", "examples"):
         for path in (root / directory).rglob("*"):
-            if path.is_file() and path.suffix in SMALL_SUFFIXES:
+            if path.is_file() and path.suffix in SMALL_SUFFIXES and not is_correspondence(path, root):
                 if not any(p in {"__pycache__", ".cache", "outputs", ".pytest_cache"} for p in path.parts):
                     compact.add(path)
-    for name in ("README.md", "LICENSE", "pyproject.toml", "MANIFEST.in", "uv.lock", "environment.yml", "response.tex"):
+    for name in ("README.md", "LICENSE", "pyproject.toml", "MANIFEST.in", "uv.lock", "environment.yml"):
         path = root / name
         if path.is_file():
             compact.add(path)
     compact.add(root / "src/quantum_friendly_transformer/evidence/records.zip")
     results = root / "results/reviewer"
-    compact.update(p for p in results.rglob("*") if p.is_file() and p.suffix in SMALL_SUFFIXES)
+    compact.update(p for p in results.rglob("*")
+                   if p.is_file() and p.suffix in SMALL_SUFFIXES and not is_correspondence(p, root))
     weights = set()
     for cohort in FIXED_COHORTS:
         weights.update((results / cohort).rglob("*.pth"))
@@ -164,7 +176,7 @@ def build(root, destination, name):
             "git_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip(),
             "source_policy": "Actual working-tree bytes, including uncommitted reviewer code; per-file hashes identify the release",
             "publication_status": "Local preparation only; no upload or published DOI for this snapshot",
-            "scope": "All compact reviewer records; fixed-cohort, recall and SAM checkpoints, plus successful 33M and SAM parent",
+            "scope": "Compact experiment records excluding peer-review correspondence; fixed-cohort, recall and SAM checkpoints, plus successful 33M and SAM parent",
             "historical_companion": {"missing_artifacts": len(missing), "missing_bytes": sum(r["size"] for r in missing),
                                      "inventory": "src/quantum_friendly_transformer/evidence/catalog.json",
                                      "status": "Not included; historical compact records are preserved in records.zip"},

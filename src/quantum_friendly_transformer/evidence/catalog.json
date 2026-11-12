@@ -1,5 +1,5 @@
 {
-  "artifact_count": 1306,
+  "artifact_count": 1305,
   "artifacts": [
     {
       "bundled": true,
@@ -14964,16 +14964,6 @@
     {
       "bundled": true,
       "groups": [
-        "reports"
-      ],
-      "path": "response.tex",
-      "related": [],
-      "sha256": "c2d6c724a6e1b7ce1f547146598fc4b54c623e9ae6e473612e326575838020ef",
-      "size": 44078
-    },
-    {
-      "bundled": true,
-      "groups": [
         "depth",
         "layernorm",
         "reports"
@@ -15050,11 +15040,10 @@
       "size": 3127
     }
   ],
-  "bundled_count": 541,
+  "bundled_count": 540,
   "checkpoints": "Recovery checkpoints contain trainable_state_dict and require the corresponding base model and adapters.",
   "description": "Recorded research outputs; inclusion does not imply successful recovery or complete reviewer evidence.",
   "groups": "Filename-based discovery labels; consult each record and metadata for measured fields and sampling.",
   "layout": "Original paths relative to the repository root; compact records ship in records.zip, other entries in the companion ZIP.",
-  "response": "response.tex is the historical response draft, not a certification that its claims are supported.",
   "schema_version": 1
 }
