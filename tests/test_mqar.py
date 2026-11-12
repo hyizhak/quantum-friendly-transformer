@@ -1,4 +1,10 @@
+import hashlib
+import json
 import math
+from pathlib import Path
+import subprocess
+import sys
+import zipfile
 
 import numpy as np
 import torch
@@ -10,6 +16,47 @@ from experiments.lib.mqar_variance_init import MQARVarianceInit
 def config():
     return {"vocab_size":128, "dimension":16, "ffn_dimension":32, "layers":2,
             "cap":8., "power_a":.01, "random_non_queries":True}
+
+
+def test_prepare_and_train_from_extracted_source_zip(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    archive = tmp_path / "source.zip"
+    with zipfile.ZipFile(archive, "w") as bundle:
+        for directory in ["experiments/lib", "experiments/runners",
+                          "experiments/configs/reviewer", "experiments/vendor/zoology",
+                          "src/quantum_friendly_transformer"]:
+            for path in (root / directory).rglob("*"):
+                if path.is_file() and path.suffix in {".py", ".json", ".txt"}:
+                    bundle.write(path, path.relative_to(root))
+    source = tmp_path / "extracted"
+    with zipfile.ZipFile(archive) as bundle:
+        bundle.extractall(source)
+    assert not (source / ".git").exists()
+    runner = source / "experiments/runners/reviewer_mqar.py"
+    assets, output = tmp_path / "assets", tmp_path / "run"
+    for arguments in [
+        ["prepare", "--output", str(assets)],
+        ["train", "--assets", str(assets), "--output", str(output), "--device", "cpu"],
+    ]:
+        result = subprocess.run(
+            [sys.executable, str(runner), *arguments, "--smoke"], cwd=source,
+            capture_output=True, text=True, timeout=60,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+    for directory in [assets, output]:
+        provenance = json.loads((directory / "manifest.json").read_text())
+        assert provenance["git_commit"] is None
+        assert provenance["source_sha256"]
+        for filename, digest in provenance["source_sha256"].items():
+            path = Path(filename)
+            assert path.is_relative_to(source)
+            assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+    datasets = json.loads((assets / "manifest.json").read_text())["datasets"]
+    assert {record["name"] for record in datasets} == {"train", "validation", "test_N32_K4"}
+    for record in datasets:
+        assert hashlib.sha256((assets / record["file"]).read_bytes()).hexdigest() == record["sha256"]
+    assert (output / "final.pth").is_file()
+    assert json.loads((output / "result.json").read_text())["training_steps"] > 0
 
 
 def test_official_generator_exact_equivalence_and_rng_isolation():

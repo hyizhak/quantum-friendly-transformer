@@ -80,6 +80,9 @@ and [reviewer code guide](docs/reviewer_code.txt). Generated runs and checkpoint
 are distributed separately from the code; the historical wheel evidence remains
 a separate snapshot.
 
+The MQAR commands also work from an extracted source ZIP; Git metadata is
+optional, and source-file checksums are retained in each run's manifest.
+
 ## Conda setup
 
 To set up the environment, we recommend using a virtual environment or conda environment. The following instructions assume you are using a conda environment.

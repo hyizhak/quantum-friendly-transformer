@@ -52,6 +52,12 @@ are both retained. The follow-up changes initialization to accommodate unit-norm
 activations; it keeps cap64, native attention temperature and the training budget.
 The vocabulary readout is uncapped and separate from the capped layer matrices.
 
+These commands also work from an extracted source ZIP without Git installed.
+When Git metadata is unavailable, `manifest.json` records `git_commit: null`
+and retains the source-file SHA-256 checksums and dataset checksums. Use a fresh
+output directory when retrying a preparation that stopped before writing its
+manifest.
+
 To reproduce both cohorts from the repository root, use fresh output directories:
 
 ```bash

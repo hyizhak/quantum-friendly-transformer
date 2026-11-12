@@ -16,6 +16,9 @@ from pathlib import Path
 import numpy as np
 
 
+ROOT = Path(__file__).resolve().parents[2]
+
+
 def softmax(logits):
     logits = np.asarray(logits, dtype=np.float64)
     weights = np.exp(logits - logits.max())
@@ -80,6 +83,21 @@ def save_json(path, data):
     Path(path).write_text(json.dumps(data, indent=2, allow_nan=False) + "\n")
 
 
+def git_commit():
+    """Return this checkout's commit when available; source ZIPs have none."""
+    # Avoid attributing an extracted archive to an unrelated parent repository.
+    # A worktree has a .git file rather than a directory.
+    if not (ROOT / ".git").exists():
+        return None
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return None
+
+
 def manifest(config, source_files, **extra):
     versions = {}
     for package in ["numpy", "torch", "transformers", "matplotlib", "scipy", "huggingface-hub"]:
@@ -88,7 +106,7 @@ def manifest(config, source_files, **extra):
         except importlib.metadata.PackageNotFoundError:
             pass
     return {"utc": datetime.now(timezone.utc).isoformat(), "config": config,
-            "git_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+            "git_commit": git_commit(),
             "source_sha256": {str(p): hashlib.sha256(Path(p).read_bytes()).hexdigest() for p in source_files},
             "python": sys.version, "executable": sys.executable, "platform": platform.platform(),
             "packages": versions, **extra}
