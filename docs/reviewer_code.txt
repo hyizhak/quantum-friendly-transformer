@@ -1,0 +1,93 @@
+REVIEWER EXPERIMENT CODE
+
+Install from the repository root:
+
+  python -m pip install -e '.[experiments,test]'
+
+The library and historical research CLI are installed from src/. Additional
+reviewer experiments use the source-checkout modules in experiments/lib/ and
+experiments/runners/. Commands below are run from the repository root.
+
+Entry points
+
+  experiments/runners/reviewer_synthetic.py
+      Bounded-logit diagnostics, sampling, and resource proxies.
+  experiments/runners/reviewer_pretrained.py
+      Pretrained attention, normalization, depth, and perturbation diagnostics.
+  experiments/runners/reviewer_recall.py
+      Paired native-scaling, Frobenius-scaling, and uniform recall models.
+  experiments/runners/reviewer_recovery_extension.py
+      Fixed SST-2 cohorts with an internal checkpoint-selection partition.
+  experiments/runners/reviewer_recovery_search.py
+      Exploratory additional seeds with explicit selection policies.
+  experiments/runners/reviewer_recovery_large.py
+      Large-backbone recovery and recorded training scope.
+  experiments/runners/reviewer_recovery_low_rank.py
+      Low-rank updates capped after composition with the base matrix.
+  experiments/runners/reviewer_recovery_full_dense.py
+      Dense continuation with all model parameters trainable.
+  experiments/runners/reviewer_recovery_guided.py
+      Disclosed teacher-guided continuations and training-data mixtures.
+  experiments/runners/reviewer_recovery_sam.py
+      Gold-label sharpness-aware continuations with exact parameter restoration.
+  experiments/runners/reviewer_selective_layer.py
+      Explicit selective-attention construction and full-layer checks.
+
+Use --help for each runner. Protocols and pinned configurations are under
+experiments/configs/reviewer/. Fixed cohorts, exploratory searches, and
+continuations have distinct protocols and must not be pooled as independent
+training seeds. A continuation requires its recorded parent checkpoint; those
+checkpoints are not distributed with this code update.
+
+Example: fixed SST-2 cohort
+
+  python experiments/runners/prepare_recovery_assets.py \
+    --config experiments/configs/reviewer/recovery_extension_low_lr.json \
+    --output ./reproduction-assets/sst2
+  python experiments/runners/run_recovery_extension.py \
+    --config experiments/configs/reviewer/recovery_extension_low_lr.json \
+    --assets ./reproduction-assets/sst2 --output ./reproduced/recovery_low_lr
+
+The coordinator uses two GPUs. Use reviewer_recovery_extension.py for one
+model/device, specifying --model, --mode, --seed, --assets, --config, --output,
+and --device. Configurations describe the full planned cohorts; canceled or
+unfinished attempts in a historical execution are not successful results.
+
+Example: associative recall without external model/data downloads
+
+  python experiments/runners/reviewer_recall.py \
+    --config experiments/configs/reviewer/recall.json --output ./reproduced/recall
+
+The default config uses cuda:0; save a separate config to change its device.
+The model is small, uses generated data, and evaluates fixed final checkpoints.
+
+Tests
+
+  python -m pytest -q
+
+Most tests use tiny CPU models or synthetic fixtures. A GPU-specific test may
+skip on CPU-only hosts. The distribution test requires the build package from
+the test extra. Full dense Mistral training additionally uses bitsandbytes;
+the individual run manifests record the actual runtime package versions.
+
+Recorded outputs and release tools
+
+New checkpoints, result directories, response drafts, downloaded models, and
+release archives are excluded from this code commit. The pre-existing evidence
+snapshot in src/quantum_friendly_transformer/evidence is a separate historical
+resource; it does not contain the new reviewer results.
+
+The summarize_* and validate_* runners consume separately supplied results.
+tools/verify_reviewer_records.py checks compact prediction tables and source
+hashes without model inference. tools/summarize_reviewer_caps.py extracts
+matrix-norm evidence from the historical archive and supplied new audit tables.
+tools/assemble_reviewer_response.py and tools/build_reviewer_release.py require
+the local response/result inputs documented in their command-line help or
+module descriptions. A code-only checkout cannot regenerate missing results
+or restore omitted checkpoints by running an aggregation script.
+
+Training sources used by completed runs retain their recorded bytes. Runtime
+manifests record machine paths and commit/source provenance for local auditing;
+inspect and anonymize those generated outputs separately before any blind-review
+data release. An anonymous Git author does not anonymize a personal repository
+URL or its earlier history.

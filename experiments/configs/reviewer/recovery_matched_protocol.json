@@ -1,0 +1,45 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    43,
+    101,
+    202
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 500,
+  "log_every": 100,
+  "threads": 4,
+  "models": {
+    "33m": {
+      "model_id": "roneneldan/TinyStories-33M",
+      "revision": "2ad0a164221b7c4d21cac7c46aec74f6f98dbfc8",
+      "alpha_s": 28.976337432861328,
+      "baseline_target": 0.8451834862385321,
+      "learning_rate": 2e-05,
+      "steps": 12000
+    },
+    "2layers33m": {
+      "model_id": "roneneldan/TinyStories-2Layers-33M",
+      "revision": "f9cb5b1e9f9664843c179b9f7115d610c6df1be0",
+      "alpha_s": 32.0,
+      "baseline_target": 0.8577981651376146,
+      "learning_rate": 5e-05,
+      "steps": 10000
+    }
+  },
+  "cohort": "matched_archival_data_and_checkpoint_selection",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "selection_protocol": "official_validation"
+}

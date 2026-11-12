@@ -84,6 +84,28 @@ def test_cap_leaves_small_weights_unchanged():
     torch.testing.assert_close(layer.weight, original)
 
 
+def test_attention_evaluation_disables_dropout_without_consuming_rng():
+    from quantum_friendly_transformer.norm_transformer.attention_separate_qkv import (
+        AttentionWithSeparateQKV,
+    )
+
+    attention = AttentionWithSeparateQKV(8, 2, dropout=1.0, rope=nn.Identity())
+    reference = AttentionWithSeparateQKV(8, 2, dropout=0.0, rope=nn.Identity())
+    reference.load_state_dict(attention.state_dict())
+    inputs = torch.arange(80, dtype=torch.float32).reshape(2, 5, 8) / 80
+    attention.train()
+    training, _ = attention.multi_head_attention_forward(inputs, inputs, inputs)
+    assert torch.count_nonzero(training) == 0
+
+    attention.eval()
+    rng_before = torch.random.get_rng_state()
+    evaluation, _ = attention.multi_head_attention_forward(inputs, inputs, inputs)
+    assert torch.equal(torch.random.get_rng_state(), rng_before)
+    expected, _ = reference.multi_head_attention_forward(inputs, inputs, inputs)
+    assert torch.count_nonzero(expected) > 0
+    torch.testing.assert_close(evaluation, expected)
+
+
 @pytest.mark.parametrize(
     ("model_class", "flag_suffix", "token_classifier"),
     [

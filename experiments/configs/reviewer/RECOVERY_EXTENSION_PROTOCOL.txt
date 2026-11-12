@@ -1,0 +1,446 @@
+BOUNDED-DENOMINATOR RECOVERY EXTENSION
+
+Purpose
+-------
+Extend the configured-alpha-floor SST-2 recovery regime with multiple seeds,
+uniform-attention controls, and separate checkpoint selection and evaluation.
+Targets: TinyStories-1M, 8M, and 33M, all unsuccessful in the archived bounded
+run collection. All newly completed runs, including failures, are retained.
+
+The fixed alpha_s constants are copied from the effective values of the
+corresponding archived bounded runs. Caps and alpha_w remain 24. The learned
+denominator can increase above alpha_s^2*alpha_w^2 and cannot decrease below it.
+There is no native-temperature warmup or unrestricted scale optimization.
+Uniform attention sets all queries to zero and preserves the existing masks.
+
+These are scalar-floor experiments. The historical alpha_s constants are not
+certified bounds on the attention-input matrices. We measure full padded input
+matrix Frobenius norms at every selection evaluation and final evaluation.
+Exceedances are recorded explicitly. Measurements on selection batches are
+not a uniform bound over all inputs or all intermediate training steps. The
+native pre-LN/multihead architecture and normalization parameters are retained.
+These experiments do not validate the complete theorem model or show quantum
+advantage. No stronger claim is inferred from an SST-2 recovery threshold.
+
+Design
+------
+Pinned public model and data revisions are in recovery_extension.json.
+Models: TinyStories-1M, 8M, 33M. Modes: bounded and uniform. Seeds: 42,43,44.
+The initial classification head and training example order are paired within
+each model and seed across modes. All model parameters are eligible to train.
+No teacher model, added training corpus, or extra classification features.
+The classifier pools the final unmasked token using the existing decoder wrapper.
+
+Each run uses the official SST-2 training corpus with a fixed 10% group split
+for checkpoint selection. Identical sentences, after case/whitespace
+normalization, stay together. Exact sentence matches to official validation
+are removed from training and selection using text only. No sentence-family
+or source-document grouping is available, so related phrases may occur across
+the training and selection partitions. Official validation supplies the final
+872-example evaluation and does not select checkpoints in these new runs.
+It has been used by historical experiments, so this is not a newly collected,
+globally untouched test set. Split indices and their hashes are saved.
+
+Sequences are right-padded/truncated to 128. Padding is not counted as evidence
+of long-context routing; average visible lengths are saved. The models have
+native causal/local masks; at this tensor length the local window is not smaller
+than the context. Bound diagnostics include all rows of the padded matrix,
+which also upper-bound the Frobenius norm of any visible-key subset.
+
+Optimization uses float32 master parameters with bfloat16 autocast on CUDA,
+AdamW, and a cosine schedule after 6% linear warmup. This differs from the
+archived bfloat16-parameter runs and preserves finer optimizer updates. The
+batch size is 32. Base learning rates are 3e-4,2e-4,2e-4, respectively, with
+budgets 20000,10000,6000 updates. All bounded runs use per-layer controllers,
+a dedicated learning rate 0.01, epsilon 1e-12, and zero controller weight decay.
+Model weight decay is 0.01. Controller and other gradients are separately
+clipped to norm 1. The bounded controller is projected after every update and
+also clamps its effective multiplier during each forward. Its recorded scale
+is checked against the fixed alpha floor at selection and final evaluations.
+
+The full selection set is evaluated at step 0 and every 1000 updates, including
+the final step. The checkpoint with highest selection accuracy is saved;
+lower selection NLL breaks ties, and an exact tie retains the earlier checkpoint.
+The complete predetermined budget is run, with no recovery-based early stop.
+The saved checkpoint is reloaded before the final official-validation evaluation.
+
+The historical validation targets are 0.823394495412844,0.8337155963302753,
+0.8451834862385321, respectively. A run meets the historical recovery criterion
+when its final-evaluation accuracy is at least target minus 0.01. These targets
+are inherited one-seed baselines, not new matched native baselines, and the
+criterion is not a statistical equivalence test. Report each seed and the mean
+and sample standard deviation, alongside all matched uniform-control runs.
+
+Implementation validation
+-------------------------
+Tests verify train/selection/evaluation sentence separation, actual tiny-HF
+backbone training with a bounded controller, checkpoint round trips, diagnostic
+output preservation, and uniform attention with the original causal/local masks.
+A short GPU smoke run validates the compiled AMP training path and is excluded
+from experiment results. Compilation accelerates the same specified model;
+no selection or hyperparameter decision is based on smoke accuracy.
+
+Reproduce from the repository root
+----------------------------------
+python experiments/runners/prepare_recovery_assets.py --output /tmp/qft-recovery-assets
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false TORCHINDUCTOR_CACHE_DIR=/tmp/qft-recovery-inductor python experiments/runners/run_recovery_extension.py --assets /tmp/qft-recovery-assets --output results/reviewer/recovery_extension
+
+The coordinator uses cuda:0 and cuda:1. A single run can be launched on any
+device using reviewer_recovery_extension.py with --model, --mode, --seed,
+--device, --compile, --assets, and --output. Select a new output directory for
+repetition. Existing successful coordinator entries are skipped; incomplete
+outputs cause an error and are preserved for inspection.
+
+Each run saves the actual config, split, training/selection histories, norm and
+scale diagnostics, selected checkpoint, final predictions, result, and source/
+asset hashes. Downloaded pretrained weights and raw dataset files live outside
+the result directory and can be reconstructed from pinned revisions.
+
+Exploratory lower-learning-rate follow-up
+-----------------------------------------
+After the first complete runs of the initial cohort fell below their historical
+thresholds despite high training/selection accuracy, a second full cohort was
+specified in recovery_extension_low_lr.json. The sole optimization change is
+a tenfold reduction in the model learning rate: 3e-5,2e-5,2e-5. Controller
+learning rate, data split, seeds, step budgets, masks, scalar floors, and checkpoint
+selection remain unchanged. The purpose is to test gentler adaptation with
+float32 master parameters. Every model/mode/seed combination is retained in
+both cohorts; the follow-up is not presented as a blind confirmatory study.
+Protocol choice was informed by early official-validation results of the first
+cohort. Final benchmark scores therefore remain exploratory even though each
+individual run selects checkpoints only on its internal selection set.
+
+Run with the coordinator's --config option and a distinct --output directory,
+results/reviewer/recovery_extension_low_lr. Do not pool seeds across the two
+learning-rate settings or report only whichever setting gives a better score.
+
+Replication of a previously successful model
+--------------------------------------------
+recovery_positive_control.json adds a separate TinyStories-3M cohort, whose
+archived bounded run had met its historical threshold. It checks the new
+training and selection procedure against a prior positive case. The three seeds
+and uniform controls use the same data split and implementation as the extension.
+The fixed archived alpha_s is 15.117786598205567, the historical native target is
+0.8188073394495413, the model learning rate is 1e-4, and the budget is 8000 steps.
+It is a new replication protocol, not an exact rerun of the archived bfloat16
+parameter / validation-selected experiment. All six outcomes are retained.
+
+Download its assets to a separate directory with prepare_recovery_assets.py
+--config experiments/configs/reviewer/recovery_positive_control.json. Launch
+run_recovery_positive_control.py with that --assets path and a separate --output
+directory, results/reviewer/recovery_positive_control. The wrapper uses the same
+frozen training implementation and records its additional source hash.
+
+Exploratory search across all nine original models
+-------------------------------------------------
+The user requested successful examples for all nine original models and
+explicitly allowed seed selection. recovery_seed_search.json records the new
+seed sequence 101,202,303,404,505. Stop searching a model after one qualifying
+example; retain every failed or incomplete attempt and its log. Existing new
+successes for 1M,3M,8M remain in their original fixed cohorts. Repeating a model
+does not increase the count of distinct recovered models. The initial search
+uses additional TinyStories-33M seeds and adds 28M,1Layer-21M,2Layers-33M.
+
+Within each run checkpoint selection still uses only the training-data split.
+Choosing a successful seed using official validation is explicitly exploratory
+selection. Neither selected examples nor averages of successful seeds estimate
+unbiased multi-seed performance. The full fixed-cohort tables remain intact.
+
+OLMo and Mistral have separate recovery_olmo1b.json and recovery_mistral7b.json
+recipes. OLMo updates all float32 master parameters for 2000 steps, batch16.
+Mistral follows the archived head_caps scope: frozen bfloat16 backbone matrices
+and trainable float32 classifier, normalization, caps, and attention controllers;
+500 steps, batch4. Both use gradient checkpointing, float32 weight-norm
+computation, fixed archived effective alpha_s, and no denominator relaxation.
+Mistral is not a full-parameter recovery run. Controller learning rate is .01
+and per-layer controllers replace the archived shared controller. These are
+new exploratory protocols, not exact replications of archived runs. Large gaps
+may require different optimization or remain unrecovered; seed selection does
+not guarantee success. Any GPU smoke runs are explicitly excluded.
+
+Scope change requested during execution
+---------------------------------------
+After new 1M and 8M recoveries were confirmed, the user requested that no more
+runs be spent on already recovered models. The remaining lower-rate 1M
+uniform controls, 3M uniform controls, and planned 28M/1Layer-21M seed searches
+were canceled. Any in-progress partial run is preserved with interrupted.json.
+The initial 18-run cohort remains complete. Subsequent cohort summaries must
+identify their missing controls and must not imply completion of all 42 planned
+runs. Continue training only TinyStories-33M, TinyStories-2Layers-33M, OLMo-1B,
+and Mistral-7B until each has a qualifying example or its evaluated search is
+reported honestly as unsuccessful. Recovery_scope_change.json records the
+job cancellations; recovery_story.txt counts each distinct model only once.
+
+Longer-budget follow-up for still-missing 33M
+--------------------------------------------
+The 6000-step 33M runs consistently continued improving on the internal
+selection set at the end of their budget. If the original five search seeds
+all miss, recovery_longer_search.json doubles the training budget to 12000
+updates at the same 2e-5 peak learning rate. The cosine schedule spans the
+longer budget; this is a fresh run, not a resumed optimizer. Seeds 43,303,101
+are tried in that order, stopping after a qualifying example. Choosing these
+seeds/recipe after previous validation results is exploratory and disclosed.
+The split, alpha constants, weight caps, and threshold remain unchanged.
+
+Gentler adaptation for still-missing 2Layers-33M
+----------------------------------------------
+The initial new 2Layers-33M attempts strongly fit training phrases but miss
+the historical validation threshold. If all five initial search seeds miss,
+recovery_gentler_search.json reduces peak model LR from 5e-5 to 2e-5 and the
+budget from 10000 to 6000 steps. Seeds 43,101,202 are tried until recovery.
+This is an exploratory optimization change informed by earlier attempts. All
+alpha constants, caps, data partitions, and recovery thresholds stay fixed.
+
+Mistral evaluation throughput adjustment
+---------------------------------------
+The first full Mistral attempt was interrupted during its initial selection
+evaluation, before any training updates or completed evaluation result. Its
+partial artifacts are retained in a directory ending initial_eval_interrupted.
+recovery_mistral7b_fast_eval.json changes only evaluation batch size from 4
+to 32. Training batch4, all training settings, and the historical target remain
+unchanged. The original GPU smoke run at batch4 remains excluded from results.
+
+Conditional stronger adaptation for the two large models
+-------------------------------------------------------
+Only if a large model's initial full run fails, a single seed101 follow-up
+uses its separately recorded *_adaptation.json recipe. OLMo trains all
+parameters for 4000 updates at LR1e-4, batch32 (about 2.1 passes over the
+60618 training examples, versus about 0.53 initially). Mistral retains the
+head_caps scope and uses 1000 updates, LR1e-4, batch8 (8000 training-example
+uses versus 2000 initially). These change optimization strength and exposure;
+they are exploratory recipes, not seed-only comparisons. Both use evaluation
+batch128 and a configuration-specific two-step memory smoke check, excluded
+from results. Alpha constants, weight caps, train/selection split, and recovery
+thresholds remain fixed. No follow-up starts for a model that already recovers.
+
+Before the Mistral follow-up started, its initially planned LR1e-2 was replaced
+with LR1e-4 after the current run showed unstable early training loss at LR1e-3.
+The larger batch and longer budget remain. The high-LR Mistral recipe was never
+executed. Large-model config seeds202/303 are reserved candidates; only seed101
+is scheduled initially, with optimization changes taking priority over seed
+variation when gaps are large.
+
+Conditional match to the archived data/selection protocol
+--------------------------------------------------------
+The historical recovery targets and archived recoveries used the full training
+set and selected checkpoints with official validation. The independent-selection
+extensions use less training data and a stricter selection policy. If 33M or
+2Layers-33M remains unrecovered after its three optimization follow-ups,
+recovery_matched_protocol.json restores the full retained 67349 training rows
+and uses official validation for checkpoint selection every500 steps. Seeds
+43,101,202 are tried until one qualifies. No model that already recovers is
+trained again. The bounded training code, alpha constants, caps, padding, and
+thresholds stay unchanged; precision/controller/optimizer details still differ
+from archived runs, so this matches data and selection, not every hyperparameter.
+
+These are explicitly validation-selected recovery examples, NOT independent
+evaluation results or unbiased seed averages. Validation labels never enter
+gradient updates. The merged training and validation index namespace is saved
+unambiguously, with original example IDs. The saved result and manifest flag
+selection_protocol=official_validation. The selected-example table marks such
+new best values with a dagger. Full attempt histories remain available.
+
+Conditional low-rank Mistral weight adaptation
+--------------------------------------------
+Only if both head/norm/cap recipes fail, try rank16, alpha32 low-rank updates
+to every capped attention and MLP matrix, in addition to trainable head/norm/
+cap/controller parameters. The effective matrix is cap(W_base + 2*B*A), so
+the adapter never bypasses the Frobenius cap. A dtype-rounding margin inside
+the cap ensures the returned bfloat16 matrix also remains below24. Frozen base
+weights remain bfloat16; adapter and other trainable parameters are float32.
+The denominator floor and input data/selection split stay fixed. This changes
+trainable scope, not the inference-layer architecture. A single seed101 uses
+1500 updates, batch8, LR2e-4, evaluation batch128 every500 steps. A two-step
+GPU memory check precedes the run and is excluded from results. Tests cover
+composed-matrix bounds after large adapter updates, gradients, real Mistral
+backbone integration, and checkpoint reconstruction in float32 and bfloat16.
+
+Conditional emphasis on longer training phrases for 2Layers-33M
+--------------------------------------------------------------
+If all three matched-policy runs miss, recovery_length_weighted.json uses
+LR2e-5 for8000 updates and repeats each training example
+min(6,ceil(visible_token_count/12)) times before seeded shuffling. This weights
+longer training phrases using their training text lengths alone; no validation
+labels enter the sampling weights or gradients. The archived full-training/
+official-validation checkpoint-selection policy is retained and explicitly
+reported as validation-selected, not an independent test. Seeds43,101,202
+stop after a qualifying example. The motivation is the observed short-phrase
+training/longer-sentence evaluation mismatch and early validation peaks; no
+causal explanation is assumed. The data repetition, original example IDs,
+index namespace, counts, and visible-length means are saved. Tests verify that
+only training sampling changes and validation examples never become training
+rows. All caps, alpha constants, and recovery targets remain unchanged.
+
+Conditional complete-training-sentence follow-ups
+-------------------------------------------------
+After the longer-phrase attempts missed for 2Layers-33M and the two Mistral
+head/norm/cap recipes missed, prepare a training-root-only follow-up. The
+stanfordnlp/sst training parquet at revision
+8a7d55ee01d70b8ae53e0b3c66a83b2a6198c2a7 identifies original complete training
+sentences. Casefolding and whitespace normalization give 6803 existing GLUE
+training rows (6802 distinct texts); labels remain those of the existing GLUE
+training file. No fuzzy matches or external labels are used, and no selected
+training text equals official validation text. Exact IDs, source checksums,
+and matching rules are saved in sst_root_training_indices.json. Average word
+counts are 19.23 for these roots, 9.41 for the original phrase mix, and 19.55
+for official validation. This motivates an exploratory sampling change; it
+does not establish a cause for prior failures.
+
+Only still-missing models are eligible. 2Layers-33M uses 2000 updates, batch32,
+LR2e-5, validation selection every100, seeds43/101/202 until a recovery. OLMo
+uses 1200 updates, batch32, LR5e-5, validation selection every100, seeds101/202
+only if the current 4000-update full-phrase adaptation fails. All trainable
+parameters remain enabled for these models. Validation labels never enter
+gradient updates. Selection on official validation is explicitly disclosed;
+these are selected examples, not independent test scores or unbiased means.
+
+Before any low-rank Mistral execution, its planned 1500-update full-phrase
+recipe above was replaced with this same root-only training, 2000 updates,
+batch8, LR2e-4, and official-validation selection every250. Rank16/alpha32,
+composed-matrix Frobenius caps, and the configured attention floor are retained.
+The previous 1500-update recipe was never run. A two-update smoke check is
+excluded from the result ledger. Data-selection and low-rank tests passed,
+and actual tokenization confirms 6803 train / 872 validation rows with zero
+whole-text overlap. Every attempt is retained, and a qualifying model exits
+its search without further training. TinyStories-33M recovered in the longer
+seed101 run, bringing coverage to six models; no further 33M run is scheduled.
+
+Conditional additional seeds for the remaining two-layer model
+--------------------------------------------------------------
+If all three root-only attempts miss, return to the full-training matched
+selection policy, which has the best completed two-layer result (731/872,
+seed43 at step3000). recovery_2layer_seed_extension.json uses 5000 updates at
+LR5e-5, evaluation every100 steps, seeds7/11/17/23/31/47/59/71 in that order.
+The shorter budget and more frequent validation selection are exploratory
+changes; this is not a seed-only comparison to the earlier 10000-step cohort.
+No validation labels enter gradients. All outcomes are kept and the search
+stops after the first qualifying model, with no rerun of any recovered model.
+
+Conditional bounded-checkpoint sentence curriculum
+-------------------------------------------------
+Sentence-only training from the original pretrained two-layer backbone scored
+694/872, 696/872, and 694/872, below the full-phrase best. If its eight additional
+full-phrase seeds also miss, continue the best completed bounded checkpoint on
+the 6803 training roots rather than relearning from the pretrained backbone.
+Use a fresh optimizer, 1000 updates at LR2e-6, batch32, validation selection
+every50 steps, and training-order seeds151/251/351 until recovery. If both OLMo
+root-only runs miss, its analogous continuation uses the best completed bounded
+parent, 600 updates at LR1e-5, batch32, every100-step selection, seed101.
+
+The parent is fixed before each cohort and recorded by path, SHA256, source
+result, and selected step in the effective config. Parent model identity,
+revision, alpha_s, weight cap, and recovery target must match exactly. No
+unbounded parent or relaxed-floor stage is used. Checkpoints load strictly;
+tests verify identical restored predictions and rejection of changed bounds,
+revision, or checkpoint digest. A two-step real two-layer smoke is excluded.
+These are exploratory continuations with validation-selected parents and
+checkpoints, not independent training seeds. All attempts remain in the ledger.
+
+Conditional classifier-only sentence adaptation
+-----------------------------------------------
+If the pending curriculum still misses for 2Layers-33M or OLMo, or the capped
+low-rank Mistral attempt misses, select that model's best completed bounded
+checkpoint and train only its existing bias-free classification head on the
+6803 training roots. Freeze every backbone parameter, cap scalar, low-rank
+adapter if present, and attention-scale controller. Use 300 updates, batch64,
+LR1e-3, seed151, and official-validation selection every25 steps. This tests
+sentence-level classifier calibration without modifying the bounded feature
+extractor. The parent hash and full effective config are saved before training.
+Tests verify that one optimizer update changes the head while every backbone
+state tensor remains exactly equal. Validation selects the parent and the new
+checkpoint; this is exploratory selected-example evidence, not an independent
+test. The queue skips any model already recovered by an earlier experiment.
+
+Two-layer parameter-average candidates
+-------------------------------------
+The two-layer continuations and classifier-only run did not improve the best
+736/872 result. Evaluate single-model averages of the strongest completed
+full-training bounded checkpoints, with zero further optimizer updates.
+The parent order is seeds17/7/11/71 from recovery_2layer_seed_extension. The
+candidate coefficients are (.5,.5,0,0), (.75,.25,0,0), (.25,.75,0,0),
+(1/3,1/3,1/3,0), and (.25,.25,.25,.25), tried in that order until recovery.
+Numeric candidate IDs501/751/251/333/250 are NOT training seeds. Only learned
+parameters, including raw capped matrices and cap/controller parameters, are
+averaged. Every inference buffer must agree exactly across parents. The same
+parametrizations enforce the final matrix caps and scalar denominator floor;
+there is one model with unchanged architecture, not an inference ensemble.
+Parent and coefficient selection use validation and are exploratory. All
+candidates, parent hashes, coefficients, predictions, and effective weight
+norm audits are retained. Tests verify the parameter average and reject
+incompatible inference buffers. The six recovered models are not involved.
+
+The first five averages scored732/730/730/723/725, below the best single parent.
+Four additional pair averages test seed17 with seed11, seed71, matched-policy
+seed43, and seed47 respectively, always at equal weights. Candidate IDs101-104
+are recorded in recovery_2layer_average_pairs.json. All other averaging checks
+and disclosures remain the same; stop immediately if a candidate recovers.
+
+Full-phrase lower-rate two-layer follow-up
+----------------------------------------
+The completed two-layer continuations, classifier adjustment, and parameter
+averages have not improved the best736/872. The previous LR2e-5 runs used an
+internal training split or length-weighted/root-only sampling. Fill the
+remaining optimization/data-policy combination with full retained training
+data, LR2e-5, 10000 updates, batch32, validation selection every100 steps,
+and seeds17/7/43 in that order. This is an exploratory recipe change and the
+seeds are selected after earlier results. Retain every outcome and stop after
+the first recovery. The effective model, fixed floor, and caps remain unchanged.
+
+Full dense Mistral fine-tuning (user requested)
+---------------------------------------------
+Only Mistral receives a new scope expansion: TinyStories-2Layers-33M and OLMo
+already have full-parameter results. Do not rerun the six recovered models.
+Start from the selected bounded Mistral head-follow-up checkpoint (680/872),
+verify its SHA256, and materialize every composed, capped, BF16-rounded adapter
+matrix into an ordinary FP32 dense weight. Remove all low-rank parameters.
+Keep the parent cap parameters and attention-controller buffers. Cast FP32
+embedding outputs to BF16 to retain the parent's residual precision, and
+measure initial prediction agreement rather than assuming equivalence.
+All embeddings, attention/MLP matrices, norms, classifier, cap scalars and
+attention controllers require gradients and belong to exactly one optimizer.
+Use two A100 GPUs with sequential model parallelism and nonreentrant gradient
+checkpointing. FP32 masters/gradients, BF16 autocast, bitsandbytes 0.50.2
+AdamW8bit for ordinary parameters; FP32 AdamW for scale controllers so the
+existing post-step projection and moment reset remain unchanged.
+First run a separate two-update smoke test, not counted as a recovery attempt.
+Planned full run: seed401, LR2e-5, 600 updates, batch16 (micro8, accumulate2),
+6% warmup and cosine decay, scale LR.01, cap24, fixed historical alpha_s,
+training roots only, validation selection every50 updates, eval batch16.
+This sees9600 root examples (~1.41 epochs). Record all failed smoke attempts
+and any measured-memory-driven batch changes before the full run. Save the
+all-parameter inventory, gradient coverage, conversion replay, source hashes,
+all evaluations, and one atomic full dense selected checkpoint. No successful
+model is retrained. This is an exploratory continuation, not an independent
+seed or held-out test. An 8-bit optimizer does not quantize the model weights.
+
+Full dense pilot outcome and finalized learning rate
+---------------------------------------------------
+The first smoke failed before training because float32 linspace rounded the
+last sampled diagnostic index out of bounds for large tensors. Preserve its
+log/source snapshot; integer-only indices fix this and have regression tests.
+The retry completed two backwards/optimizer calls, with all547 parameter
+tensors receiving finite gradients and all224 dense matrices updated. Peak
+allocated memory35.19/33.96GiB; update time2.25-2.76s at micro8/accumulate2.
+The nonzero LR2e-5 pilot update increased 32-example validation NLL from.296
+to2.986; its second cosine-scheduled update had zero LR. Before starting any
+full run, reduce the planned peak LR to2e-6, retaining600 steps and36 warmup
+steps. Keep both smoke artifacts; neither is counted as a recovery attempt.
+
+Full dense Mistral outcome
+-------------------------
+The 600-update seed401 run completed with all7,110,668,544 parameters trainable.
+Its selected step500 scores704/872 (80.7339%), compared with parent680/872
+(77.9817%): +24 correct, +2.7523 percentage points. It remains below the
+90.7431% threshold, requiring792/872. Overall recovery stays6/9.
+The initial dense conversion reproduced all872 parent predictions. An
+independent reload of the selected dense checkpoint reproduced all872 saved
+predictions and per-example NLLs exactly (maximum NLL difference0). All224
+projection matrices have nonzero gradients and verified changes in the
+selected checkpoint. An independent float64 reduction bounds their raw
+norms by22.250727, below cap24; all recorded controller floors pass.
+The complete ledger now has81 completed new bounded attempts, all artifact
+audited, with13 fresh checkpoint replays and21 current source files checked.
+The new summary, curve, full selected checkpoint, replay, and scope audits
+are in results/reviewer/recovery_full_dense/mistral7b_bounded_seed401/.
+No previously recovered model was retrained. OLMo and two-layer TinyStories
+already had full-parameter runs, so no duplicate scope test was run for them.

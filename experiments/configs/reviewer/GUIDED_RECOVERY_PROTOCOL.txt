@@ -1,0 +1,193 @@
+GUIDED RECOVERY CONTINUATIONS (2026-11-11)
+
+Scope: only TinyStories-2Layers-33M, OLMo-1B, and Mistral-7B, the three
+unrecovered original models. Never rerun a recovered model. Retain every
+attempt; stop an attempt and skip subsequent recipes for that model once its
+fixed historical recovery threshold is reached. These are exploratory,
+validation-selected examples, not independent test estimates.
+
+External training resource: textattack/roberta-base-SST-2, pinned revision
+84ee248b91053ef5d0c748bbac4edfba1cf89584. Local replay at max length 128 and BF16
+autocast scores 821/872 (94.1514%); the repository reports 94.3807%. Cache logits
+only for the 67,349 original SST-2 training examples, with example IDs, labels,
+text hashes, input-file hash, checkpoint hashes, and code provenance. The
+teacher's validation predictions are separately evaluated and never enter
+the student loss. The published teacher's historical fine-tuning cannot be
+claimed as our own controlled training protocol. Disclose this extra resource.
+Teacher source: https://huggingface.co/textattack/roberta-base-SST-2/tree/84ee248b91053ef5d0c748bbac4edfba1cf89584
+Distillation reference: https://arxiv.org/abs/1503.02531
+Trajectory averaging reference: https://arxiv.org/abs/1803.05407
+
+Loss: combine gold-label cross entropy and temperature 2 teacher-to-student KL
+with equal weights and the usual T^2 scaling. If the teacher's predicted
+class disagrees with the training gold label, use gold CE alone for that row.
+No teacher participates in student inference. All student parameters remain
+trainable. Warm-start each model's recorded best bounded checkpoint; verify
+its SHA256, architecture/revision, cap, alpha_s, and threshold before loading.
+
+Use warmup followed by cyclic cosine learning rates with a 25% minimum.
+Average learned parameters along this single training continuation, requiring
+all persistent inference buffers to remain identical. Evaluate both live and
+averaged candidates with the original inference architecture and enforced
+caps/floors. This is one model at inference, not an ensemble of predictions.
+
+TinyStories control first: seed 611, no teacher loss, all original training
+phrases, batch 64, up to 2,000 updates, peak LR 1e-5, cycle 500, averages from 500
+and every 100 updates, validation every 100. If still unrecovered, run the
+otherwise identical teacher-guided recipe, from the same parent and seed.
+This comparison holds the new sampling/optimizer/averaging recipe fixed.
+Skip the teacher run if the control recovers; do not retrain that model.
+
+OLMo: seed 611, up to 800 updates, batch 32, peak LR 5e-6, cycle 200. Mistral:
+seed 611, up to 400 updates, effective batch 32 (micro 16, accumulate 2), peak
+LR 2e-6, cycle 100. Both sample half the minibatch from exact training roots
+and half from all original training phrases, with replacement. Teacher loss
+is enabled. Give the classifier 10x the top-layer learning rate, embeddings
+0.2x, and earlier layers 0.95^(distance from the final layer). Average from
+step 200, every 50 updates; validate every 50. Fixed cap 24 and original alpha_s
+at every training and evaluation forward. Student precision matches the
+recorded parent; Mistral uses all FP32 dense masters and 8-bit AdamW state.
+
+Memory/storage: retain the best candidate in host RAM during a run and write
+one atomic selected checkpoint at completion, avoiding duplicate 27 GiB files
+on the limited disk. Keep all prior experiment checkpoints. No optimizer
+states are saved. A separately retained two-update smoke is not recovery
+evidence. Keep sources used by completed attempts unchanged; new runner and
+helper files hold this protocol's changes.
+
+Targeted two-layer classifier fit, added after both continuations failed
+---------------------------------------------------------------------
+Both 2,000-step continuations retained the original 736/872 parent;
+no newly trained checkpoint improved it. Test a deterministic convex
+classifier subproblem on frozen parent training features, with no bias or
+architecture change. Optimize the class-logit difference with full-batch
+float64 LBFGS(max_iter=100). Mix gold CE and gated teacher KL, plus a squared
+training-logit-margin penalty toward the parent. Candidate order: root
+mixture fraction [.5, 1, 0], teacher coefficient [.5, 0], functional trust
+coefficient [10, 1, .1, .01, 0], nested in that order. Validation selects among
+these 30 predeclared candidates; stop at first recovery. No validation
+features/labels enter the solver. Save every evaluated candidate and its
+actual full-model predictions; require the backbone to match the parent
+bitwise. Identifier701 denotes this deterministic fit, not a random seed
+search. All previous attempts remain.
+
+Teacher guidance from original bounded pretrained initialization
+--------------------------------------------------------------
+The full-batch classifier search also retained 736/872 (best candidate 16
+only improved NLL). To test representation learning before the label-only
+parent specializes, run at most seeds 811, 812, 813 from original pretrained
+bounded backbones with fresh classifier initialization. Reuse the guided
+runner, gold/teacher objective, all-phrase data, batch 64, and fixed bounds;
+use peak LR 5e-5, up to 5,000 steps, cyclic period 500, trajectory averages from
+step 3000 every 100. Each run has a separately hashed zero-update bootstrap,
+which is an initialization artifact and is not counted as a recovery run.
+Stop this sequence immediately if a model reaches 740/872. Retain every
+completed or failed attempt. The teacher/data resource disclosure persists.
+
+Intermediate outcomes and Mistral launch
+---------------------------------------
+OLMo completed 800 updates; selected live step 550 scores 733/872 versus parent 729.
+Fresh replay reproduces every prediction and NLL exactly; 112 caps and the
+original floor pass. Its selected NLL 0.52568 is worse than parent 0.42737, so
+the accuracy gain must not be described as an improvement in every metric.
+Two-layer control and guided continuations retained 736/872. The 30-candidate
+classifier fit retained 736/872 (candidate 16 lowers NLL slightly); its frozen
+backbone is verified bitwise and predictions replay exactly. Pretrained
+teacher restarts 811/812/813 score 733/730/726, none recovered. All are retained.
+The Mistral two-update micro 16/accumulate 2 smoke completed, including two
+full-parameter trajectory snapshots and restoration, without OOM or bound
+failures. It is not recovery evidence. The planned 400-update main run now
+starts from the prior 704/872 full-dense checkpoint with 24 warmup updates.
+
+Configuration provenance note: the Mistral config retains a historical
+pilot_adjustment sentence mentioning 36 warmup updates from the preceding
+600-update protocol. This run computes 400 * 0.06 = 24 warmup updates.
+Inherited low-rank fields are inactive: all dense parameters are optimized.
+See the run directory protocol_clarifications.json for these annotations.
+
+Reproduction entry points
+------------------------
+Run from the repository root with .venv/bin/python and PYTHONPATH=src:.
+Mistral additionally requires bitsandbytes 0.50.2; this execution used
+PYTHONPATH=/tmp/qft-fullft-deps:src:. The pinned student/data assets are at
+/tmp/qft-recovery-search-assets. Their assets.json contains source hashes.
+The teacher's pinned local files are at /tmp/qft-sst2-teacher-assets, and
+the persisted training-logit cache is results/reviewer/recovery_teacher.
+Use a fresh output directory for any reproduction; retain the recorded runs.
+
+Teacher preparation (only training logits are cached):
+  experiments/runners/prepare_recovery_teacher.py
+    --teacher-assets /tmp/qft-sst2-teacher-assets
+    --assets /tmp/qft-recovery-search-assets
+    --output NEW_TEACHER_OUTPUT --device cuda:0
+
+Continuation runner:
+  experiments/runners/reviewer_recovery_guided.py
+    --config experiments/configs/reviewer/CONFIG.json
+    --assets /tmp/qft-recovery-search-assets
+    --teacher results/reviewer/recovery_teacher
+    --model MODEL --seed 611 --devices DEVICES --output NEW_RUN_OUTPUT
+The four CONFIG / MODEL / DEVICES combinations are:
+  recovery_trajectory_2layers33m / 2layers33m / cuda:0
+  recovery_guided_2layers33m / 2layers33m / cuda:0
+  recovery_guided_olmo1b / olmo1b / cuda:0
+  recovery_guided_mistral7b / mistral7b / cuda:0 cuda:1
+
+Classifier fit:
+  experiments/runners/reviewer_recovery_classifier_fit.py
+    --config experiments/configs/reviewer/recovery_classifier_fit_2layers33m.json
+    --assets /tmp/qft-recovery-search-assets --device cuda:0
+    --seed 701 --output NEW_RUN_OUTPUT
+
+Pretrained restarts (the driver constructs a separate bootstrap per seed):
+  experiments/runners/run_recovery_guided_restart.py
+    --template experiments/configs/reviewer/recovery_guided_2layers33m.json
+    --assets /tmp/qft-recovery-search-assets --device cuda:0
+    --seeds 811 812 813 --output NEW_COHORT_OUTPUT
+The driver uses the persisted teacher cache at its default repository path.
+
+Audit and optional fresh replay:
+  experiments/runners/validate_recovery_search.py
+    --config CONFIG_PATH --assets /tmp/qft-recovery-search-assets
+    --results COHORT_PATH --device cuda:0 --replay
+Add --large for OLMo or --full-dense for Mistral. For restart attempts use
+the generated config_seedNNN.json in the cohort. Omitting --replay performs
+the artifact audit without rerunning model inference.
+
+After all requested runs finish, regenerate the summaries and figure with:
+  experiments/runners/summarize_recovery_guided.py
+  experiments/runners/summarize_recovery_story.py
+  experiments/runners/summarize_recovery_validation.py
+  experiments/runners/plot_recovery_guided.py
+All four default to results/reviewer. The source files used by training are
+frozen, and the validation summary checks their recorded SHA256 values.
+
+Final training outcomes
+-----------------------
+All eight attempts completed. OLMo's selected accuracy improves from 729/872
+to 733/872, fixing 11 previous errors while introducing 7. Its NLL worsens
+from 0.427373 to 0.525677. Two-layer stays at 736/872; the classifier fit
+slightly lowers NLL without changing any predictions. All three pretrained
+restarts fall below the previous two-layer best.
+
+Mistral completed 400 updates and five trajectory snapshots. It retained
+the step-zero parent at 704/872. The final live model scored 694/872 and
+the final average 695/872. All 7,110,668,544 parameters were trainable;
+the first-step audit found finite gradients in all 547 parameter tensors
+and nonzero gradients in all 224 attention/feed-forward projection matrices.
+This verifies the training scope; it does not imply that the selected
+step-zero checkpoint differs from its parent.
+
+No additional model recovered. The complete nine-model story remains 6/9.
+The required scores for the missing models are 740/872 (two-layer), 806/872
+(OLMo), and 792/872 (Mistral). These tested recipes do not establish that
+recovery is impossible under other protocols. Every failed attempt remains
+in the ledger, and the six already recovered models were not retrained.
+
+Final verification: all 89 completed new bounded attempts pass artifact audits;
+16 have fresh prediction replays. All 26 recorded source files still match
+their saved hashes. In this round OLMo, the two-layer classifier fit, and
+Mistral were independently replayed with identical predictions and zero
+per-example NLL differences. Mistral checks all 224 specified matrix caps,
+with maximum CPU float32 effective norm 22.153652 < 24, and the fixed
+attention floor. Both GPUs were idle after the final replay.

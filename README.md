@@ -132,6 +132,14 @@ All the above scripts utilize no GPU and on a commercial laptop. Once you have r
 
 ## NLP Revision Experiments
 
+The additional reviewer experiment code is in `experiments/lib/`,
+`experiments/runners/reviewer_*.py`, and `experiments/configs/reviewer/`.
+It covers bounded SST-2 recovery, matched uniform controls, associative recall,
+pretrained diagnostics, and selective-layer examples. See
+[the reviewer code guide](docs/reviewer_code.txt) for entrypoints and tests.
+These additions run from a source checkout. New experiment outputs and trained
+checkpoints are not included in the code commit.
+
 The NLP runners and portable configurations are installed with the library:
 
 ```bash

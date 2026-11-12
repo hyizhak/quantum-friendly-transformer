@@ -1,0 +1,40 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    101
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 8,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 250,
+  "log_every": 25,
+  "threads": 4,
+  "models": {
+    "mistral7b": {
+      "model_id": "mistralai/Mistral-7B-v0.1",
+      "revision": "27d67f1b5f57dc0953326b2601d68371d40ea8da",
+      "alpha_s": 259.73681259155273,
+      "baseline_target": 0.9174311926605505,
+      "learning_rate": 0.0002,
+      "steps": 2000,
+      "train_scope": "head_caps",
+      "master_dtype": "bfloat16",
+      "low_rank_rank": 16,
+      "low_rank_alpha": 32
+    }
+  },
+  "cohort": "exploratory_capped_low_rank_mistral_adaptation",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "training_sampling_protocol": "training_roots",
+  "selection_protocol": "official_validation"
+}

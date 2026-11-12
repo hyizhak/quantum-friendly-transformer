@@ -1,0 +1,21 @@
+{
+  "dimension": 16,
+  "key_dimension": 8,
+  "classes": 4,
+  "ffn_dimension": 32,
+  "cap": 24.0,
+  "train_sequence_length": 64,
+  "test_sequence_lengths": [32, 64, 128, 256, 512],
+  "seeds": [11, 22, 33, 44, 55],
+  "variants": ["native_sqrt_head_dim", "theorem_frobenius", "uniform"],
+  "steps": 1500,
+  "batch_size": 128,
+  "learning_rate": 0.002,
+  "weight_decay": 0.0001,
+  "log_every": 100,
+  "test_examples": 2048,
+  "test_batch_size": 128,
+  "test_seed": 97123,
+  "device": "cuda:0",
+  "threads": 4
+}

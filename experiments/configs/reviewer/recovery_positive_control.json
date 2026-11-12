@@ -1,0 +1,36 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "modes": [
+    "bounded",
+    "uniform"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 1000,
+  "log_every": 100,
+  "threads": 4,
+  "models": {
+    "3m": {
+      "model_id": "roneneldan/TinyStories-3M",
+      "revision": "cfaf26ec85ecdfc1bd7c2638104cce55cb67f894",
+      "alpha_s": 15.117786598205567,
+      "baseline_target": 0.8188073394495413,
+      "learning_rate": 0.0001,
+      "steps": 8000
+    }
+  },
+  "cohort": "previously_successful_3m_positive_control"
+}

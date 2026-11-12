@@ -1,0 +1,12 @@
+{
+  "lengths": [16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576],
+  "layer_norm_epsilons": [0.0, 0.00001],
+  "seeds": [11, 22, 33, 44, 55],
+  "trials_per_seed": 2000,
+  "output_error": 0.1,
+  "dense_statevector_limit": 4096,
+  "sampler_budget": 4000,
+  "threads": 4,
+  "protocol": "Explicit zero/one-mark promise family; public final query; native denominator 2; dimension 4; complete residual/LN/zero-FFN/residual/LN output.",
+  "query_accounting": "One coherent candidate-value phase query per Grover iteration plus one final value query to verify a measured candidate. Classical search inspects distinct candidate values. The self-normalized sampler queries rows with replacement. Public weights and known reference outputs need no data-dependent preprocessing."
+}

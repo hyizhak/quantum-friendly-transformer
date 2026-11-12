@@ -1,0 +1,102 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    101,
+    202,
+    303,
+    404,
+    505
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 1000,
+  "log_every": 100,
+  "threads": 4,
+  "models": {
+    "1m": {
+      "model_id": "roneneldan/TinyStories-1M",
+      "revision": "77f1b168e219585646439073245fe87e56b3023e",
+      "alpha_s": 12.905446243286134,
+      "baseline_target": 0.823394495412844,
+      "learning_rate": 2.9999999999999997e-05,
+      "steps": 20000
+    },
+    "8m": {
+      "model_id": "roneneldan/TinyStories-8M",
+      "revision": "8612e3b15c66ffa94eaa6ee0de5c96edd2d630af",
+      "alpha_s": 20.436730098724365,
+      "baseline_target": 0.8337155963302753,
+      "learning_rate": 2e-05,
+      "steps": 10000
+    },
+    "33m": {
+      "model_id": "roneneldan/TinyStories-33M",
+      "revision": "2ad0a164221b7c4d21cac7c46aec74f6f98dbfc8",
+      "alpha_s": 28.976337432861328,
+      "baseline_target": 0.8451834862385321,
+      "learning_rate": 2e-05,
+      "steps": 6000
+    },
+    "3m": {
+      "model_id": "roneneldan/TinyStories-3M",
+      "revision": "cfaf26ec85ecdfc1bd7c2638104cce55cb67f894",
+      "alpha_s": 15.117786598205567,
+      "baseline_target": 0.8188073394495413,
+      "learning_rate": 0.0001,
+      "steps": 8000
+    },
+    "28m": {
+      "model_id": "roneneldan/TinyStories-28M",
+      "revision": "52dabea9997faf578489d619249616926e54ed18",
+      "alpha_s": 25.786853885650636,
+      "baseline_target": 0.8256880733944955,
+      "learning_rate": 0.0001,
+      "steps": 6000
+    },
+    "1layer21m": {
+      "model_id": "roneneldan/TinyStories-1Layer-21M",
+      "revision": "0d983335d1447a805aa0f4c0c440e257a0a87f44",
+      "alpha_s": 32.0,
+      "baseline_target": 0.8061926605504587,
+      "learning_rate": 0.0001,
+      "steps": 8000
+    },
+    "2layers33m": {
+      "model_id": "roneneldan/TinyStories-2Layers-33M",
+      "revision": "f9cb5b1e9f9664843c179b9f7115d610c6df1be0",
+      "alpha_s": 32.0,
+      "baseline_target": 0.8577981651376146,
+      "learning_rate": 5e-05,
+      "steps": 10000
+    },
+    "olmo1b": {
+      "model_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "alpha_s": 47.64166717529297,
+      "baseline_target": 0.9334862385321101,
+      "learning_rate": 2e-05,
+      "steps": 2000
+    },
+    "mistral7b": {
+      "model_id": "mistralai/Mistral-7B-v0.1",
+      "revision": "27d67f1b5f57dc0953326b2601d68371d40ea8da",
+      "alpha_s": 259.73681259155273,
+      "baseline_target": 0.9174311926605505,
+      "learning_rate": 0.001,
+      "steps": 500
+    }
+  },
+  "cohort": "exploratory_all_nine_seed_search",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average."
+}

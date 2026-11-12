@@ -1,0 +1,39 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    101
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 100,
+  "log_every": 50,
+  "threads": 4,
+  "models": {
+    "olmo1b": {
+      "model_id": "allenai/OLMo-1B-0724-hf",
+      "revision": "d7cbab742d80589e714b1a2d7f838dcd21cbe143",
+      "alpha_s": 47.64166717529297,
+      "baseline_target": 0.9334862385321101,
+      "learning_rate": 1e-05,
+      "steps": 600,
+      "train_scope": "all",
+      "master_dtype": "float32"
+    }
+  },
+  "cohort": "exploratory_bounded_checkpoint_root_curriculum",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "training_sampling_protocol": "training_roots",
+  "selection_protocol": "official_validation",
+  "initialization_policy": "Best completed bounded checkpoint for this still-missing model, fixed before this cohort. Fresh optimizer; seeds vary training order, not parent initialization."
+}

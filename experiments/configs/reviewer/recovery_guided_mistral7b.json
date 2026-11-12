@@ -1,0 +1,63 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [
+    611
+  ],
+  "modes": [
+    "bounded"
+  ],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 16,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 50,
+  "log_every": 10,
+  "threads": 4,
+  "models": {
+    "mistral7b": {
+      "model_id": "mistralai/Mistral-7B-v0.1",
+      "revision": "27d67f1b5f57dc0953326b2601d68371d40ea8da",
+      "alpha_s": 259.73681259155273,
+      "baseline_target": 0.9174311926605505,
+      "learning_rate": 2e-06,
+      "steps": 400,
+      "train_scope": "all",
+      "master_dtype": "float32",
+      "low_rank_rank": 16,
+      "low_rank_alpha": 32,
+      "layer_lr_decay": 0.95,
+      "embedding_lr_multiplier": 0.2,
+      "head_lr_multiplier": 10.0
+    }
+  },
+  "cohort": "exploratory_guided_trajectory_continuation",
+  "selection_policy": "Stop further seeds for a model after one qualifying bounded result. Keep every completed, failed, and interrupted attempt. Successes selected using official validation are exploratory examples, not an unbiased seed average.",
+  "training_sampling_protocol": "half_root_half_phrase_training_mixture",
+  "selection_protocol": "official_validation",
+  "parent_checkpoint": {
+    "path": "results/reviewer/recovery_full_dense/mistral7b_bounded_seed401/selected.pth",
+    "sha256": "20ec61c09397583fbcaed6c41e9b13740f4203b4daf5d6680718bb8ef8ad6149",
+    "selected_step": 500,
+    "result_path": "results/reviewer/recovery_full_dense/mistral7b_bounded_seed401/result.json"
+  },
+  "micro_batch_size": 16,
+  "gradient_accumulation_steps": 2,
+  "optimizer_version": "0.50.2",
+  "pilot_adjustment": "The separate 2e-5 smoke run fit memory and updated every dense matrix, but its single nonzero update raised 32-example validation NLL from .296 to 2.986. Use 2e-6 with 36-step warmup for the full run; smoke results are not recovery evidence.",
+  "root_fraction": 0.5,
+  "distillation_weight": 0.5,
+  "temperature": 2.0,
+  "average_start": 200,
+  "average_every": 50,
+  "cycle_steps": 100,
+  "minimum_lr_fraction": 0.25,
+  "compile": false,
+  "protocol_note": "Warm-start a fixed bounded parent; use gold CE and confidence-gated external teacher KL on training rows only; cyclic LR; average learned parameters along this trajectory; stop after recovery; retain every attempt.",
+  "teacher_reference": "results/reviewer/recovery_teacher/manifest.json"
+}

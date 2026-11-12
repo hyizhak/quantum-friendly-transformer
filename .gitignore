@@ -3,6 +3,9 @@
 
 # Pytorch
 *.pth
+*.pt
+*.ckpt
+*.safetensors
 
 # PBS
 submit_pbs*
@@ -181,3 +184,9 @@ cython_debug/
 
 # Original measurements/checkpoints are distributed in the evidence companion archive.
 /experiments/outputs/
+
+# Local reviewer runs and release drafts are separate from the code repository.
+/results/reviewer/
+/response.tex
+/reproduction-assets/
+/reproduced/

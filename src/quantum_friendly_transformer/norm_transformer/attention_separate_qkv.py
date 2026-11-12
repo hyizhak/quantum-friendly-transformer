@@ -538,7 +538,9 @@ class AttentionWithSeparateQKV(nn.Module):
             )
 
         attn_output = F.scaled_dot_product_attention(
-            q, k, v, attn_mask=attn_mask, dropout_p=self.dropout, is_causal=is_causal
+            q, k, v, attn_mask=attn_mask,
+            dropout_p=self.dropout if self.training else 0.0,
+            is_causal=is_causal
         )
 
         # 5) Reshape back to (B, L, D):

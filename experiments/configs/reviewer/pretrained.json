@@ -1,0 +1,14 @@
+{
+  "sequence_lengths": [256, 512, 1024, 2048],
+  "blocks": 16,
+  "score_tokens": 128,
+  "cap": 24.0,
+  "threads": 4,
+  "variants": ["native", "cap_only", "constrained_native", "constrained_theorem", "constrained_uniform"],
+  "noise_sequence_length": 1024,
+  "noise_blocks": 8,
+  "noise_relative_errors": [0.01, 0.03, 0.1, 0.3],
+  "noise_depths": [1, 4, 12],
+  "noise_seeds": [101, 202, 303],
+  "noise_types": ["uniform", "rounding"]
+}

@@ -1,6 +1,7 @@
 include LICENSE README.md pyproject.toml
 include docs/library.md
 include docs/evidence.md
+include docs/reviewer_code.txt
 include tools/build_evidence.py
 include examples/library_quickstart.py
 prune tests

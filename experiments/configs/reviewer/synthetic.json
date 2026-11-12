@@ -1,0 +1,13 @@
+{
+  "dimension": 64,
+  "sequence_lengths": [256, 1024, 4096, 16384, 65536],
+  "seeds": [11, 22, 33, 44, 55],
+  "sample_counts": [64, 256, 1024, 4000],
+  "sampler_repeats": 20,
+  "selective_repeats": 2000,
+  "absolute_error_targets": [0.01, 0.03, 0.1],
+  "resource_dimensions": [64, 4096],
+  "resource_caps": [1.0, 24.0],
+  "resource_row_state_error": 0.001,
+  "resource_readout_error": 0.01
+}

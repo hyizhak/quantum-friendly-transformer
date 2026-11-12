@@ -1,0 +1,44 @@
+{
+  "dataset_id": "nyu-mll/glue",
+  "dataset_revision": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+  "sequence_length": 128,
+  "selection_fraction": 0.1,
+  "selection_split_seed": 20261111,
+  "seeds": [42, 43, 44],
+  "modes": ["bounded", "uniform"],
+  "cap": 24.0,
+  "batch_size": 32,
+  "eval_batch_size": 128,
+  "weight_decay": 0.01,
+  "warmup_fraction": 0.06,
+  "scale_learning_rate": 0.01,
+  "eval_every": 1000,
+  "log_every": 100,
+  "threads": 4,
+  "models": {
+    "1m": {
+      "model_id": "roneneldan/TinyStories-1M",
+      "revision": "77f1b168e219585646439073245fe87e56b3023e",
+      "alpha_s": 12.905446243286134,
+      "baseline_target": 0.823394495412844,
+      "learning_rate": 0.0003,
+      "steps": 20000
+    },
+    "8m": {
+      "model_id": "roneneldan/TinyStories-8M",
+      "revision": "8612e3b15c66ffa94eaa6ee0de5c96edd2d630af",
+      "alpha_s": 20.436730098724365,
+      "baseline_target": 0.8337155963302753,
+      "learning_rate": 0.0002,
+      "steps": 10000
+    },
+    "33m": {
+      "model_id": "roneneldan/TinyStories-33M",
+      "revision": "2ad0a164221b7c4d21cac7c46aec74f6f98dbfc8",
+      "alpha_s": 28.976337432861328,
+      "baseline_target": 0.8451834862385321,
+      "learning_rate": 0.0002,
+      "steps": 6000
+    }
+  }
+}
