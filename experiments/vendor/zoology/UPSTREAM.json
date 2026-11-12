@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/HazyResearch/zoology",
+  "commit": "1ad20d193b6113cae1e8f3c655c300d7b4b3f4bb",
+  "paper": "https://arxiv.org/abs/2312.04927",
+  "files": {
+    "multiquery_ar.py": {
+      "upstream_path": "zoology/data/multiquery_ar.py",
+      "git_blob_sha": "831bc8efded6f18096cb1385fababf91af0cb451"
+    },
+    "LICENSE.md": {
+      "upstream_path": "LICENSE.md",
+      "git_blob_sha": "8890ad910b13c308caa7e9048dab95442dcee2d7"
+    }
+  },
+  "notes": "Files retained verbatim. The local adapter extracts the official multiquery_ar function without changing its body and supplies its DataSegment return container."
+}

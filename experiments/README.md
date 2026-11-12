@@ -1,15 +1,176 @@
 # NLP Revision Experiments
 
-The NLP implementations now ship in `quantum_friendly_transformer.experiments`.
+The historical NLP implementations ship in `quantum_friendly_transformer.experiments`.
 Use `qft-experiment --list` and `qft-experiment --list-configs` after installation.
-Paths under this directory remain compatibility entrypoints. Recorded results
-and metadata ship with `quantum_friendly_transformer.evidence`; raw measurements
+This directory also contains the later reviewer experiments, which run from a
+source checkout using the commands below. Historical recorded results and
+metadata ship with `quantum_friendly_transformer.evidence`; raw measurements
 and checkpoints use its companion archive. See [the evidence guide](../docs/evidence.md)
-for extraction and verification. The legacy training recipes remain local here.
+for extraction and verification. The later reviewer results and checkpoints
+are separate from that packaged snapshot.
 
 This directory contains the runnable experiment handoff for the NLP revision work.
-Experiment scripts write raw outputs under `experiments/outputs/raw/` and metadata
-beside each raw file as `*.metadata.json`.
+Historical scripts write raw outputs under `experiments/outputs/raw/` and metadata
+beside each raw file as `*.metadata.json`. Reviewer runners use explicit output
+directories, with local runs under `results/reviewer/` and independent
+reproductions under `reproduced/`.
+
+## Reviewer experiment map
+
+All paths below are relative to `experiments/`. Run the entrypoints from the
+repository root after installing `.[experiments,test]`.
+
+| Experiment | Training entrypoint(s) in `runners/` | Protocol and configurations in `configs/reviewer/` |
+|---|---|---|
+| Paired recall through training length 1024 or 2048 | `reviewer_long_recall.py`, `reviewer_long_recall_routing.py` | [Long recall](configs/reviewer/LONG_RECALL_PROTOCOL.txt); `long_recall_{1024,2048}.json`, `long_recall_routing_{1024,2048}.json` |
+| Native-temperature recall caps 24 and 64 | `reviewer_long_recall_routing.py`, `reevaluate_long_recall_caps.py` | [Native caps](configs/reviewer/NATIVE_RECALL_CAP_PROTOCOL.txt); `long_recall_native64_{1024,2048}.json` |
+| Recall training through 8192 and validation-selected recovery | `reviewer_recall_8192.py`, `reviewer_recall_8192_recovery.py` | [Initial cohorts](configs/reviewer/RECALL_8192_CAP24_PROTOCOL.txt), [recovery search](configs/reviewer/RECALL_8192_RECOVERY_SEARCH.txt); `long_recall_train8192_*.json` |
+| MQAR original and variance initialization | `reviewer_mqar.py`, `reviewer_mqar_variance_init.py` | [MQAR](configs/reviewer/MQAR_PROTOCOL.txt), [initialization follow-up](configs/reviewer/MQAR_INITIALIZATION_FOLLOWUP.txt); `mqar.json`, `mqar_variance_init.json` |
+| MQAR ordinary Transformer baseline | `reviewer_mqar_standard.py` | [Standard baseline](configs/reviewer/MQAR_STANDARD_BASELINE_PROTOCOL.txt); `mqar_standard.json` |
+| MQAR caps 48 and 24 | `reviewer_mqar_cap.py`, `reviewer_mqar_cap24.py` | [Cap48](configs/reviewer/MQAR_CAP_SENSITIVITY_PROTOCOL.txt), [cap24](configs/reviewer/MQAR_CAP24_PROTOCOL.txt); `mqar_cap48.json`, `mqar_cap24.json` |
+
+The [long-recall reproduction guide](../docs/evidence.md#long-context-paired-recall-follow-up)
+includes the classification-only and routing cohorts; the
+[native-cap guide](../docs/evidence.md#comment-4-native-temperature-cap-comparison)
+covers their matched cap comparison. Commands for MQAR and training through
+8192 follow below. Audit and summary runners consume completed runs; use fresh
+output directories for reproductions. Training sources, protocols, and pinned
+vendor files have recorded hashes and must retain the bytes used by each run.
+
+## MQAR benchmark
+
+The MQAR reviewer benchmark uses the official Zoology generator pinned under
+`vendor/zoology/`, with its original license and Git blob checksum. The protocol
+is in [MQAR_PROTOCOL.txt](configs/reviewer/MQAR_PROTOCOL.txt). It evaluates a
+two-layer capped Transformer and matched causal uniform-attention controls on
+the standard 8192-token vocabulary, with no matching-index supervision. This is
+a selected MQAR configuration, not the full published architecture sweep.
+
+The original initialization cohort and the exploratory
+[initialization follow-up](configs/reviewer/MQAR_INITIALIZATION_FOLLOWUP.txt)
+are both retained. The follow-up changes initialization to accommodate unit-norm
+activations; it keeps cap64, native attention temperature and the training budget.
+The vocabulary readout is uncapped and separate from the capped layer matrices.
+
+To reproduce both cohorts from the repository root, use fresh output directories:
+
+```bash
+python experiments/runners/reviewer_mqar.py prepare --output reproduced/mqar_data
+python experiments/runners/run_mqar_cohort.py --variant native --device cuda:0 --assets reproduced/mqar_data --output reproduced/mqar
+python experiments/runners/run_mqar_cohort.py --variant uniform --device cuda:1 --assets reproduced/mqar_data --output reproduced/mqar
+python experiments/runners/reviewer_mqar_variance_init.py prepare --config experiments/configs/reviewer/mqar_variance_init.json --output reproduced/mqar_variance_init_data
+python experiments/runners/run_mqar_cohort.py --variant native --device cuda:0 --runner experiments/runners/reviewer_mqar_variance_init.py --config experiments/configs/reviewer/mqar_variance_init.json --assets reproduced/mqar_variance_init_data --output reproduced/mqar_variance_init
+python experiments/runners/run_mqar_cohort.py --variant uniform --device cuda:1 --runner experiments/runners/reviewer_mqar_variance_init.py --config experiments/configs/reviewer/mqar_variance_init.json --assets reproduced/mqar_variance_init_data --output reproduced/mqar_variance_init
+python experiments/runners/audit_mqar.py --results reproduced/mqar --assets reproduced/mqar_data --device cuda:0
+python experiments/runners/audit_mqar.py --results reproduced/mqar_variance_init --assets reproduced/mqar_variance_init_data --device cuda:0
+python experiments/runners/summarize_mqar.py --initial-results reproduced/mqar --followup-results reproduced/mqar_variance_init --output reproduced/mqar_summary
+```
+
+Each variant coordinator retains all three fixed seeds and refuses to overwrite
+an existing run. Different variants can run on separate GPUs. The audit checks
+every saved query prediction and freshly replays the first batch of each test
+condition for every checkpoint. The summary includes all seeds, both full
+cohorts, a standalone PDF figure, and a LaTeX table. Tests are in `tests/test_mqar.py`.
+These new records are local and are not included in the older reviewer release
+manifest or any claimed Figshare deposit.
+
+The matched ordinary Transformer baseline is defined separately in
+`lib/mqar_standard.py` and
+[MQAR_STANDARD_BASELINE_PROTOCOL.txt](configs/reviewer/MQAR_STANDARD_BASELINE_PROTOCOL.txt).
+It uses ordinary trainable LayerNorm and uncapped projections, with the same
+architecture dimensions, native attention denominator, data and training budget.
+The earlier `native` run label denotes attention temperature within the capped
+adaptation; it is not the ordinary Transformer baseline.
+
+```bash
+python experiments/runners/reviewer_mqar_standard.py prepare --config experiments/configs/reviewer/mqar_standard.json --output reproduced/mqar_standard_data
+python experiments/runners/run_mqar_cohort.py --variant native --device cuda:0 --runner experiments/runners/reviewer_mqar_standard.py --config experiments/configs/reviewer/mqar_standard.json --assets reproduced/mqar_standard_data --output reproduced/mqar_standard
+python experiments/runners/audit_mqar_standard.py --results reproduced/mqar_standard --assets reproduced/mqar_standard_data --reference-assets reproduced/mqar_variance_init_data --device cuda:0
+```
+
+For the recorded local cohorts, `python experiments/runners/summarize_mqar_comparison.py`
+writes the unambiguously labeled three-model comparison under
+`results/reviewer/mqar_comparison/`. Its data audit verifies exact tensor equality
+with the capped model's evaluation data. The comparator was added after the
+earlier experiment, so the combined comparison remains exploratory.
+
+The cap-sensitivity follow-up lowers only the cap from 64 to 48, preserving raw
+initialization, the data, temperature, normalization and training budget. Its
+protocol is [MQAR_CAP_SENSITIVITY_PROTOCOL.txt](configs/reviewer/MQAR_CAP_SENSITIVITY_PROTOCOL.txt).
+It retrains both attention variants under the smaller cap and reports actual
+cap activity. Use fresh output directories for reproduction:
+
+```bash
+python experiments/runners/reviewer_mqar_cap.py prepare --config experiments/configs/reviewer/mqar_cap48.json --output reproduced/mqar_cap48_data
+python experiments/runners/run_mqar_cohort.py --variant native --device cuda:0 --runner experiments/runners/reviewer_mqar_cap.py --config experiments/configs/reviewer/mqar_cap48.json --assets reproduced/mqar_cap48_data --output reproduced/mqar_cap48
+python experiments/runners/run_mqar_cohort.py --variant uniform --device cuda:1 --runner experiments/runners/reviewer_mqar_cap.py --config experiments/configs/reviewer/mqar_cap48.json --assets reproduced/mqar_cap48_data --output reproduced/mqar_cap48
+python experiments/runners/audit_mqar_caps.py --results reproduced/mqar_cap48 --assets reproduced/mqar_cap48_data --reference-results reproduced/mqar_variance_init --reference-assets reproduced/mqar_variance_init_data --device cuda:0
+```
+
+For the recorded local cohorts, `python experiments/runners/summarize_mqar_caps.py`
+writes the cap comparison, all per-seed scores, cap-activity diagnostics and a
+standalone figure under `results/reviewer/mqar_cap_comparison/`. Neither the
+cap64 results nor the ordinary Transformer results are overwritten.
+
+The subsequent cap24 cohort uses the same frozen training/model code and the
+same data, raw initial parameters and training budget. Its protocol is
+[MQAR_CAP24_PROTOCOL.txt](configs/reviewer/MQAR_CAP24_PROTOCOL.txt). It is a fresh
+three-seed cohort with both trained attention and uniform controls:
+
+```bash
+python experiments/runners/reviewer_mqar_cap24.py prepare --config experiments/configs/reviewer/mqar_cap24.json --output reproduced/mqar_cap24_data
+python experiments/runners/run_mqar_cohort.py --variant native --device cuda:0 --runner experiments/runners/reviewer_mqar_cap24.py --config experiments/configs/reviewer/mqar_cap24.json --assets reproduced/mqar_cap24_data --output reproduced/mqar_cap24
+python experiments/runners/run_mqar_cohort.py --variant uniform --device cuda:1 --runner experiments/runners/reviewer_mqar_cap24.py --config experiments/configs/reviewer/mqar_cap24.json --assets reproduced/mqar_cap24_data --output reproduced/mqar_cap24
+python experiments/runners/audit_mqar_caps.py --results reproduced/mqar_cap24 --assets reproduced/mqar_cap24_data --reference-results reproduced/mqar_variance_init --reference-assets reproduced/mqar_variance_init_data --device cuda:0
+```
+
+For the recorded local cohorts, `python experiments/runners/summarize_mqar_cap_series.py`
+creates a separate comparison of caps 64, 48, 24 and the standard Transformer in
+`results/reviewer/mqar_cap24_comparison/`, including every seed, corresponding
+uniform controls, actual cap activity and figures. The earlier cap48 comparison
+remains available with its original source hashes and reports.
+
+## Cap24 training through length 8192
+
+This follow-up uses the earlier continuous-key, balanced **single-query**
+retrieval task, separately from MQAR. The initial
+[8192 protocol](configs/reviewer/RECALL_8192_CAP24_PROTOCOL.txt) keeps the
+architecture, native attention denominator, input norms and all six matrix
+caps fixed, and changes the last curriculum stage to length8192. It retains
+the disclosed matching-position auxiliary training loss. The initial cap24,
+cap64 reference and uniform-cap24 cohorts each contain seeds11,22,33.
+
+The subsequent [recovery search](configs/reviewer/RECALL_8192_RECOVERY_SEARCH.txt)
+retains all four attempted training recipes: longer training from scratch and
+three constrained fine-tuning recipes initialized from the cap64 checkpoints.
+Loading those checkpoints into the cap24 model preserves maximum24 on every
+projection; the cap64 maximum is not loaded from the parameter state.
+Warm recipes receive the parent's3000 training updates as an extra resource.
+
+The frozen evaluator uses filenames such as `test.csv` during training, but
+these search outputs are explicitly marked **validation** in configurations
+and manifests. Selection uses the mean8192 validation accuracy across all
+three seeds. `select_recall_8192.py` freezes that choice before
+`evaluate_recall_8192_final.py` opens the independent reserved test stream.
+
+Example training commands, from the repository root into fresh directories:
+
+```bash
+CUBLAS_WORKSPACE_CONFIG=:4096:8 python experiments/runners/reviewer_recall_8192.py --config experiments/configs/reviewer/long_recall_train8192_cap24.json --output reproduced/recall8192_cap24 --variant native_sqrt_d --device cuda:0
+CUBLAS_WORKSPACE_CONFIG=:4096:8 python experiments/runners/reviewer_recall_8192.py --config experiments/configs/reviewer/long_recall_train8192_cap24.json --output reproduced/recall8192_cap24 --variant uniform --device cuda:1
+```
+
+Use the cap64 configuration for the reference. The recovery runner is
+`reviewer_recall_8192_recovery.py`; the four configurations are named
+`long_recall_train8192_{cold_long,warm_route1,warm_route01,warm_answer}.json`.
+For an independent reproduction, copy each warm configuration and set its
+`warm_start_root` to the reproduced cap64 reference directory.
+`audit_recall_8192.py` accepts the completed directories, checks stored
+predictions and caps, and freshly replays the first batch at every length.
+The recorded comparison is summarized under
+`results/reviewer/long_recall_train8192_summary/` with the selection ledger,
+all attempted recipes and reserved-test results. An unsuccessful recipe is
+retained and does not justify a claim of recovery.
 
 ## Environment
 
@@ -27,9 +188,12 @@ models.
 ## Layout
 
 - `lib/` contains reusable experiment support: common I/O/metrics, command/config helpers, aggregation math, and retained-result manifests.
+- `configs/reviewer/` contains the reviewer experiment protocols and fixed cohort configurations.
+- Top-level `runners/reviewer_*.py`, `audit_*.py`, `validate_*.py`, and `summarize_*.py` implement reviewer training, auditing, and reporting from a source checkout.
 - `runners/recovery/`, `runners/normalisation/`, `runners/diagnostics/`, and `runners/reports/` contain executable backends grouped by purpose.
 - `runners/legacy/` contains the original fixed training and checkpoint-conversion recipes. The old package paths forward here from a source checkout; recipe bodies are not shipped in the library wheel.
 - `scripts/` contains thin compatibility wrappers for the old flat paths. Prefer `runners/` paths or the config dispatchers for new commands. These wrappers can be deleted if no external workflow still calls the old `experiments/scripts/...` paths.
+- `vendor/zoology/` retains the MQAR generator and license with their pinned upstream Git blob hashes.
 
 ## Library FN Caps
 

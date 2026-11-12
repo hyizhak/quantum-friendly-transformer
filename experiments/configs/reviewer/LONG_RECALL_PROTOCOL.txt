@@ -1,0 +1,97 @@
+LONG-CONTEXT, MEAN-MATCHED RECALL
+
+Purpose: address Comment 4 with actual long-context training and a task whose
+answers cannot be recovered from mean pooling. This is a controlled synthetic
+single-query task, not SST-2, natural-language modeling, or the MQAR benchmark.
+Associative recall motivation: https://arxiv.org/abs/2312.04927
+
+Task: N-2 random continuous-key memory tokens, one public marker, one query.
+Every memory carries a binary value, with exactly equal value counts. The query
+copies a randomly selected key. Each example is paired with an example having
+the same keys/query but all memory values reversed. The two row means are exactly
+equal and the labels are opposite. All N tokens are visible; none are padding.
+Keys are regenerated on every batch. Position embeddings and task-specific
+query/key initialization are absent. A linear value projection followed by mean
+pooling and any downstream classifier cannot distinguish each complete pair.
+Consequently its accuracy is exactly 50% on the paired evaluation set.
+
+Architecture: d=32, key dimension16, FFN width64, one selected-row attention,
+residual, LayerNorm, GELU FFN, residual, LayerNorm, binary linear classifier.
+No biases or dropout. LayerNorm gamma=1/sqrt(d), beta=0, epsilon=0 throughout.
+All six Q/K/V/FFN/head matrices have Frobenius cap24. Rows have norm <=1 by
+construction with a small floating-point rounding margin; every training and
+evaluation batch is checked in float64, certifying ||S||_F <= sqrt(N) for those
+inputs. Normalization factors are measured, including minima; empirical minima
+are not a uniform certificate over all possible inputs/parameters.
+
+Four variants, same initialized weights and paired training batches within seed:
+  strict_frobenius: alpha0=N*24^2, kappa=1, fixed throughout each forward.
+  general_alpha1: alpha0=1, kappa=N*24^2. General-scaling theorem setting only.
+  native_sqrt_d: alpha0=sqrt(32), kappa=N*24^2/sqrt(32).
+  uniform: exact mean pooling, otherwise the same architecture and optimizer.
+General/native outcomes cannot be called recoveries of the kappa=1 regime.
+Their large full-interval kappa can make the polynomial quantum construction
+expensive; classification accuracy does not establish a quantum speedup.
+
+Two fixed cohorts have maximum training N=1024 or2048. Each has three seeds
+(11,22,33) and all four variants. Each run has3000 updates: first500 atN64,
+next500 atN256, final2000 at its long training length. Report this curriculum,
+not direct training exclusively at the maximum length. Batch32 paired inputs
+(64 sequences), AdamW LR.003, epsilon1e-12, weight decay.0001, gradient norm cap1.
+No seed selection, early stopping, teacher, external pretrained model, or test
+checkpoint selection. All variants complete the same predetermined budget.
+Final checkpoints are restored before evaluation. CPU/GPU smoke is separate.
+
+Final evaluation: 2048 independent counterfactual pairs (4096 sequences) at each
+N=256,512,1024,2048,4096,8192. The keys/test RNG are distinct from training and
+shared by all model seeds/variants. Longer lengths are length generalization.
+Training is float32 without TF32; evaluation is float64 for every variant so a
+small strict-scaling signal is measured rather than rounded away. Report both
+accuracy and decision/output gaps, not just tiny-sign classification accuracy.
+
+Controls: train a separate uniform model; also replace attention by uniform in
+each trained checkpoint. Shuffle query keys between independent pairs while
+keeping the same original target labels. Reverse memory-row order while leaving
+the query fixed and verify permutation invariance. Materialize projected K/V
+independently on four examples at every length and compare with the algebraically
+reassociated implementation (which avoids an N*d*d intermediate).
+
+Robustness: add random vectors with fixed L2 norms .0001,.01,.1 to the attention
+output before the first residual/LN. Noise is shared within each counterfactual
+pair and independently drawn across pairs, and identical across model variants.
+This is a diagnostic perturbation experiment, not an adversarial-error theorem.
+Report attention concentration, target probability, entropy, physical contrast,
+kappa, both normalization minima, raw/effective weights, and pair output gaps.
+
+Reproduce in fresh output directories, with separate devices for the two cohorts:
+CUBLAS_WORKSPACE_CONFIG=:4096:8 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4
+  python experiments/runners/reviewer_long_recall.py
+  --config experiments/configs/reviewer/long_recall_1024.json
+  --output RESULTS_1024 --device cuda:0
+Use long_recall_2048.json and another output directory/device for the second.
+Add --smoke for the separate three-update implementation check.
+
+All results, including failures and the strict-scaling control, must be reported.
+Existing completed training sources and recovered pretrained models are untouched.
+
+Exploratory routing-supervision follow-up
+
+The first completed classification-only seed had modest general-alpha1 gains
+and Q/K norms near4, far below cap24. Before running this follow-up, retain the
+entire initial three-seed/four-variant cohorts and define an additional matched
+cohort for each maximum length. Use the same architecture, initialization, data
+stream, optimizer, curriculum, update budget, and seeds for all four variants.
+Add auxiliary cross-entropy on the known matching-memory index, with weight1,
+to the binary classification loss. This additional synthetic-training signal
+is disclosed and is absent from the original classification-only cohorts.
+The matching index never enters inference; it is available only in the training
+loss and diagnostic evaluation. Uniform attention has constant auxiliary loss
+log(N), so it has no routing gradient. No projection caps, input constraints,
+LayerNorms, or attention denominators are relaxed.
+
+To avoid reusing earlier test realizations for the follow-up comparison, fix
+a new independent test seed921337 before execution. This does not make the
+protocol-selection process confirmatory; its motivation came from initial
+results. Each follow-up reports all three seeds and all variants.
+Entry point: reviewer_long_recall_routing.py with long_recall_routing_1024.json
+or long_recall_routing_2048.json. The original training files are unchanged.

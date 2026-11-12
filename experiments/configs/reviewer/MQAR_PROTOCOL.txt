@@ -1,0 +1,64 @@
+MQAR BENCHMARK PROTOCOL
+
+Fixed before the first benchmark training/evaluation in this workflow.
+Benchmark: Multi-Query Associative Recall from Arora, Eyuboglu et al.,
+Zoology: Measuring and Improving Recall in Efficient Language Models.
+Paper: https://arxiv.org/abs/2312.04927
+Official code: https://github.com/HazyResearch/zoology
+Pinned commit: 1ad20d193b6113cae1e8f3c655c300d7b4b3f4bb
+
+Data and scoring
+Use the official multiquery_ar function, retained verbatim with its Apache-2.0
+license and Git blob hash under experiments/vendor/zoology. A dependency-light
+adapter executes that exact function body with its original numpy/torch calls.
+Seed BOTH numpy and torch: the official generator seeds numpy internally but
+draws filler tokens with torch. Save actual data tensors and SHA-256 hashes.
+Vocabulary8192, power_a=.01, random_non_queries=True, num_passes=1.
+Score all positions whose official label is not -100, predicting over the full
+8192-token vocabulary. Do not prefilter candidates to values or known memories.
+The primary standard condition is N256 with16 key-value pairs. Train20000
+examples, validate1000 distinct examples, test1000 distinct examples. All model
+seeds/variants share the data and paired within-seed training permutations.
+Check exact sequence overlap and verify every query label against the prefix.
+Additional official-generator conditions are listed in mqar.json. Longer-length
+and memory-density tests are extrapolation, not matched-distribution scores.
+This is one selected MQAR protocol, not a reproduction of the entire Zoology
+architecture/hyperparameter sweep or its published leaderboard.
+
+Model
+Train from scratch a two-layer causal Transformer with d64, FFN128, one head,
+native denominator sqrt(64), both residuals and fixed unit-norm LayerNorms
+(gamma=1/sqrt(64), beta=0, epsilon=0). No dropout or projection biases.
+Trainable token embeddings and fixed sinusoidal positions are added and
+row-normalized before the first block. All complete Q/K/V/output/FFN projection
+matrices in BOTH blocks have the repository's forward-pass learnable Frobenius
+cap64. Token embedding rows are normalized at use; the separate vocabulary
+readout is trainable and uncapped. These input/output adaptations are explicit;
+this is not the old continuous-key binary model or a pretrained-language result.
+Record raw/effective projection norms, active caps, actual LayerNorm minima,
+input norm maxima, and the embedding/readout norms separately.
+Cap64 is the same larger allowance used by the latest native recall follow-up;
+it must not be described as FN24 or evidence of a quantum speedup.
+
+Comparisons and training
+Three seeds11,22,33, each with native attention and a separately trained causal
+uniform-attention control of identical architecture/initial weights. Also
+substitute uniform attention into the native trained model at evaluation.
+Unlike the earlier counterfactual binary task, MQAR has no asserted exact50%
+mean-pooling ceiling. This is a trained multi-layer causal pooling baseline.
+Use answer-token cross-entropy only, no matching-index or attention supervision.
+AdamW LR.003, epsilon1e-8, weight decay.01, gradient clipping1;32 full epochs,
+batch128;5% linear warmup then cosine decay to10% of peak LR. Float32 throughout,
+TF32 disabled. Validation is diagnostic only; use fixed final checkpoints.
+No best-seed selection or test-based checkpoint/hyperparameter selection.
+Smoke runs use tiny separate data/budgets and are excluded from benchmark scores.
+If a follow-up changes any setting, retain and label this entire original cohort.
+
+Artifacts and verification
+Retain all seeds, training/validation curves, configs, data/checkpoint/source
+hashes, per-query predictions, and complete final metrics. Restore checkpoints
+before evaluation. Audit causality, dense versus fused attention, cap enforcement,
+official generator equivalence, saved prediction accuracy, and fresh replay.
+Use sample SD across model seeds; queries in one sequence are dependent.
+Record inference time as local implementation timing, not algorithmic speedup.
+Generate a compact report and standalone figure without altering response.tex.

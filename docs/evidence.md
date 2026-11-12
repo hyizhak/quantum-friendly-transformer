@@ -1,5 +1,12 @@
 # Experiments and recorded evidence
 
+For the later reviewer experiments and the release handoff for Comments 4 and
+8, see [reviewer_release.txt](reviewer_release.txt). That separate source/results
+archive includes the new `results/reviewer/` records and explicitly inventories
+omitted weights. The historical 0.3.0 snapshot described below is unchanged;
+its builder does not collect the later reviewer experiments. Neither local
+packaging workflow publishes an update to Figshare.
+
 Version 0.3.0 includes the NLP research runners in
 `quantum_friendly_transformer.experiments` and recorded evidence in
 `quantum_friendly_transformer.evidence`. Both work from an installed wheel.
@@ -195,3 +202,72 @@ Fast tests are `tests/test_evidence.py`, `tests/test_experiments.py`, and the
 recovery/library tests. `tests/test_distribution.py` builds the sdist and wheel,
 then reads bundled evidence and configs outside the source tree. Heavy training
 and real model reload/evaluation are separate validation steps.
+
+## Long-context paired recall follow-up
+
+The [long-recall protocol](../experiments/configs/reviewer/LONG_RECALL_PROTOCOL.txt)
+defines four additional cohorts: classification-only and matching-index auxiliary
+training, each through sequence length 1024 or 2048, evaluated through 8192.
+Every cohort contains all three fixed seeds and four scaling/mean-pooling variants.
+These new outputs are separate from the existing release catalog.
+
+From a checkout with the experiment dependencies installed, use fresh output
+directories (the runners refuse to overwrite existing runs):
+
+```bash
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+python experiments/runners/reviewer_long_recall.py --config experiments/configs/reviewer/long_recall_1024.json --output results/reviewer/long_recall_1024 --device cuda:0
+python experiments/runners/reviewer_long_recall.py --config experiments/configs/reviewer/long_recall_2048.json --output results/reviewer/long_recall_2048 --device cuda:0
+python experiments/runners/reviewer_long_recall_routing.py --config experiments/configs/reviewer/long_recall_routing_1024.json --output results/reviewer/long_recall_routing_1024 --device cuda:0
+python experiments/runners/reviewer_long_recall_routing.py --config experiments/configs/reviewer/long_recall_routing_2048.json --output results/reviewer/long_recall_routing_2048 --device cuda:0
+python experiments/runners/summarize_long_recall.py
+python experiments/runners/validate_long_recall.py --device cuda:0
+```
+
+Add `--smoke` and use another output directory for an inexpensive implementation
+check. The summary writes all per-seed results, aggregates, figures, and a proposed
+Comment 4 LaTeX addendum under `results/reviewer/long_recall_summary/`. The audit
+checks every stored prediction and freshly replays the first test batch at each
+length for every checkpoint; it does not claim a full independent test replay.
+Focused tests are in `tests/test_long_recall.py`.
+
+Only `strict_frobenius` uses the strict denominator `N*24^2`. The `general_alpha1`
+variant belongs to the general-scaling setting and carries the explicit large
+factor `kappa=N*24^2`. Auxiliary training uses extra matching-index supervision;
+inference receives only the input rows. Report all seeds and both protocols, and
+keep recall performance separate from any claim of quantum computational advantage.
+
+## Comment 4: native-temperature cap comparison
+
+The [native-cap protocol](../experiments/configs/reviewer/NATIVE_RECALL_CAP_PROTOCOL.txt)
+adds a classical comparison of caps 24 and 64 with native attention temperature
+`sqrt(32)`. It uses the same three seeds, training batches and budget, and the
+same disclosed matching-index auxiliary supervision. Cap 64 is a larger norm
+allowance; its successes are not FN24 recoveries. Strict-scaling and separately
+trained uniform controls are retained at both caps.
+
+Run the frozen `reviewer_long_recall_routing.py` entrypoint with
+`long_recall_native64_1024.json` and `long_recall_native64_2048.json`, writing to
+`results/reviewer/long_recall_native64_1024` and its 2048 counterpart. Then reuse
+the saved cap 24 checkpoints on the follow-up's fresh test stream:
+
+```bash
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
+python experiments/runners/reevaluate_long_recall_caps.py --train-length 1024 --output results/reviewer/long_recall_native24_1024 --device cuda:0
+python experiments/runners/reevaluate_long_recall_caps.py --train-length 2048 --output results/reviewer/long_recall_native24_2048 --device cuda:0
+python experiments/runners/validate_native_recall_caps.py --device cuda:0
+python experiments/runners/summarize_native_recall_caps.py
+python tools/assemble_comment4_experiments.py
+```
+
+The reevaluation requires the original `long_recall_routing_1024` and 2048
+checkpoints, and performs no training. The audit checks every stored prediction
+and freshly replays the first batch at each length. The summary writes the cap
+comparison, all per-seed results and an exportable figure under
+`results/reviewer/comment4_native_caps/`.
+
+The response assembler requires the local response and previous SST-2 response
+snippet. It creates `results/reviewer/comment4_update/response_comment4_only.tex`
+and verifies that only the response body for Comment 4 changed. All quoted
+reviewer text, every other response, and the original `response.tex` remain
+unchanged. The new response text concerns classical experiments only.

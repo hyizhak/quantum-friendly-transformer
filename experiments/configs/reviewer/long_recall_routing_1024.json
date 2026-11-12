@@ -1,0 +1,56 @@
+{
+  "dimension": 32,
+  "key_dimension": 16,
+  "ffn_dimension": 64,
+  "cap": 24.0,
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "variants": [
+    "general_alpha1",
+    "strict_frobenius",
+    "uniform",
+    "native_sqrt_d"
+  ],
+  "curriculum": [
+    {
+      "through_step": 500,
+      "N": 64
+    },
+    {
+      "through_step": 1000,
+      "N": 256
+    },
+    {
+      "through_step": 3000,
+      "N": 1024
+    }
+  ],
+  "batch_pairs": 32,
+  "steps": 3000,
+  "learning_rate": 0.003,
+  "adam_epsilon": 1e-12,
+  "weight_decay": 0.0001,
+  "log_every": 100,
+  "test_lengths": [
+    256,
+    512,
+    1024,
+    2048,
+    4096,
+    8192
+  ],
+  "test_pairs": 2048,
+  "test_batch_pairs": 32,
+  "test_seed": 921337,
+  "attention_noise_l2": [
+    0.0001,
+    0.01,
+    0.1
+  ],
+  "threads": 4,
+  "routing_auxiliary_weight": 1.0,
+  "protocol": "exploratory_matching_location_supervision"
+}

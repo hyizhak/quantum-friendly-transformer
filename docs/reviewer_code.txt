@@ -16,6 +16,25 @@ Entry points
       Pretrained attention, normalization, depth, and perturbation diagnostics.
   experiments/runners/reviewer_recall.py
       Paired native-scaling, Frobenius-scaling, and uniform recall models.
+  experiments/runners/reviewer_long_recall.py
+  experiments/runners/reviewer_long_recall_routing.py
+      Mean-matched long-context recall, with classification-only and disclosed
+      matching-index auxiliary training, evaluated through length 8192.
+  experiments/runners/reevaluate_long_recall_caps.py
+      Matched cap24 checkpoint reevaluation for the native cap24/cap64 comparison.
+  experiments/runners/reviewer_recall_8192.py
+  experiments/runners/reviewer_recall_8192_recovery.py
+      Training through length 8192 and cap24 recovery recipes. Recipe selection
+      uses validation; evaluate_recall_8192_final.py opens the reserved test
+      after select_recall_8192.py freezes the choice.
+  experiments/runners/reviewer_mqar.py
+  experiments/runners/reviewer_mqar_variance_init.py
+  experiments/runners/reviewer_mqar_standard.py
+  experiments/runners/reviewer_mqar_cap.py
+  experiments/runners/reviewer_mqar_cap24.py
+      Official MQAR data with capped, ordinary Transformer, initialization,
+      cap-sensitivity, and matched uniform-attention cohorts. The coordinator
+      run_mqar_cohort.py runs all fixed seeds for one attention variant.
   experiments/runners/reviewer_recovery_extension.py
       Fixed SST-2 cohorts with an internal checkpoint-selection partition.
   experiments/runners/reviewer_recovery_search.py
@@ -38,6 +57,11 @@ experiments/configs/reviewer/. Fixed cohorts, exploratory searches, and
 continuations have distinct protocols and must not be pooled as independent
 training seeds. A continuation requires its recorded parent checkpoint; those
 checkpoints are not distributed with this code update.
+
+experiments/README.md maps every later recall/MQAR cohort to its entrypoints,
+protocols, configurations, and reproduction commands. The original Zoology
+generator and license are retained in experiments/vendor/zoology/ alongside
+UPSTREAM.json; both files must match their recorded Git blob hashes.
 
 Example: fixed SST-2 cohort
 
@@ -69,6 +93,14 @@ Most tests use tiny CPU models or synthetic fixtures. A GPU-specific test may
 skip on CPU-only hosts. The distribution test requires the build package from
 the test extra. Full dense Mistral training additionally uses bitsandbytes;
 the individual run manifests record the actual runtime package versions.
+
+Focused recall/MQAR checks:
+
+  python -m pytest -q tests/test_long_recall.py tests/test_mqar.py \
+    tests/test_mqar_standard.py tests/test_mqar_caps.py
+
+These cover paired-data invariants, dense attention equivalence, causality,
+official-generator equivalence, matched initialization, and cap enforcement.
 
 Recorded outputs and release tools
 

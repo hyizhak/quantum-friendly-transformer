@@ -1,0 +1,31 @@
+MATCHED STANDARD TRANSFORMER BASELINE
+
+Purpose: supply the missing ordinary Transformer reference on the same MQAR
+examples as the earlier QFT-component adaptation. The previous table's "native"
+label referred to native ATTENTION TEMPERATURE inside the capped model; it was
+not an ordinary Transformer baseline. Keep all previous results unchanged.
+
+Architecture: two causal Transformer blocks, d=64, FFN=128, one attention head,
+GELU, both residuals, no dropout or projection biases. Use ordinary trainable
+LayerNorm (initial gamma=1, beta=0, epsilon=1e-5), uncapped Q/K/V/output/FFN
+matrices, and an uncapped vocabulary readout. Keep the token/position feature
+construction, scaling the resulting input vectors by sqrt(d) to give ordinary
+per-coordinate activation variance. Native attention denominator remains sqrt(d).
+The underlying random parameter draws match the capped model before its explicit
+unit-norm initialization rescaling. This does not assert identical optimizer
+trajectories or change the baseline into the original repository model class.
+
+Use EXACTLY the same official-generator data tensors as the initialization
+follow-up: vocabulary 8192, train N=256 with 16 key-value pairs and 20000 sequences,
+1000 validation sequences, and the same 1000 test sequences per condition.
+Check equality of the regenerated tensors, including filler tokens and labels.
+All seeds 11,22,33, 32 epochs, 5024 updates, batch size 128, identical AdamW
+settings, learning-rate schedule, clipping, and within-seed minibatch order.
+Supervision is answer-token labels only. Evaluate fixed final checkpoints;
+retain all seeds with no test-based model/checkpoint/hyperparameter selection.
+
+This comparator is added after seeing the earlier experiment, so the combined
+comparison remains exploratory. It is a matched ordinary Transformer under the
+specified training budget, not the full published Zoology sweep or a claim of
+optimized benchmark-best performance. Report standard Transformer, capped QFT
+adaptation, and the matched trained uniform control with unambiguous labels.

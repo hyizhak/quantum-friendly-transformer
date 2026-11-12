@@ -1,1 +1,4 @@
 *.ipynb linguist-language=Python
+
+# Preserve pinned upstream bytes, including whitespace, for blob-hash checks.
+experiments/vendor/zoology/** -text -whitespace

@@ -1,0 +1,36 @@
+COMMENT 4 ONLY: NATIVE-SCALING CAP SENSITIVITY
+
+Scope: classical training/evaluation for Comment 4. No quantum algorithm,
+query comparison, speedup claim, or change to another reviewer response.
+
+This exploratory follow-up compares the original cap24 with cap64 at the
+unchanged native attention denominator sqrt(32). The existing cap24 auxiliary
+cohorts show incomplete retrieval and active Q/K caps. A cap64 is a deliberately
+larger allowance: it must not be described as a success under FN24. All other
+task, architecture, optimizer, curriculum, update-budget, and seed settings
+remain unchanged. Increasing the allowed norms is a disclosed intervention.
+
+The paired task has fresh continuous keys, exactly matching mean-pooled inputs
+within each pair, and opposite labels. Dimension32, key dimension16, FFN64,
+unit-bounded inputs, two residuals, two fixed unit-norm LayerNorms, epsilon0,
+six capped complete matrices, and no learned embeddings/output projection.
+
+Train two cap64 cohorts, ending in 2000 updates at N1024 or N2048 following
+500 updates each at N64 and N256. Use all three seeds11,22,33 and all three
+variants native_sqrt_d, strict_frobenius, uniform. Every run has3000 updates.
+Add the SAME disclosed matching-index auxiliary objective as the existing
+cap24 cohort. No matching index enters inference. Retain every seed, fixed
+final checkpoints, raw/effective norms and all failures. Strict cap64 uses
+alpha0=N*64^2; it must not be pooled with native or with strict cap24.
+
+Fix a fresh test seed1279933 before executing the follow-up. Evaluate2048
+independent counterfactual pairs at each N256,512,1024,2048,4096,8192.
+Restore and reevaluate the existing cap24 final checkpoints on this SAME fresh
+test stream; do not retrain them. The comparison therefore isolates the cap
+within the fixed protocol. The protocol was motivated by previous results and
+is exploratory; the new test data do not erase that selection history.
+
+Use the frozen reviewer_long_recall_routing.py runner with the two
+long_recall_native64_*.json configs. Cap24 reevaluation goes in fresh directories
+and records original source/checkpoint hashes, without overwriting any training
+record. Original classification-only and auxiliary cohorts remain reported.

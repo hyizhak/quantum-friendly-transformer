@@ -1,0 +1,31 @@
+MQAR CAP SENSITIVITY: CAP 24
+
+The user requested cap 24 after the cap 64 and cap 48 evaluations. Fix cap 24
+before training this cohort. Reuse the same MQAR adaptation, initialization
+method, raw random parameter draws, native attention denominator sqrt(64),
+unit-norm LayerNorm, and full training/evaluation protocol. Change only the
+maximum Frobenius cap and the protocol identifier in the run configuration.
+
+All 12 complete Transformer projection matrices have forward-pass learnable
+Frobenius caps: gamma = 24 * sigmoid(g), initialized at 16/17 of the maximum.
+This includes Q/K/V/output and both FFN matrices in each of two blocks. Token
+inputs remain row-normalized; the separate vocabulary readout remains uncapped.
+Effective initial weights may differ from cap 48/64 because clipping is active
+at initialization. Do not change the temperature or rescale away the constraint.
+
+Use the exact same official MQAR tensors: vocabulary 8192; train N=256 with
+16 key-value pairs and 20000 sequences; 1000 validation/test sequences per
+condition; data seeds and all seven test conditions unchanged. Train seeds
+11,22,33 and both native attention and separately trained uniform controls.
+Use 32 epochs (5024 updates), identical AdamW settings, schedule, clipping,
+and within-seed minibatch permutations. Answer-token supervision only.
+Train from scratch; evaluate the fixed final checkpoints. Keep every seed,
+including failed runs, and do not change the protocol in response to test scores.
+
+Retain every prior cohort. This is an exploratory matched cap comparison, not
+a newly untouched confirmatory evaluation. Verify exact data equality and raw
+initial-state hashes against cap64; audit every stored query prediction and
+replay the first batch at each condition for all checkpoints. Report actual
+raw/effective norms, learned gamma, and cap activity. Even if cap24 succeeds,
+these are MQAR adaptation results, not recovery of pretrained SST-2 models or
+an evaluation of the legacy model class. No quantum speedup is measured.

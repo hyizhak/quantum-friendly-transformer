@@ -1,0 +1,28 @@
+CAP24 RECOVERY FOLLOW-UP AT LENGTH8192
+
+The initial train-through-8192 cohort scored69.401+/-0.226% on VALIDATION,
+while the matched cap64 cohort scored100% for all three seeds. Both use the
+same native sqrt(32) attention denominator and the frozen single-query task.
+These validation observations motivate the following four disclosed recipes.
+
+1. cold_long: extend the original cap24 training budget to10000 steps,
+   retaining500 steps at64 and500 at256, then9000 at8192; LR.003, routing1.
+2. warm_route1: initialize from the corresponding seed's trained cap64 model,
+   construct every cap with maximum24 before loading its parameter state,
+   then train6000 updates at8192 with LR.001 and auxiliary routing weight1.
+3. warm_route01: same warm initialization and budget, routing weight0.1.
+4. warm_answer: same warm initialization and budget, routing weight0.
+
+Every recipe uses all three seeds11,22,33. Retain fixed final checkpoints,
+all failed attempts, and the shared validation stream. Keep task generation,
+input norms, normalization, architecture, all six cap24 projections and native
+attention scaling fixed. No test checkpoint selection or adaptive early stop.
+Warm recipes receive the3000-update cap64 parent training as an additional
+training resource; they are constrained fine-tuning experiments, separate
+from the from-scratch cohorts. Parent/checkpoint provenance is retained.
+
+After these recipes finish, select the cap24 recipe by mean8192 validation
+accuracy across ALL THREE seeds; break ties by fewer total training updates.
+Evaluate that fixed recipe and matched controls on the independent final test
+defined in RECALL_8192_CAP24_PROTOCOL.txt. Report actual performance whether
+or not it recovers. Do not change the protocol in response to final-test scores.

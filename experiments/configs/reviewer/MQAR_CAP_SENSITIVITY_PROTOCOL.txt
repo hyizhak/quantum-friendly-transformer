@@ -1,0 +1,29 @@
+MQAR CAP SENSITIVITY: 64 TO 48
+
+This follow-up was requested after the cap64 and ordinary Transformer results.
+Choose cap48 before running this cohort. Change only the maximum Frobenius cap
+from64 to48 in the existing MQAR initialization-follow-up protocol. The model
+remains the MQAR adaptation built from QFT components, not the legacy model class.
+
+Keep d64, two layers, FFN128, fixed unit-norm LayerNorm, native denominator
+sqrt(64), normalized token inputs, uncapped vocabulary readout, and the same
+initialization rescaling. Reducing the cap can change the EFFECTIVE initial
+weights even when the underlying random parameters are identical; disclose this
+as the direct consequence of the requested intervention. Keep the existing
+learnable cap parameterization gamma = cap * sigmoid(g), initialized at16/17
+of its maximum. Do not compensate by changing the attention temperature.
+
+Use the exact same official MQAR data tensors and seeds as mqar_variance_init:
+vocabulary8192, training N256 with16 memory pairs,20000 training sequences,
+1000 validation/test sequences, three seeds11,22,33, both native attention and
+separately trained causal uniform controls. All optimizer settings, minibatch
+orders,32 epochs,5024 updates, and fixed-final checkpoint selection stay the same.
+Use answer labels only. No additional matching-index supervision or tuning.
+Train from scratch under the new cap; do not only clip an old trained checkpoint.
+
+Keep all prior results unchanged. This cap comparison is exploratory and shares
+the earlier test stream for a matched comparison. It is not a newly untouched
+confirmatory test. Report all seeds, every evaluated condition, raw/effective
+matrix norms, learned gamma, and final cap activity. Verify data equality and
+the underlying initial parameter hashes against cap64. Audit every stored query
+prediction and freshly replay the first batch of every condition/checkpoint.

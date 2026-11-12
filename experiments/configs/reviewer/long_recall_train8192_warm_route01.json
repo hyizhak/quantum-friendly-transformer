@@ -1,0 +1,48 @@
+{
+  "dimension": 32,
+  "key_dimension": 16,
+  "ffn_dimension": 64,
+  "cap": 24.0,
+  "seeds": [
+    11,
+    22,
+    33
+  ],
+  "variants": [
+    "native_sqrt_d",
+    "uniform"
+  ],
+  "curriculum": [
+    {
+      "through_step": 6000,
+      "N": 8192
+    }
+  ],
+  "batch_pairs": 32,
+  "steps": 6000,
+  "learning_rate": 0.001,
+  "adam_epsilon": 1e-12,
+  "weight_decay": 0.0001,
+  "log_every": 100,
+  "test_lengths": [
+    256,
+    512,
+    1024,
+    2048,
+    4096,
+    8192
+  ],
+  "test_pairs": 512,
+  "test_batch_pairs": 32,
+  "test_seed": 4930821,
+  "attention_noise_l2": [
+    0.0001,
+    0.01,
+    0.1
+  ],
+  "threads": 4,
+  "routing_auxiliary_weight": 0.1,
+  "protocol": "exploratory_train8192_warm_route01",
+  "evaluation_role": "validation",
+  "warm_start_root": "results/reviewer/long_recall_train8192_cap64"
+}

@@ -1,0 +1,23 @@
+EXPLORATORY INITIALIZATION FOLLOW-UP
+
+Motivation recorded after examining validation and training (not benchmark test
+scores): the original native seed11 finishes32 epochs at0.05% validation accuracy
+and0.035625% training accuracy. Q/K norms grow only from about4.6 to7--8, with
+no active caps. Failure to optimize, rather than an active cap, is plausible.
+Retain all three native and uniform seeds of the original frozen cohort.
+
+Unit-norm LayerNorm vectors are sqrt(d) smaller than ordinary LayerNorm vectors.
+Initialize Q/K and FFN input weights sqrt(d) larger, FFN output weights sqrt(d)
+smaller, and vocabulary readout sqrt(d) larger than the original initialization.
+All forward-pass norm caps remain64, native temperature remains sqrt(d), and
+fixed unit-norm normalization remains unchanged. This restores the initial
+attention/FFN scales of a corresponding ordinary post-LN Transformer when caps
+are inactive. It does not claim identical optimizer trajectories. Train all
+three seeds and both variants, keeping all other architecture, training data,
+optimizer settings and32-epoch budgets fixed. No index supervision is added.
+
+Fix fresh test seed891107 before training this follow-up. Training and validation
+seeds remain the same as the original cohort. Use fixed final checkpoints.
+This is an exploratory protocol prompted by earlier validation failure, not a
+confirmatory test of an unselected training recipe. Report both full cohorts.
+No changes are made to the frozen original training/model sources.

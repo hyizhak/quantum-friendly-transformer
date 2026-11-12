@@ -50,7 +50,8 @@ that needs no downloads is available at `examples/library_quickstart.py`.
 | `src/quantum_friendly_transformer/` | Distributable library and compatibility entrypoints |
 | `src/quantum_friendly_transformer/experiments/` | Packaged NLP research runners, configs, and reporting |
 | `src/quantum_friendly_transformer/evidence/` | Evidence API, checksummed catalog, and bundled records/tables |
-| `experiments/runners/` and `experiments/configs/` | Compatibility scripts and original recipes in `runners/legacy/` |
+| `experiments/lib/`, `experiments/runners/`, and `experiments/configs/` | Source-checkout reviewer experiments, compatibility scripts, and original recipes in `runners/legacy/` |
+| `experiments/vendor/zoology/` | Pinned MQAR data generator, upstream provenance, and license |
 | `alpha_s/`, `alpha_w/`, `results/` | Analysis scripts and reported artifacts |
 | `tests/` | CPU unit tests and research-runner tests |
 
@@ -69,6 +70,15 @@ qft-experiment recovery.dispatcher --config recovery/tinystories_sst2_fn24_bound
 
 The dispatcher prints commands unless `--execute` is supplied. Bundled evidence
 works without downloading models or running training.
+
+The later reviewer experiments cover long-context paired recall, MQAR with
+ordinary Transformer and capped/uniform baselines, and cap24 recovery with
+training through length 8192. Their code, fixed configurations, protocols,
+auditors, and tests are versioned in this repository and run from a source
+checkout. Start with the [reviewer experiment map](experiments/README.md#reviewer-experiment-map)
+and [reviewer code guide](docs/reviewer_code.txt). Generated runs and checkpoints
+use the separate [release workflow](docs/reviewer_release.txt); the historical
+wheel evidence remains a separate snapshot.
 
 ## Conda setup
 
