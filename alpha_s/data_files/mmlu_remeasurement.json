@@ -1,0 +1,590 @@
+{
+  "created_at_utc": "2026-11-12T14:33:07.904990+00:00",
+  "dataset": {
+    "repository": "cais/mmlu",
+    "revision": "c30699e8356da336a370243923dbaf21066bb9fe",
+    "split": "validation",
+    "subject_order": "alphabetical",
+    "rows": 1531,
+    "questions_sha256": "a1f56d9242722a1ab846c2d1922c9d9e43c6aac159309d571efc58c814bca1f0",
+    "subjects": [
+      {
+        "subject": "abstract_algebra",
+        "rows": 11
+      },
+      {
+        "subject": "anatomy",
+        "rows": 14
+      },
+      {
+        "subject": "astronomy",
+        "rows": 16
+      },
+      {
+        "subject": "business_ethics",
+        "rows": 11
+      },
+      {
+        "subject": "clinical_knowledge",
+        "rows": 29
+      },
+      {
+        "subject": "college_biology",
+        "rows": 16
+      },
+      {
+        "subject": "college_chemistry",
+        "rows": 8
+      },
+      {
+        "subject": "college_computer_science",
+        "rows": 11
+      },
+      {
+        "subject": "college_mathematics",
+        "rows": 11
+      },
+      {
+        "subject": "college_medicine",
+        "rows": 22
+      },
+      {
+        "subject": "college_physics",
+        "rows": 11
+      },
+      {
+        "subject": "computer_security",
+        "rows": 11
+      },
+      {
+        "subject": "conceptual_physics",
+        "rows": 26
+      },
+      {
+        "subject": "econometrics",
+        "rows": 12
+      },
+      {
+        "subject": "electrical_engineering",
+        "rows": 16
+      },
+      {
+        "subject": "elementary_mathematics",
+        "rows": 41
+      },
+      {
+        "subject": "formal_logic",
+        "rows": 14
+      },
+      {
+        "subject": "global_facts",
+        "rows": 10
+      },
+      {
+        "subject": "high_school_biology",
+        "rows": 32
+      },
+      {
+        "subject": "high_school_chemistry",
+        "rows": 22
+      },
+      {
+        "subject": "high_school_computer_science",
+        "rows": 9
+      },
+      {
+        "subject": "high_school_european_history",
+        "rows": 18
+      },
+      {
+        "subject": "high_school_geography",
+        "rows": 22
+      },
+      {
+        "subject": "high_school_government_and_politics",
+        "rows": 21
+      },
+      {
+        "subject": "high_school_macroeconomics",
+        "rows": 43
+      },
+      {
+        "subject": "high_school_mathematics",
+        "rows": 29
+      },
+      {
+        "subject": "high_school_microeconomics",
+        "rows": 26
+      },
+      {
+        "subject": "high_school_physics",
+        "rows": 17
+      },
+      {
+        "subject": "high_school_psychology",
+        "rows": 60
+      },
+      {
+        "subject": "high_school_statistics",
+        "rows": 23
+      },
+      {
+        "subject": "high_school_us_history",
+        "rows": 22
+      },
+      {
+        "subject": "high_school_world_history",
+        "rows": 26
+      },
+      {
+        "subject": "human_aging",
+        "rows": 23
+      },
+      {
+        "subject": "human_sexuality",
+        "rows": 12
+      },
+      {
+        "subject": "international_law",
+        "rows": 13
+      },
+      {
+        "subject": "jurisprudence",
+        "rows": 11
+      },
+      {
+        "subject": "logical_fallacies",
+        "rows": 18
+      },
+      {
+        "subject": "machine_learning",
+        "rows": 11
+      },
+      {
+        "subject": "management",
+        "rows": 11
+      },
+      {
+        "subject": "marketing",
+        "rows": 25
+      },
+      {
+        "subject": "medical_genetics",
+        "rows": 11
+      },
+      {
+        "subject": "miscellaneous",
+        "rows": 86
+      },
+      {
+        "subject": "moral_disputes",
+        "rows": 38
+      },
+      {
+        "subject": "moral_scenarios",
+        "rows": 100
+      },
+      {
+        "subject": "nutrition",
+        "rows": 33
+      },
+      {
+        "subject": "philosophy",
+        "rows": 34
+      },
+      {
+        "subject": "prehistory",
+        "rows": 35
+      },
+      {
+        "subject": "professional_accounting",
+        "rows": 31
+      },
+      {
+        "subject": "professional_law",
+        "rows": 170
+      },
+      {
+        "subject": "professional_medicine",
+        "rows": 31
+      },
+      {
+        "subject": "professional_psychology",
+        "rows": 69
+      },
+      {
+        "subject": "public_relations",
+        "rows": 12
+      },
+      {
+        "subject": "security_studies",
+        "rows": 27
+      },
+      {
+        "subject": "sociology",
+        "rows": 22
+      },
+      {
+        "subject": "us_foreign_policy",
+        "rows": 11
+      },
+      {
+        "subject": "virology",
+        "rows": 18
+      },
+      {
+        "subject": "world_religions",
+        "rows": 19
+      }
+    ],
+    "questions_file": "mmlu_validation_questions.json"
+  },
+  "method": {
+    "batch_size": 1,
+    "padding": "excluded by attention_mask",
+    "spectral_norm": "exact NumPy SVD, compute_uv=False, float64",
+    "model_dtype": "float32",
+    "norm_dtype": "float64",
+    "seed": 0,
+    "measured_hidden_states": [
+      0,
+      1
+    ],
+    "first_layer_definition": "hidden_states[1], the output of the first transformer layer before any final model normalization",
+    "length_definition": "Count of nonpadding tokens after the per-model truncation limit; see models[*].max_length.",
+    "model_execution": "First two decoder layers for Llama/Mistral; full model for the other five models."
+  },
+  "versions": {
+    "torch": "2.9.0",
+    "transformers": "4.57.6",
+    "numpy": "2.5.4",
+    "tokenizers": "0.22.2",
+    "huggingface-hub": "0.36.0"
+  },
+  "hardware": "NVIDIA A100-SXM4-40GB",
+  "measurement_source_sha256": "3eb0ffd6ba5bbc3fc7b5ffebf01a482bb048293d48aab16475254b6963ea76ed",
+  "models": {
+    "tinyllama": {
+      "repository": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 2200119864,
+          "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+        }
+      ],
+      "rows": 1531,
+      "token_lengths_match_original": true,
+      "original_data_sha256": "57247fdd7fec88c2173fac8115a6795f5e04834413ebd1b43907e398dc522a82",
+      "corrected_data_sha256": "71cdbb35bab73b712c41aae85f1ae8176ecc329ee26a06a7bdac22b3e3053439",
+      "original_spectral_gt_fro_rows": 365,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.6753652964983684,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 1.7726447731902795e-07
+      },
+      "seconds": 37.207007164135575,
+      "max_length": -1,
+      "loaded_decoder_layers": 2,
+      "truncated_rows": 0,
+      "weight_sha256_verified": true
+    },
+    "mistral7b": {
+      "repository": "mistralai/Mistral-7B-v0.1",
+      "revision": "26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+      "weight_files": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 9942981696,
+          "sha256": "9742cb4764964155b7a5f35eefad651f590006091ddeb536863d6c5865cca1b9"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 4540516344,
+          "sha256": "9bcf56354ec0c68b5f8e97b4f3b02d16af899a65b0868d6dba5a51c1b30f01cb"
+        }
+      ],
+      "tokenizer_note": "Pre-July-2024 tokenizer; all 1531 token lengths match the original archived rows.",
+      "rows": 1531,
+      "token_lengths_match_original": true,
+      "original_data_sha256": "a8778344c51422fb663a66e15d0517a622e9b3afaa29c5bf1699690a3f48ee6e",
+      "corrected_data_sha256": "f65635bd8bade00824485b0f6ed0c2b83f01234bc2ae679b9a3f82bf90b3acd7",
+      "original_spectral_gt_fro_rows": 378,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.6047614782801969,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 2.1073430972684548e-05
+      },
+      "seconds": 71.67965635284781,
+      "max_length": -1,
+      "loaded_decoder_layers": 2,
+      "truncated_rows": 0,
+      "weight_sha256_verified": true
+    },
+    "llama2-7b": {
+      "repository": "NousResearch/Llama-2-7b-chat-hf",
+      "revision": "351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+      "weight_files": [
+        {
+          "file": "model-00001-of-00002.safetensors",
+          "bytes": 9976576152,
+          "sha256": "66dec18c9f1705b9387d62f8485f4e7d871ca388718786737ed3c72dbfaac9fb"
+        },
+        {
+          "file": "model-00002-of-00002.safetensors",
+          "bytes": 3500296424,
+          "sha256": "0fd6895090da1b2ccffdb93964847709a3b31e6b69fe7dc5a480dce37c811b1d"
+        }
+      ],
+      "rows": 1531,
+      "token_lengths_match_original": true,
+      "original_data_sha256": "fb7b936750c79d39955ece141297d6ce416038a8f98c844b22c6fe8cf5114b64",
+      "corrected_data_sha256": "206653dcaab5ded0cf0d67ce64d6d195a584541ac17a989577dbca910b52bc1a",
+      "original_spectral_gt_fro_rows": 175,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.6146647453027889,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 3.385628685848019e-06
+      },
+      "seconds": 76.51668981648982,
+      "max_length": -1,
+      "loaded_decoder_layers": 2,
+      "truncated_rows": 0,
+      "weight_sha256_verified": true
+    },
+    "bert": {
+      "repository": "google-bert/bert-base-uncased",
+      "revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 440449768,
+          "sha256": "68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3"
+        }
+      ],
+      "rows": 1531,
+      "tokenizer_lengths_match_original": true,
+      "max_length": 512,
+      "truncated_rows": 4,
+      "loaded_decoder_layers": null,
+      "original_data_sha256": "f027829782f6b9f5a92edb468b0e8bace6321714493d38e771d1fbc2df1ee11d",
+      "corrected_data_sha256": "92f66413436453d34098b80c5f883f5371dd34714225ff2d5dc3e88de2898880",
+      "original_spectral_gt_fro_rows": 0,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.8192607251196958,
+      "weight_sha256_verified": true,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 1.5527720762520403e-06
+      },
+      "seconds": 29.958395078778267
+    },
+    "roberta": {
+      "repository": "FacebookAI/roberta-base",
+      "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 498818054,
+          "sha256": "5bde1d28afb363d0103324efeb5afc8b2b397fe5e04beabb9b1ef355255ade81"
+        }
+      ],
+      "rows": 1531,
+      "tokenizer_lengths_match_original": true,
+      "max_length": 512,
+      "truncated_rows": 4,
+      "loaded_decoder_layers": null,
+      "original_data_sha256": "66db2f5cfc8aaa573438e4ebfc87c35d69f6ef18516488e278c0ecddc9589698",
+      "corrected_data_sha256": "604a1d8d3a6cd762803e9c942a6625c9192e6f786c968910f277e0c7732a232f",
+      "original_spectral_gt_fro_rows": 0,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.6447368579638426,
+      "weight_sha256_verified": true,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 2.0119052948075478e-06
+      },
+      "seconds": 30.18690624833107
+    },
+    "distilgpt": {
+      "repository": "distilbert/distilgpt2",
+      "revision": "2290a62682d06624634c1f46a6ad5be0f47f38aa",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 352824413,
+          "sha256": "e1ff18884359fe8beb795a5f414feb85a6ce3d929ad019c0d958c039d2b94a1b"
+        }
+      ],
+      "rows": 1531,
+      "tokenizer_lengths_match_original": true,
+      "max_length": 512,
+      "truncated_rows": 3,
+      "loaded_decoder_layers": null,
+      "original_data_sha256": "ff32ef31f4169b633d0e808af8c842c2f512640b576f124dd15ee30576b33677",
+      "corrected_data_sha256": "a70cd10213bc3ef5d69be9c680e29214b229103dc9f9f8c08b0c98ca5500711d",
+      "original_spectral_gt_fro_rows": 0,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.8993093513910357,
+      "weight_sha256_verified": true,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 0.0
+      },
+      "seconds": 26.62102221697569
+    },
+    "gpt2": {
+      "repository": "openai-community/gpt2",
+      "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 548105171,
+          "sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707"
+        }
+      ],
+      "rows": 1531,
+      "tokenizer_lengths_match_original": true,
+      "max_length": 512,
+      "truncated_rows": 3,
+      "loaded_decoder_layers": null,
+      "original_data_sha256": "33bce5463bf1d026da613ed72fc32264007ed6a7a0b3db0e2790e9072a9cc0d9",
+      "corrected_data_sha256": "a07a4e0293acb97565b87755790b454c3a4ae006d30332476ea7377b6492c02f",
+      "original_spectral_gt_fro_rows": 0,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.8995351743832355,
+      "weight_sha256_verified": true,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 0.0
+      },
+      "seconds": 29.415453858673573
+    },
+    "gpt": {
+      "repository": "openai-community/openai-gpt",
+      "revision": "1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+      "weight_files": [
+        {
+          "file": "model.safetensors",
+          "bytes": 478736214,
+          "sha256": "25c82cdf1844d2d93e9120b3b628fc6c2b4fcc7801a1297f58465ba67d45deb3"
+        }
+      ],
+      "rows": 1531,
+      "tokenizer_lengths_match_original": true,
+      "max_length": 512,
+      "truncated_rows": 4,
+      "loaded_decoder_layers": null,
+      "original_data_sha256": "3f79e0bf7a15d8aae4ceb19ad933510e41eba62768e3809443ccdb092f66761d",
+      "corrected_data_sha256": "e55580146cf47000fa380dd6e0fa1481054848ba6362be1e9cebdfe2ed7c2cb0",
+      "original_spectral_gt_fro_rows": 0,
+      "corrected_spectral_gt_fro_rows": 0,
+      "max_spectral_over_fro": 0.8477474406323057,
+      "weight_sha256_verified": true,
+      "real_batch_check": {
+        "samples": 9,
+        "batch_sizes": [
+          1,
+          4
+        ],
+        "passed": true,
+        "max_embedding_norm_difference": 0.0,
+        "max_first_layer_norm_difference": 0.0
+      },
+      "seconds": 31.980510391294956
+    }
+  },
+  "llama2_mirror_verification": {
+    "original_repository": "meta-llama/Llama-2-7b-chat-hf",
+    "original_revision": "f5db02db724555f92da89c216ac04704f23d4590",
+    "mirror_repository": "NousResearch/Llama-2-7b-chat-hf",
+    "both_weight_files_match_original_sha256": true,
+    "tokenizer_model_sha256": "9e556afd44213b6bd1be2b850ebbbd98f5481437a8021afaf58ee7fb1818d347"
+  },
+  "validation": {
+    "models": 8,
+    "samples_per_model": 1531,
+    "total_rows": 12248,
+    "all_values_finite": true,
+    "spectral_gt_fro_rows": 0,
+    "real_batch_sizes_checked": [
+      1,
+      4
+    ],
+    "samples_checked_per_model": 9,
+    "regression_tests_passed": 40
+  },
+  "figures": {
+    "images/MMLU_fro_1.pdf": "b465c7deb65c864890e3ebaf5e076a0401f2b63a15b46680214a1c46db186063",
+    "images/MMLU_fro_2.pdf": "b627ba9cac9b5cff480993ba7fb67b126244484992d71023f5d9adf5042c4120",
+    "images/MMLU_fro_3.pdf": "5e27d35d47c90f107cec89cb1ac7c93f324f5ee089a804cbf984869eead17c54",
+    "images/MMLU_spec_1.pdf": "b264576b995ee86149fe1634ccda940bd144f1f6c1526dfd9e79ea0af96b15ae",
+    "images/MMLU_spec_2.pdf": "26cddf806fe5247952422df9f18acbf83aa9371df9bfe418c68116ab79031d8d",
+    "images/MMLU_spec_3.pdf": "a859204a6e7fa35337d042bfd5b49483a9e50400eafffaf268f1ab724c925fe9",
+    "images/MMLU.pdf": "72631a2288e9ce827172c72da971ed152e77b28975039bb6da14051048c5c3f9"
+  },
+  "plot_source_sha256": "823a0e33c807b9eb33c4514a4921908e5329a6e2e3b59d100116c15983cec4c2",
+  "previous_render": {
+    "figures": {
+      "images/MMLU_fro_1.pdf": "26f7e4778d45a5484124ea446f673e28a227b684643ab910d7886e7040cf1ccb",
+      "images/MMLU_fro_2.pdf": "89e4a2223d5a12c9580b9d385352933089c4854947e6ff84539d87a4551a09d6",
+      "images/MMLU_fro_3.pdf": "e3ffdbac4040eb1c48efd130ce21dbcf58b9a9f62b91fa27f100ac6dbbe31a1e",
+      "images/MMLU_spec_1.pdf": "c183e0cd8cee006c2eb4290b7d4f9b41920f47b33daa3a95a5469ef10a49fcb3",
+      "images/MMLU_spec_2.pdf": "b18fd330bddf55fc21e0ec2968c4f5d23378f8d5b6a5066cb2850afff5ac8a15",
+      "images/MMLU_spec_3.pdf": "062548419544e8ef4470af60a13af93559b21fd590f984effda32ff90df03a98",
+      "images/MMLU.pdf": "d0b691ba57ecaf092d135ec3a1e6e84a3441a2976720a2b9a2e9a914d50453c1"
+    },
+    "plot_source_sha256": "58fe54b6b988aab81e31244fdc0dd5bf2a4093a4dc62954be54e26b97b25a544"
+  },
+  "later_audit": {
+    "date": "2026-11-12",
+    "note": "The original eight remeasured MMLU arrays were not changed. All plots were rendered again with token-count axis labels. The recorded measurement_source_sha256 remains the hash at measurement time; later script changes add random reproducibility, stricter validation and BART encoder support.",
+    "current_measurement_source_sha256": "a5471e93e4d635bb431f847aa02b460ee594dc0794c85913de8684574b79644c"
+  }
+}

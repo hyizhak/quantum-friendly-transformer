@@ -1,0 +1,51 @@
+{
+  "protocol_version": 1,
+  "seeds": [42, 3407, 2023, 2024, 2025],
+  "datasets": ["genomic", "gue", "conll"],
+  "precision": "bfloat16 autocast with float32 parameters and optimizer; float32 evaluation",
+  "deterministic_algorithms": true,
+  "tf32": false,
+  "test_policy": "Evaluate only after every planned run has selected and locked its checkpoint using validation.",
+  "initialization": "Within each seed, all single-layer variants copy the same raw initial weights; multilayer variants copy the same pretrained backbone and initialized classifier. Fixed unit LayerNorm affine buffers intentionally differ.",
+  "sampling": "Each epoch has a fixed independent permutation, shared by variants within a dataset and seed.",
+  "fine_tune_parent": "Validation-selected corrected vanilla checkpoint from the same seed; no historical buggy checkpoint is reused.",
+  "selection": "Highest validation metric after a completed epoch; first epoch wins ties; epoch zero is diagnostic only.",
+  "data": "Preserve all official test rows. Remove exact/reverse-complement/effective-token duplicates from lower-priority splits; genomic validation is 10% of training groups with split seed 20261112.",
+  "protocol_changes_from_legacy": [
+    "Five paired seeds instead of one; report every seed and mean/sample standard deviation.",
+    "Genomic validation comes from training; entire official test set remains held out.",
+    "Train/development overlap with held-out inputs is removed without consulting labels.",
+    "Raw initialization and epoch sampling are paired across variants.",
+    "BF16 replaces FP16 autocast to reduce overflow; evaluation is FP32.",
+    "SN fine-tuning starts from validation-selected vanilla, not a fixed historical epoch.",
+    "Deterministic execution, checkpoint source/data hashes, per-example predictions, and resumable optimizer/RNG state are recorded."
+  ],
+  "single": {
+    "variants": ["vanilla", "sn", "fn"],
+    "batch_size": 32,
+    "eval_batch_size": 64,
+    "weight_decay": 0.001,
+    "scheduler": "epoch cosine",
+    "gradient_clip": null,
+    "genomic": {"epochs": 100, "lr": 0.0008, "patience": null, "metric": "f1"},
+    "gue": {"epochs": 200, "lr": 0.00001, "patience": 25, "metric": "accuracy"},
+    "conll": {"epochs": 200, "lr": 0.00001, "patience": 25, "metric": "accuracy"}
+  },
+  "fine_tune": {
+    "variants": ["sn_attention", "sn_ffn"],
+    "epochs": 200, "lr": 0.00001, "weight_decay": 0.001,
+    "batch_size": 32, "eval_batch_size": 64, "patience": 25,
+    "metric": "accuracy", "scheduler": "epoch cosine", "gradient_clip": null
+  },
+  "multilayer": {
+    "datasets": ["genomic", "gue"],
+    "variants": ["vanilla", "fn", "subnorm"],
+    "epochs": 200, "lr": 0.0002, "weight_decay": 0.01,
+    "batch_size": 128, "eval_batch_size": 256, "patience": null,
+    "metric": "accuracy", "scheduler": "step cosine", "warmup_ratio": 0.1,
+    "gradient_clip": 1.0,
+    "genomic_fn_max_gamma": null, "gue_fn_max_gamma": 2,
+    "subnorm_max_gamma": 1,
+    "interpretation": "Reproduce the historical architecture comparison: normalized variants also use fixed unit LayerNorm, residual scaling and QK multiplication by sqrt(head_dim). This does not isolate weight normalization or establish performance under the theorem's attention scaling."
+  }
+}

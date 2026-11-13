@@ -186,20 +186,32 @@ def spectral_norm_power_iteration(torch, weight, iters: int = 2):
 
 
 def project_model_weights(model, kind: str, tau: float) -> int:
+    """Project onto the requested norm ball using the actual matrix norm.
+
+    A few power iterations only give a lower estimate of the spectral norm;
+    using that estimate as a cap can leave weights outside the requested ball.
+    """
     import torch
+    import math
 
     if kind not in {"sn", "fn"}:
         return 0
+    if not math.isfinite(tau) or tau <= 0:
+        raise ValueError("tau must be positive and finite")
     projected = 0
     with torch.no_grad():
-        for _, param in target_weight_parameters(model):
-            weight = param.data.float()
+        for name, param in target_weight_parameters(model):
+            weight = param.detach()
+            if weight.dtype in (torch.float16, torch.bfloat16):
+                weight = weight.float()
             if kind == "fn":
                 norm = torch.linalg.vector_norm(weight)
             else:
-                norm = spectral_norm_power_iteration(torch, weight, iters=2)
-            if torch.isfinite(norm) and norm.item() > tau:
-                param.data.mul_(float(tau / norm.item()))
+                norm = torch.linalg.matrix_norm(weight, ord=2)
+            if not torch.isfinite(norm):
+                raise ValueError(f"Nonfinite weight norm: {name}")
+            if norm.item() > tau:
+                param.mul_(float(tau / norm.item()))
                 projected += 1
     return projected
 

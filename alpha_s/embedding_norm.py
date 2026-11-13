@@ -1,72 +1,48 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-# from datasets import load_dataset
-import torch
+"""Plot raw input-token embedding norms from a pinned local checkpoint."""
+
+import argparse
+from pathlib import Path
+
 import matplotlib.pyplot as plt
-import numpy as np
-import os
+import torch
+from safetensors import safe_open
 
 
-# Specify the model checkpoint for Llama2
-model_name = "meta-llama/Llama-2-7b-chat-hf"
+EMBEDDING_KEYS = ('model.embed_tokens.weight', 'transformer.wte.weight', 'wte.weight',
+                  'transformer.tokens_embed.weight', 'tokens_embed.weight',
+                  'bert.embeddings.word_embeddings.weight', 'roberta.embeddings.word_embeddings.weight')
 
-# model_name = "meta-llama/Llama-3.2-11B-Vision"
 
-# model_name = "Qwen/Qwen2.5-14B-Instruct"
+def plot_embedding_norms(snapshot, output, *, model_label):
+    candidates = []
+    for path in Path(snapshot).glob('*.safetensors'):
+        with safe_open(str(path), framework='pt', device='cpu') as reader:
+            for key in EMBEDDING_KEYS:
+                if key in reader.keys():
+                    values = torch.linalg.vector_norm(reader.get_tensor(key).double(), dim=1).numpy()
+                    candidates.append((key, values))
+    if len(candidates) != 1:
+        raise ValueError('Expected exactly one supported input embedding table')
+    _, values = candidates[0]
+    fig, ax = plt.subplots(figsize=(8, 5))
+    ax.hist(values, bins=30, edgecolor='black')
+    ax.set(xlabel=r'Token embedding $\ell_2$ norm', ylabel='Number of vocabulary entries',
+           title=f'{model_label}: raw input embedding table')
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(output)
+    return fig
 
-# model_name = "google/gemma-3-4b-it"
 
-# model_name = "microsoft/phi-4"
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--snapshot', type=Path, required=True)
+    parser.add_argument('--model-label', required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    plot_embedding_norms(args.snapshot, args.output, model_label=args.model_label)
 
-# model_name = "openai-community/gpt2-xl"
 
-# # Load the tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
-
-# conll03 = load_dataset("eriktks/conll2003")
-
-# label_list = conll03["train"].features["pos_tags"].feature.names
-
-# model = SpectrallyNormalizedTransformerForTokenClassification(
-#     d_model=4096, nhead=32, d_ff=4*4096, num_emb=tokenizer.vocab_size, max_seq_len=64, num_classes=len(label_list),
-#     apply_embedding_sn=False,
-#     apply_attention_sn=True,
-#     apply_ffn_sn=False,
-# )
-
-# model.load_state_dict(torch.load(".../model/conll03/vanilla_epoch_20.pth"), strict=False)
-
-print(model)
-
-# Retrieve the input embeddings.
-# embedding_layer = model.transformer.get_input_embeddings()
-embedding_layer = model.get_input_embeddings()
-embeddings = embedding_layer.weight  # Shape: [vocab_size, embedding_dim]
-print(f"Embedding matrix shape: {embeddings.shape}")
-
-# Compute the L2 norm of each token's embedding vector.
-l2_norms = torch.norm(embeddings, dim=1).detach().cpu().numpy()
-print(f"norm shape: {l2_norms.shape}")
-
-# Compute the histogram for the L2 norms.
-num_bins = 30
-counts, bin_edges = np.histogram(l2_norms, bins=num_bins)
-
-# Compute the bin centers to align the bars with their corresponding value ranges.
-bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-
-# Plot the frequency bar chart (histogram)
-plt.figure(figsize=(10, 6))
-plt.bar(bin_centers, counts, width=bin_edges[1]-bin_edges[0], edgecolor='black')
-
-plt.xlabel(r"$\ell_2$ Norm of Token Embeddings", fontsize=14)
-plt.ylabel("Frequency (Number of Tokens)", fontsize=14)
-plt.title(r"Histogram of $\ell_2$ Norms of Llama-2-$7b$ Token Embeddings", fontsize=14)
-
-# Set the tick font sizes as well
-plt.xticks(fontsize=14)
-plt.yticks(fontsize=14)
-
-plt.xlim(0, 2)
-plt.savefig("./images/emb_histogram_llama_2_7b_4096.pdf")
-plt.show()
+if __name__ == '__main__':
+    main()

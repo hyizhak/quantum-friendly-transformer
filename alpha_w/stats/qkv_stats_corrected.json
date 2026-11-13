@@ -1,0 +1,6389 @@
+{
+  "matrix_convention": "S @ W; Linear weights transposed; GPT Conv1D weights unchanged",
+  "method": "float64 column L2 norms; pooled across Q/K/V and all layers; sample variance (ddof=1)",
+  "gqa_weighting": "one observation per actual output column; fewer K/V columns for grouped-query attention",
+  "models": {
+    "gpt2": {
+      "source": {
+        "repository": "openai-community/gpt2",
+        "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2/snapshots/607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 548105171,
+            "sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "h.0",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.0.attn.c_attn.weight",
+            "k": "h.0.attn.c_attn.weight",
+            "v": "h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.1",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.1.attn.c_attn.weight",
+            "k": "h.1.attn.c_attn.weight",
+            "v": "h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.2",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.2.attn.c_attn.weight",
+            "k": "h.2.attn.c_attn.weight",
+            "v": "h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.3",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.3.attn.c_attn.weight",
+            "k": "h.3.attn.c_attn.weight",
+            "v": "h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.4",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.4.attn.c_attn.weight",
+            "k": "h.4.attn.c_attn.weight",
+            "v": "h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.5",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.5.attn.c_attn.weight",
+            "k": "h.5.attn.c_attn.weight",
+            "v": "h.5.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.6",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.6.attn.c_attn.weight",
+            "k": "h.6.attn.c_attn.weight",
+            "v": "h.6.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.7",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.7.attn.c_attn.weight",
+            "k": "h.7.attn.c_attn.weight",
+            "v": "h.7.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.8",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.8.attn.c_attn.weight",
+            "k": "h.8.attn.c_attn.weight",
+            "v": "h.8.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.9",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.9.attn.c_attn.weight",
+            "k": "h.9.attn.c_attn.weight",
+            "v": "h.9.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.10",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.10.attn.c_attn.weight",
+            "k": "h.10.attn.c_attn.weight",
+            "v": "h.10.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.11",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.11.attn.c_attn.weight",
+            "k": "h.11.attn.c_attn.weight",
+            "v": "h.11.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "gpt2-medium": {
+      "source": {
+        "repository": "openai-community/gpt2-medium",
+        "revision": "6dcaa7a952f72f9298047fd5137cd6e4f05f41da",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2-medium/snapshots/6dcaa7a952f72f9298047fd5137cd6e4f05f41da",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 1519984962,
+            "sha256": "fc5a354a19255ad494f3d71549390baca1ccf61d1d822b9408971705c687c9cd"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "h.0",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.0.attn.c_attn.weight",
+            "k": "h.0.attn.c_attn.weight",
+            "v": "h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.1",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.1.attn.c_attn.weight",
+            "k": "h.1.attn.c_attn.weight",
+            "v": "h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.2",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.2.attn.c_attn.weight",
+            "k": "h.2.attn.c_attn.weight",
+            "v": "h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.3",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.3.attn.c_attn.weight",
+            "k": "h.3.attn.c_attn.weight",
+            "v": "h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.4",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.4.attn.c_attn.weight",
+            "k": "h.4.attn.c_attn.weight",
+            "v": "h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.5",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.5.attn.c_attn.weight",
+            "k": "h.5.attn.c_attn.weight",
+            "v": "h.5.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.6",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.6.attn.c_attn.weight",
+            "k": "h.6.attn.c_attn.weight",
+            "v": "h.6.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.7",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.7.attn.c_attn.weight",
+            "k": "h.7.attn.c_attn.weight",
+            "v": "h.7.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.8",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.8.attn.c_attn.weight",
+            "k": "h.8.attn.c_attn.weight",
+            "v": "h.8.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.9",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.9.attn.c_attn.weight",
+            "k": "h.9.attn.c_attn.weight",
+            "v": "h.9.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.10",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.10.attn.c_attn.weight",
+            "k": "h.10.attn.c_attn.weight",
+            "v": "h.10.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.11",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.11.attn.c_attn.weight",
+            "k": "h.11.attn.c_attn.weight",
+            "v": "h.11.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.12",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.12.attn.c_attn.weight",
+            "k": "h.12.attn.c_attn.weight",
+            "v": "h.12.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.13",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.13.attn.c_attn.weight",
+            "k": "h.13.attn.c_attn.weight",
+            "v": "h.13.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.14",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.14.attn.c_attn.weight",
+            "k": "h.14.attn.c_attn.weight",
+            "v": "h.14.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.15",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.15.attn.c_attn.weight",
+            "k": "h.15.attn.c_attn.weight",
+            "v": "h.15.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.16",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.16.attn.c_attn.weight",
+            "k": "h.16.attn.c_attn.weight",
+            "v": "h.16.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.17",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.17.attn.c_attn.weight",
+            "k": "h.17.attn.c_attn.weight",
+            "v": "h.17.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.18",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.18.attn.c_attn.weight",
+            "k": "h.18.attn.c_attn.weight",
+            "v": "h.18.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.19",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.19.attn.c_attn.weight",
+            "k": "h.19.attn.c_attn.weight",
+            "v": "h.19.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.20",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.20.attn.c_attn.weight",
+            "k": "h.20.attn.c_attn.weight",
+            "v": "h.20.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.21",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.21.attn.c_attn.weight",
+            "k": "h.21.attn.c_attn.weight",
+            "v": "h.21.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.22",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.22.attn.c_attn.weight",
+            "k": "h.22.attn.c_attn.weight",
+            "v": "h.22.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.23",
+          "shapes": {
+            "q": [
+              1024,
+              1024
+            ],
+            "k": [
+              1024,
+              1024
+            ],
+            "v": [
+              1024,
+              1024
+            ]
+          },
+          "source_keys": {
+            "q": "h.23.attn.c_attn.weight",
+            "k": "h.23.attn.c_attn.weight",
+            "v": "h.23.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "gpt2-large": {
+      "source": {
+        "repository": "openai-community/gpt2-large",
+        "revision": "32b71b12589c2f8d625668d2335a01cac3249519",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2-large/snapshots/32b71b12589c2f8d625668d2335a01cac3249519",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 3247159078,
+            "sha256": "5f47f3e12f91cd33b662ce7e433b6150ad5512b5884a2cee961b50e9c3bbebce"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "h.0",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.0.attn.c_attn.weight",
+            "k": "h.0.attn.c_attn.weight",
+            "v": "h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.1",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.1.attn.c_attn.weight",
+            "k": "h.1.attn.c_attn.weight",
+            "v": "h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.2",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.2.attn.c_attn.weight",
+            "k": "h.2.attn.c_attn.weight",
+            "v": "h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.3",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.3.attn.c_attn.weight",
+            "k": "h.3.attn.c_attn.weight",
+            "v": "h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.4",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.4.attn.c_attn.weight",
+            "k": "h.4.attn.c_attn.weight",
+            "v": "h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.5",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.5.attn.c_attn.weight",
+            "k": "h.5.attn.c_attn.weight",
+            "v": "h.5.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.6",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.6.attn.c_attn.weight",
+            "k": "h.6.attn.c_attn.weight",
+            "v": "h.6.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.7",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.7.attn.c_attn.weight",
+            "k": "h.7.attn.c_attn.weight",
+            "v": "h.7.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.8",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.8.attn.c_attn.weight",
+            "k": "h.8.attn.c_attn.weight",
+            "v": "h.8.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.9",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.9.attn.c_attn.weight",
+            "k": "h.9.attn.c_attn.weight",
+            "v": "h.9.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.10",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.10.attn.c_attn.weight",
+            "k": "h.10.attn.c_attn.weight",
+            "v": "h.10.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.11",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.11.attn.c_attn.weight",
+            "k": "h.11.attn.c_attn.weight",
+            "v": "h.11.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.12",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.12.attn.c_attn.weight",
+            "k": "h.12.attn.c_attn.weight",
+            "v": "h.12.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.13",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.13.attn.c_attn.weight",
+            "k": "h.13.attn.c_attn.weight",
+            "v": "h.13.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.14",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.14.attn.c_attn.weight",
+            "k": "h.14.attn.c_attn.weight",
+            "v": "h.14.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.15",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.15.attn.c_attn.weight",
+            "k": "h.15.attn.c_attn.weight",
+            "v": "h.15.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.16",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.16.attn.c_attn.weight",
+            "k": "h.16.attn.c_attn.weight",
+            "v": "h.16.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.17",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.17.attn.c_attn.weight",
+            "k": "h.17.attn.c_attn.weight",
+            "v": "h.17.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.18",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.18.attn.c_attn.weight",
+            "k": "h.18.attn.c_attn.weight",
+            "v": "h.18.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.19",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.19.attn.c_attn.weight",
+            "k": "h.19.attn.c_attn.weight",
+            "v": "h.19.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.20",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.20.attn.c_attn.weight",
+            "k": "h.20.attn.c_attn.weight",
+            "v": "h.20.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.21",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.21.attn.c_attn.weight",
+            "k": "h.21.attn.c_attn.weight",
+            "v": "h.21.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.22",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.22.attn.c_attn.weight",
+            "k": "h.22.attn.c_attn.weight",
+            "v": "h.22.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.23",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.23.attn.c_attn.weight",
+            "k": "h.23.attn.c_attn.weight",
+            "v": "h.23.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.24",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.24.attn.c_attn.weight",
+            "k": "h.24.attn.c_attn.weight",
+            "v": "h.24.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.25",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.25.attn.c_attn.weight",
+            "k": "h.25.attn.c_attn.weight",
+            "v": "h.25.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.26",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.26.attn.c_attn.weight",
+            "k": "h.26.attn.c_attn.weight",
+            "v": "h.26.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.27",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.27.attn.c_attn.weight",
+            "k": "h.27.attn.c_attn.weight",
+            "v": "h.27.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.28",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.28.attn.c_attn.weight",
+            "k": "h.28.attn.c_attn.weight",
+            "v": "h.28.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.29",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.29.attn.c_attn.weight",
+            "k": "h.29.attn.c_attn.weight",
+            "v": "h.29.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.30",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.30.attn.c_attn.weight",
+            "k": "h.30.attn.c_attn.weight",
+            "v": "h.30.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.31",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.31.attn.c_attn.weight",
+            "k": "h.31.attn.c_attn.weight",
+            "v": "h.31.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.32",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.32.attn.c_attn.weight",
+            "k": "h.32.attn.c_attn.weight",
+            "v": "h.32.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.33",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.33.attn.c_attn.weight",
+            "k": "h.33.attn.c_attn.weight",
+            "v": "h.33.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.34",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.34.attn.c_attn.weight",
+            "k": "h.34.attn.c_attn.weight",
+            "v": "h.34.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.35",
+          "shapes": {
+            "q": [
+              1280,
+              1280
+            ],
+            "k": [
+              1280,
+              1280
+            ],
+            "v": [
+              1280,
+              1280
+            ]
+          },
+          "source_keys": {
+            "q": "h.35.attn.c_attn.weight",
+            "k": "h.35.attn.c_attn.weight",
+            "v": "h.35.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "gpt2-xl": {
+      "source": {
+        "repository": "openai-community/gpt2-xl",
+        "revision": "15ea56dee5df4983c59b2538573817e1667135e2",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2-xl/snapshots/15ea56dee5df4983c59b2538573817e1667135e2",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 6431829964,
+            "sha256": "0f8b28eb05a8075f48b61b6f35332978c74fc7763fa9fb4051a1c30511736a6a"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "h.0",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.0.attn.c_attn.weight",
+            "k": "h.0.attn.c_attn.weight",
+            "v": "h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.1",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.1.attn.c_attn.weight",
+            "k": "h.1.attn.c_attn.weight",
+            "v": "h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.2",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.2.attn.c_attn.weight",
+            "k": "h.2.attn.c_attn.weight",
+            "v": "h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.3",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.3.attn.c_attn.weight",
+            "k": "h.3.attn.c_attn.weight",
+            "v": "h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.4",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.4.attn.c_attn.weight",
+            "k": "h.4.attn.c_attn.weight",
+            "v": "h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.5",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.5.attn.c_attn.weight",
+            "k": "h.5.attn.c_attn.weight",
+            "v": "h.5.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.6",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.6.attn.c_attn.weight",
+            "k": "h.6.attn.c_attn.weight",
+            "v": "h.6.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.7",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.7.attn.c_attn.weight",
+            "k": "h.7.attn.c_attn.weight",
+            "v": "h.7.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.8",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.8.attn.c_attn.weight",
+            "k": "h.8.attn.c_attn.weight",
+            "v": "h.8.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.9",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.9.attn.c_attn.weight",
+            "k": "h.9.attn.c_attn.weight",
+            "v": "h.9.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.10",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.10.attn.c_attn.weight",
+            "k": "h.10.attn.c_attn.weight",
+            "v": "h.10.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.11",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.11.attn.c_attn.weight",
+            "k": "h.11.attn.c_attn.weight",
+            "v": "h.11.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.12",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.12.attn.c_attn.weight",
+            "k": "h.12.attn.c_attn.weight",
+            "v": "h.12.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.13",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.13.attn.c_attn.weight",
+            "k": "h.13.attn.c_attn.weight",
+            "v": "h.13.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.14",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.14.attn.c_attn.weight",
+            "k": "h.14.attn.c_attn.weight",
+            "v": "h.14.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.15",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.15.attn.c_attn.weight",
+            "k": "h.15.attn.c_attn.weight",
+            "v": "h.15.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.16",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.16.attn.c_attn.weight",
+            "k": "h.16.attn.c_attn.weight",
+            "v": "h.16.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.17",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.17.attn.c_attn.weight",
+            "k": "h.17.attn.c_attn.weight",
+            "v": "h.17.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.18",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.18.attn.c_attn.weight",
+            "k": "h.18.attn.c_attn.weight",
+            "v": "h.18.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.19",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.19.attn.c_attn.weight",
+            "k": "h.19.attn.c_attn.weight",
+            "v": "h.19.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.20",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.20.attn.c_attn.weight",
+            "k": "h.20.attn.c_attn.weight",
+            "v": "h.20.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.21",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.21.attn.c_attn.weight",
+            "k": "h.21.attn.c_attn.weight",
+            "v": "h.21.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.22",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.22.attn.c_attn.weight",
+            "k": "h.22.attn.c_attn.weight",
+            "v": "h.22.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.23",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.23.attn.c_attn.weight",
+            "k": "h.23.attn.c_attn.weight",
+            "v": "h.23.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.24",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.24.attn.c_attn.weight",
+            "k": "h.24.attn.c_attn.weight",
+            "v": "h.24.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.25",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.25.attn.c_attn.weight",
+            "k": "h.25.attn.c_attn.weight",
+            "v": "h.25.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.26",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.26.attn.c_attn.weight",
+            "k": "h.26.attn.c_attn.weight",
+            "v": "h.26.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.27",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.27.attn.c_attn.weight",
+            "k": "h.27.attn.c_attn.weight",
+            "v": "h.27.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.28",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.28.attn.c_attn.weight",
+            "k": "h.28.attn.c_attn.weight",
+            "v": "h.28.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.29",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.29.attn.c_attn.weight",
+            "k": "h.29.attn.c_attn.weight",
+            "v": "h.29.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.30",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.30.attn.c_attn.weight",
+            "k": "h.30.attn.c_attn.weight",
+            "v": "h.30.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.31",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.31.attn.c_attn.weight",
+            "k": "h.31.attn.c_attn.weight",
+            "v": "h.31.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.32",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.32.attn.c_attn.weight",
+            "k": "h.32.attn.c_attn.weight",
+            "v": "h.32.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.33",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.33.attn.c_attn.weight",
+            "k": "h.33.attn.c_attn.weight",
+            "v": "h.33.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.34",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.34.attn.c_attn.weight",
+            "k": "h.34.attn.c_attn.weight",
+            "v": "h.34.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.35",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.35.attn.c_attn.weight",
+            "k": "h.35.attn.c_attn.weight",
+            "v": "h.35.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.36",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.36.attn.c_attn.weight",
+            "k": "h.36.attn.c_attn.weight",
+            "v": "h.36.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.37",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.37.attn.c_attn.weight",
+            "k": "h.37.attn.c_attn.weight",
+            "v": "h.37.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.38",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.38.attn.c_attn.weight",
+            "k": "h.38.attn.c_attn.weight",
+            "v": "h.38.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.39",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.39.attn.c_attn.weight",
+            "k": "h.39.attn.c_attn.weight",
+            "v": "h.39.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.40",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.40.attn.c_attn.weight",
+            "k": "h.40.attn.c_attn.weight",
+            "v": "h.40.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.41",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.41.attn.c_attn.weight",
+            "k": "h.41.attn.c_attn.weight",
+            "v": "h.41.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.42",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.42.attn.c_attn.weight",
+            "k": "h.42.attn.c_attn.weight",
+            "v": "h.42.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.43",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.43.attn.c_attn.weight",
+            "k": "h.43.attn.c_attn.weight",
+            "v": "h.43.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.44",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.44.attn.c_attn.weight",
+            "k": "h.44.attn.c_attn.weight",
+            "v": "h.44.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.45",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.45.attn.c_attn.weight",
+            "k": "h.45.attn.c_attn.weight",
+            "v": "h.45.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.46",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.46.attn.c_attn.weight",
+            "k": "h.46.attn.c_attn.weight",
+            "v": "h.46.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.47",
+          "shapes": {
+            "q": [
+              1600,
+              1600
+            ],
+            "k": [
+              1600,
+              1600
+            ],
+            "v": [
+              1600,
+              1600
+            ]
+          },
+          "source_keys": {
+            "q": "h.47.attn.c_attn.weight",
+            "k": "h.47.attn.c_attn.weight",
+            "v": "h.47.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "tinyllama": {
+      "source": {
+        "repository": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 2200119864,
+            "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "model.layers.0",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.0.self_attn.k_proj.weight",
+            "q": "model.layers.0.self_attn.q_proj.weight",
+            "v": "model.layers.0.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.1",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.1.self_attn.k_proj.weight",
+            "q": "model.layers.1.self_attn.q_proj.weight",
+            "v": "model.layers.1.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.2",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.2.self_attn.k_proj.weight",
+            "q": "model.layers.2.self_attn.q_proj.weight",
+            "v": "model.layers.2.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.3",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.3.self_attn.k_proj.weight",
+            "q": "model.layers.3.self_attn.q_proj.weight",
+            "v": "model.layers.3.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.4",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.4.self_attn.k_proj.weight",
+            "q": "model.layers.4.self_attn.q_proj.weight",
+            "v": "model.layers.4.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.5",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.5.self_attn.k_proj.weight",
+            "q": "model.layers.5.self_attn.q_proj.weight",
+            "v": "model.layers.5.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.6",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.6.self_attn.k_proj.weight",
+            "q": "model.layers.6.self_attn.q_proj.weight",
+            "v": "model.layers.6.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.7",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.7.self_attn.k_proj.weight",
+            "q": "model.layers.7.self_attn.q_proj.weight",
+            "v": "model.layers.7.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.8",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.8.self_attn.k_proj.weight",
+            "q": "model.layers.8.self_attn.q_proj.weight",
+            "v": "model.layers.8.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.9",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.9.self_attn.k_proj.weight",
+            "q": "model.layers.9.self_attn.q_proj.weight",
+            "v": "model.layers.9.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.10",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.10.self_attn.k_proj.weight",
+            "q": "model.layers.10.self_attn.q_proj.weight",
+            "v": "model.layers.10.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.11",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.11.self_attn.k_proj.weight",
+            "q": "model.layers.11.self_attn.q_proj.weight",
+            "v": "model.layers.11.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.12",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.12.self_attn.k_proj.weight",
+            "q": "model.layers.12.self_attn.q_proj.weight",
+            "v": "model.layers.12.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.13",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.13.self_attn.k_proj.weight",
+            "q": "model.layers.13.self_attn.q_proj.weight",
+            "v": "model.layers.13.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.14",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.14.self_attn.k_proj.weight",
+            "q": "model.layers.14.self_attn.q_proj.weight",
+            "v": "model.layers.14.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.15",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.15.self_attn.k_proj.weight",
+            "q": "model.layers.15.self_attn.q_proj.weight",
+            "v": "model.layers.15.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.16",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.16.self_attn.k_proj.weight",
+            "q": "model.layers.16.self_attn.q_proj.weight",
+            "v": "model.layers.16.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.17",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.17.self_attn.k_proj.weight",
+            "q": "model.layers.17.self_attn.q_proj.weight",
+            "v": "model.layers.17.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.18",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.18.self_attn.k_proj.weight",
+            "q": "model.layers.18.self_attn.q_proj.weight",
+            "v": "model.layers.18.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.19",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.19.self_attn.k_proj.weight",
+            "q": "model.layers.19.self_attn.q_proj.weight",
+            "v": "model.layers.19.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.20",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.20.self_attn.k_proj.weight",
+            "q": "model.layers.20.self_attn.q_proj.weight",
+            "v": "model.layers.20.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.21",
+          "shapes": {
+            "k": [
+              2048,
+              256
+            ],
+            "q": [
+              2048,
+              2048
+            ],
+            "v": [
+              2048,
+              256
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.21.self_attn.k_proj.weight",
+            "q": "model.layers.21.self_attn.q_proj.weight",
+            "v": "model.layers.21.self_attn.v_proj.weight"
+          }
+        }
+      ]
+    },
+    "llama2-7b-base": {
+      "source": {
+        "repository": "NousResearch/Llama-2-7b-hf",
+        "revision": "8efe6c9b93655b934e27bd9981e3ec13e55aee9d",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--NousResearch--Llama-2-7b-hf/snapshots/8efe6c9b93655b934e27bd9981e3ec13e55aee9d",
+        "weight_files": [
+          {
+            "file": "model-00001-of-00002.safetensors",
+            "bytes": 9976578928,
+            "sha256": "4ec71fd53e99766de38f24753b30c9e8942630e9e576a1ba27b0ec531e87be41"
+          },
+          {
+            "file": "model-00002-of-00002.safetensors",
+            "bytes": 3500297344,
+            "sha256": "41780b5dac322ac35598737e99208d90bdc632a1ba3389ebedbb46a1d8385a7f"
+          }
+        ],
+        "official_weight_verification": {
+          "repository": "meta-llama/Llama-2-7b-hf",
+          "revision": "01c7f73d771dfac7d292323805ebc428287df4f9",
+          "official_safetensors_sha256": {
+            "model-00001-of-00002.safetensors": "4ec71fd53e99766de38f24753b30c9e8942630e9e576a1ba27b0ec531e87be41",
+            "model-00002-of-00002.safetensors": "41780b5dac322ac35598737e99208d90bdc632a1ba3389ebedbb46a1d8385a7f"
+          },
+          "mirror_matches": true
+        }
+      },
+      "layers": [
+        {
+          "layer": "model.layers.0",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.0.self_attn.k_proj.weight",
+            "q": "model.layers.0.self_attn.q_proj.weight",
+            "v": "model.layers.0.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.1",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.1.self_attn.k_proj.weight",
+            "q": "model.layers.1.self_attn.q_proj.weight",
+            "v": "model.layers.1.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.2",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.2.self_attn.k_proj.weight",
+            "q": "model.layers.2.self_attn.q_proj.weight",
+            "v": "model.layers.2.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.3",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.3.self_attn.k_proj.weight",
+            "q": "model.layers.3.self_attn.q_proj.weight",
+            "v": "model.layers.3.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.4",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.4.self_attn.k_proj.weight",
+            "q": "model.layers.4.self_attn.q_proj.weight",
+            "v": "model.layers.4.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.5",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.5.self_attn.k_proj.weight",
+            "q": "model.layers.5.self_attn.q_proj.weight",
+            "v": "model.layers.5.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.6",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.6.self_attn.k_proj.weight",
+            "q": "model.layers.6.self_attn.q_proj.weight",
+            "v": "model.layers.6.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.7",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.7.self_attn.k_proj.weight",
+            "q": "model.layers.7.self_attn.q_proj.weight",
+            "v": "model.layers.7.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.8",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.8.self_attn.k_proj.weight",
+            "q": "model.layers.8.self_attn.q_proj.weight",
+            "v": "model.layers.8.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.9",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.9.self_attn.k_proj.weight",
+            "q": "model.layers.9.self_attn.q_proj.weight",
+            "v": "model.layers.9.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.10",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.10.self_attn.k_proj.weight",
+            "q": "model.layers.10.self_attn.q_proj.weight",
+            "v": "model.layers.10.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.11",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.11.self_attn.k_proj.weight",
+            "q": "model.layers.11.self_attn.q_proj.weight",
+            "v": "model.layers.11.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.12",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.12.self_attn.k_proj.weight",
+            "q": "model.layers.12.self_attn.q_proj.weight",
+            "v": "model.layers.12.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.13",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.13.self_attn.k_proj.weight",
+            "q": "model.layers.13.self_attn.q_proj.weight",
+            "v": "model.layers.13.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.14",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.14.self_attn.k_proj.weight",
+            "q": "model.layers.14.self_attn.q_proj.weight",
+            "v": "model.layers.14.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.15",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.15.self_attn.k_proj.weight",
+            "q": "model.layers.15.self_attn.q_proj.weight",
+            "v": "model.layers.15.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.16",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.16.self_attn.k_proj.weight",
+            "q": "model.layers.16.self_attn.q_proj.weight",
+            "v": "model.layers.16.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.17",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.17.self_attn.k_proj.weight",
+            "q": "model.layers.17.self_attn.q_proj.weight",
+            "v": "model.layers.17.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.18",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.18.self_attn.k_proj.weight",
+            "q": "model.layers.18.self_attn.q_proj.weight",
+            "v": "model.layers.18.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.19",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.19.self_attn.k_proj.weight",
+            "q": "model.layers.19.self_attn.q_proj.weight",
+            "v": "model.layers.19.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.20",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.20.self_attn.k_proj.weight",
+            "q": "model.layers.20.self_attn.q_proj.weight",
+            "v": "model.layers.20.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.21",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.21.self_attn.k_proj.weight",
+            "q": "model.layers.21.self_attn.q_proj.weight",
+            "v": "model.layers.21.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.22",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.22.self_attn.k_proj.weight",
+            "q": "model.layers.22.self_attn.q_proj.weight",
+            "v": "model.layers.22.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.23",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.23.self_attn.k_proj.weight",
+            "q": "model.layers.23.self_attn.q_proj.weight",
+            "v": "model.layers.23.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.24",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.24.self_attn.k_proj.weight",
+            "q": "model.layers.24.self_attn.q_proj.weight",
+            "v": "model.layers.24.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.25",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.25.self_attn.k_proj.weight",
+            "q": "model.layers.25.self_attn.q_proj.weight",
+            "v": "model.layers.25.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.26",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.26.self_attn.k_proj.weight",
+            "q": "model.layers.26.self_attn.q_proj.weight",
+            "v": "model.layers.26.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.27",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.27.self_attn.k_proj.weight",
+            "q": "model.layers.27.self_attn.q_proj.weight",
+            "v": "model.layers.27.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.28",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.28.self_attn.k_proj.weight",
+            "q": "model.layers.28.self_attn.q_proj.weight",
+            "v": "model.layers.28.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.29",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.29.self_attn.k_proj.weight",
+            "q": "model.layers.29.self_attn.q_proj.weight",
+            "v": "model.layers.29.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.30",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.30.self_attn.k_proj.weight",
+            "q": "model.layers.30.self_attn.q_proj.weight",
+            "v": "model.layers.30.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.31",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.31.self_attn.k_proj.weight",
+            "q": "model.layers.31.self_attn.q_proj.weight",
+            "v": "model.layers.31.self_attn.v_proj.weight"
+          }
+        }
+      ]
+    },
+    "mistral7b": {
+      "source": {
+        "repository": "mistralai/Mistral-7B-v0.1",
+        "revision": "26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--mistralai--Mistral-7B-v0.1/snapshots/26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+        "weight_files": [
+          {
+            "file": "model-00001-of-00002.safetensors",
+            "bytes": 9942981696,
+            "sha256": "9742cb4764964155b7a5f35eefad651f590006091ddeb536863d6c5865cca1b9"
+          },
+          {
+            "file": "model-00002-of-00002.safetensors",
+            "bytes": 4540516344,
+            "sha256": "9bcf56354ec0c68b5f8e97b4f3b02d16af899a65b0868d6dba5a51c1b30f01cb"
+          }
+        ],
+        "tokenizer_note": "Pre-July-2024 tokenizer; all 1531 token lengths match the original archived rows."
+      },
+      "layers": [
+        {
+          "layer": "model.layers.0",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.0.self_attn.k_proj.weight",
+            "q": "model.layers.0.self_attn.q_proj.weight",
+            "v": "model.layers.0.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.1",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.1.self_attn.k_proj.weight",
+            "q": "model.layers.1.self_attn.q_proj.weight",
+            "v": "model.layers.1.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.2",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.2.self_attn.k_proj.weight",
+            "q": "model.layers.2.self_attn.q_proj.weight",
+            "v": "model.layers.2.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.3",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.3.self_attn.k_proj.weight",
+            "q": "model.layers.3.self_attn.q_proj.weight",
+            "v": "model.layers.3.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.4",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.4.self_attn.k_proj.weight",
+            "q": "model.layers.4.self_attn.q_proj.weight",
+            "v": "model.layers.4.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.5",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.5.self_attn.k_proj.weight",
+            "q": "model.layers.5.self_attn.q_proj.weight",
+            "v": "model.layers.5.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.6",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.6.self_attn.k_proj.weight",
+            "q": "model.layers.6.self_attn.q_proj.weight",
+            "v": "model.layers.6.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.7",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.7.self_attn.k_proj.weight",
+            "q": "model.layers.7.self_attn.q_proj.weight",
+            "v": "model.layers.7.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.8",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.8.self_attn.k_proj.weight",
+            "q": "model.layers.8.self_attn.q_proj.weight",
+            "v": "model.layers.8.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.9",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.9.self_attn.k_proj.weight",
+            "q": "model.layers.9.self_attn.q_proj.weight",
+            "v": "model.layers.9.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.10",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.10.self_attn.k_proj.weight",
+            "q": "model.layers.10.self_attn.q_proj.weight",
+            "v": "model.layers.10.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.11",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.11.self_attn.k_proj.weight",
+            "q": "model.layers.11.self_attn.q_proj.weight",
+            "v": "model.layers.11.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.12",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.12.self_attn.k_proj.weight",
+            "q": "model.layers.12.self_attn.q_proj.weight",
+            "v": "model.layers.12.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.13",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.13.self_attn.k_proj.weight",
+            "q": "model.layers.13.self_attn.q_proj.weight",
+            "v": "model.layers.13.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.14",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.14.self_attn.k_proj.weight",
+            "q": "model.layers.14.self_attn.q_proj.weight",
+            "v": "model.layers.14.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.15",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.15.self_attn.k_proj.weight",
+            "q": "model.layers.15.self_attn.q_proj.weight",
+            "v": "model.layers.15.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.16",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.16.self_attn.k_proj.weight",
+            "q": "model.layers.16.self_attn.q_proj.weight",
+            "v": "model.layers.16.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.17",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.17.self_attn.k_proj.weight",
+            "q": "model.layers.17.self_attn.q_proj.weight",
+            "v": "model.layers.17.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.18",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.18.self_attn.k_proj.weight",
+            "q": "model.layers.18.self_attn.q_proj.weight",
+            "v": "model.layers.18.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.19",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.19.self_attn.k_proj.weight",
+            "q": "model.layers.19.self_attn.q_proj.weight",
+            "v": "model.layers.19.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.20",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.20.self_attn.k_proj.weight",
+            "q": "model.layers.20.self_attn.q_proj.weight",
+            "v": "model.layers.20.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.21",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.21.self_attn.k_proj.weight",
+            "q": "model.layers.21.self_attn.q_proj.weight",
+            "v": "model.layers.21.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.22",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.22.self_attn.k_proj.weight",
+            "q": "model.layers.22.self_attn.q_proj.weight",
+            "v": "model.layers.22.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.23",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.23.self_attn.k_proj.weight",
+            "q": "model.layers.23.self_attn.q_proj.weight",
+            "v": "model.layers.23.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.24",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.24.self_attn.k_proj.weight",
+            "q": "model.layers.24.self_attn.q_proj.weight",
+            "v": "model.layers.24.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.25",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.25.self_attn.k_proj.weight",
+            "q": "model.layers.25.self_attn.q_proj.weight",
+            "v": "model.layers.25.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.26",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.26.self_attn.k_proj.weight",
+            "q": "model.layers.26.self_attn.q_proj.weight",
+            "v": "model.layers.26.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.27",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.27.self_attn.k_proj.weight",
+            "q": "model.layers.27.self_attn.q_proj.weight",
+            "v": "model.layers.27.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.28",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.28.self_attn.k_proj.weight",
+            "q": "model.layers.28.self_attn.q_proj.weight",
+            "v": "model.layers.28.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.29",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.29.self_attn.k_proj.weight",
+            "q": "model.layers.29.self_attn.q_proj.weight",
+            "v": "model.layers.29.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.30",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.30.self_attn.k_proj.weight",
+            "q": "model.layers.30.self_attn.q_proj.weight",
+            "v": "model.layers.30.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.31",
+          "shapes": {
+            "k": [
+              4096,
+              1024
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              1024
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.31.self_attn.k_proj.weight",
+            "q": "model.layers.31.self_attn.q_proj.weight",
+            "v": "model.layers.31.self_attn.v_proj.weight"
+          }
+        }
+      ]
+    },
+    "bert": {
+      "source": {
+        "repository": "google-bert/bert-base-uncased",
+        "revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 440449768,
+            "sha256": "68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "bert.encoder.layer.0",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.0.attention.self.key.weight",
+            "q": "bert.encoder.layer.0.attention.self.query.weight",
+            "v": "bert.encoder.layer.0.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.1",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.1.attention.self.key.weight",
+            "q": "bert.encoder.layer.1.attention.self.query.weight",
+            "v": "bert.encoder.layer.1.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.2",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.2.attention.self.key.weight",
+            "q": "bert.encoder.layer.2.attention.self.query.weight",
+            "v": "bert.encoder.layer.2.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.3",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.3.attention.self.key.weight",
+            "q": "bert.encoder.layer.3.attention.self.query.weight",
+            "v": "bert.encoder.layer.3.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.4",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.4.attention.self.key.weight",
+            "q": "bert.encoder.layer.4.attention.self.query.weight",
+            "v": "bert.encoder.layer.4.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.5",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.5.attention.self.key.weight",
+            "q": "bert.encoder.layer.5.attention.self.query.weight",
+            "v": "bert.encoder.layer.5.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.6",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.6.attention.self.key.weight",
+            "q": "bert.encoder.layer.6.attention.self.query.weight",
+            "v": "bert.encoder.layer.6.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.7",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.7.attention.self.key.weight",
+            "q": "bert.encoder.layer.7.attention.self.query.weight",
+            "v": "bert.encoder.layer.7.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.8",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.8.attention.self.key.weight",
+            "q": "bert.encoder.layer.8.attention.self.query.weight",
+            "v": "bert.encoder.layer.8.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.9",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.9.attention.self.key.weight",
+            "q": "bert.encoder.layer.9.attention.self.query.weight",
+            "v": "bert.encoder.layer.9.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.10",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.10.attention.self.key.weight",
+            "q": "bert.encoder.layer.10.attention.self.query.weight",
+            "v": "bert.encoder.layer.10.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "bert.encoder.layer.11",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "bert.encoder.layer.11.attention.self.key.weight",
+            "q": "bert.encoder.layer.11.attention.self.query.weight",
+            "v": "bert.encoder.layer.11.attention.self.value.weight"
+          }
+        }
+      ]
+    },
+    "roberta": {
+      "source": {
+        "repository": "FacebookAI/roberta-base",
+        "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--FacebookAI--roberta-base/snapshots/e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 498818054,
+            "sha256": "5bde1d28afb363d0103324efeb5afc8b2b397fe5e04beabb9b1ef355255ade81"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "roberta.encoder.layer.0",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.0.attention.self.key.weight",
+            "q": "roberta.encoder.layer.0.attention.self.query.weight",
+            "v": "roberta.encoder.layer.0.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.1",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.1.attention.self.key.weight",
+            "q": "roberta.encoder.layer.1.attention.self.query.weight",
+            "v": "roberta.encoder.layer.1.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.2",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.2.attention.self.key.weight",
+            "q": "roberta.encoder.layer.2.attention.self.query.weight",
+            "v": "roberta.encoder.layer.2.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.3",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.3.attention.self.key.weight",
+            "q": "roberta.encoder.layer.3.attention.self.query.weight",
+            "v": "roberta.encoder.layer.3.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.4",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.4.attention.self.key.weight",
+            "q": "roberta.encoder.layer.4.attention.self.query.weight",
+            "v": "roberta.encoder.layer.4.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.5",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.5.attention.self.key.weight",
+            "q": "roberta.encoder.layer.5.attention.self.query.weight",
+            "v": "roberta.encoder.layer.5.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.6",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.6.attention.self.key.weight",
+            "q": "roberta.encoder.layer.6.attention.self.query.weight",
+            "v": "roberta.encoder.layer.6.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.7",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.7.attention.self.key.weight",
+            "q": "roberta.encoder.layer.7.attention.self.query.weight",
+            "v": "roberta.encoder.layer.7.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.8",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.8.attention.self.key.weight",
+            "q": "roberta.encoder.layer.8.attention.self.query.weight",
+            "v": "roberta.encoder.layer.8.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.9",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.9.attention.self.key.weight",
+            "q": "roberta.encoder.layer.9.attention.self.query.weight",
+            "v": "roberta.encoder.layer.9.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.10",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.10.attention.self.key.weight",
+            "q": "roberta.encoder.layer.10.attention.self.query.weight",
+            "v": "roberta.encoder.layer.10.attention.self.value.weight"
+          }
+        },
+        {
+          "layer": "roberta.encoder.layer.11",
+          "shapes": {
+            "k": [
+              768,
+              768
+            ],
+            "q": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "k": "roberta.encoder.layer.11.attention.self.key.weight",
+            "q": "roberta.encoder.layer.11.attention.self.query.weight",
+            "v": "roberta.encoder.layer.11.attention.self.value.weight"
+          }
+        }
+      ]
+    },
+    "distilgpt": {
+      "source": {
+        "repository": "distilbert/distilgpt2",
+        "revision": "2290a62682d06624634c1f46a6ad5be0f47f38aa",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--distilbert--distilgpt2/snapshots/2290a62682d06624634c1f46a6ad5be0f47f38aa",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 352824413,
+            "sha256": "e1ff18884359fe8beb795a5f414feb85a6ce3d929ad019c0d958c039d2b94a1b"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "transformer.h.0",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.0.attn.c_attn.weight",
+            "k": "transformer.h.0.attn.c_attn.weight",
+            "v": "transformer.h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "transformer.h.1",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.1.attn.c_attn.weight",
+            "k": "transformer.h.1.attn.c_attn.weight",
+            "v": "transformer.h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "transformer.h.2",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.2.attn.c_attn.weight",
+            "k": "transformer.h.2.attn.c_attn.weight",
+            "v": "transformer.h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "transformer.h.3",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.3.attn.c_attn.weight",
+            "k": "transformer.h.3.attn.c_attn.weight",
+            "v": "transformer.h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "transformer.h.4",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.4.attn.c_attn.weight",
+            "k": "transformer.h.4.attn.c_attn.weight",
+            "v": "transformer.h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "transformer.h.5",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "transformer.h.5.attn.c_attn.weight",
+            "k": "transformer.h.5.attn.c_attn.weight",
+            "v": "transformer.h.5.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "gpt": {
+      "source": {
+        "repository": "openai-community/openai-gpt",
+        "revision": "1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--openai-gpt/snapshots/1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 478736214,
+            "sha256": "25c82cdf1844d2d93e9120b3b628fc6c2b4fcc7801a1297f58465ba67d45deb3"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "h.0",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.0.attn.c_attn.weight",
+            "k": "h.0.attn.c_attn.weight",
+            "v": "h.0.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.1",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.1.attn.c_attn.weight",
+            "k": "h.1.attn.c_attn.weight",
+            "v": "h.1.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.2",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.2.attn.c_attn.weight",
+            "k": "h.2.attn.c_attn.weight",
+            "v": "h.2.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.3",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.3.attn.c_attn.weight",
+            "k": "h.3.attn.c_attn.weight",
+            "v": "h.3.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.4",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.4.attn.c_attn.weight",
+            "k": "h.4.attn.c_attn.weight",
+            "v": "h.4.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.5",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.5.attn.c_attn.weight",
+            "k": "h.5.attn.c_attn.weight",
+            "v": "h.5.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.6",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.6.attn.c_attn.weight",
+            "k": "h.6.attn.c_attn.weight",
+            "v": "h.6.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.7",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.7.attn.c_attn.weight",
+            "k": "h.7.attn.c_attn.weight",
+            "v": "h.7.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.8",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.8.attn.c_attn.weight",
+            "k": "h.8.attn.c_attn.weight",
+            "v": "h.8.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.9",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.9.attn.c_attn.weight",
+            "k": "h.9.attn.c_attn.weight",
+            "v": "h.9.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.10",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.10.attn.c_attn.weight",
+            "k": "h.10.attn.c_attn.weight",
+            "v": "h.10.attn.c_attn.weight"
+          }
+        },
+        {
+          "layer": "h.11",
+          "shapes": {
+            "q": [
+              768,
+              768
+            ],
+            "k": [
+              768,
+              768
+            ],
+            "v": [
+              768,
+              768
+            ]
+          },
+          "source_keys": {
+            "q": "h.11.attn.c_attn.weight",
+            "k": "h.11.attn.c_attn.weight",
+            "v": "h.11.attn.c_attn.weight"
+          }
+        }
+      ]
+    },
+    "llama2-7b": {
+      "source": {
+        "repository": "NousResearch/Llama-2-7b-chat-hf",
+        "revision": "351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--NousResearch--Llama-2-7b-chat-hf/snapshots/351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+        "weight_files": [
+          {
+            "file": "model-00001-of-00002.safetensors",
+            "bytes": 9976576152,
+            "sha256": "66dec18c9f1705b9387d62f8485f4e7d871ca388718786737ed3c72dbfaac9fb"
+          },
+          {
+            "file": "model-00002-of-00002.safetensors",
+            "bytes": 3500296424,
+            "sha256": "0fd6895090da1b2ccffdb93964847709a3b31e6b69fe7dc5a480dce37c811b1d"
+          }
+        ]
+      },
+      "layers": [
+        {
+          "layer": "model.layers.0",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.0.self_attn.k_proj.weight",
+            "q": "model.layers.0.self_attn.q_proj.weight",
+            "v": "model.layers.0.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.1",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.1.self_attn.k_proj.weight",
+            "q": "model.layers.1.self_attn.q_proj.weight",
+            "v": "model.layers.1.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.2",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.2.self_attn.k_proj.weight",
+            "q": "model.layers.2.self_attn.q_proj.weight",
+            "v": "model.layers.2.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.3",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.3.self_attn.k_proj.weight",
+            "q": "model.layers.3.self_attn.q_proj.weight",
+            "v": "model.layers.3.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.4",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.4.self_attn.k_proj.weight",
+            "q": "model.layers.4.self_attn.q_proj.weight",
+            "v": "model.layers.4.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.5",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.5.self_attn.k_proj.weight",
+            "q": "model.layers.5.self_attn.q_proj.weight",
+            "v": "model.layers.5.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.6",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.6.self_attn.k_proj.weight",
+            "q": "model.layers.6.self_attn.q_proj.weight",
+            "v": "model.layers.6.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.7",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.7.self_attn.k_proj.weight",
+            "q": "model.layers.7.self_attn.q_proj.weight",
+            "v": "model.layers.7.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.8",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.8.self_attn.k_proj.weight",
+            "q": "model.layers.8.self_attn.q_proj.weight",
+            "v": "model.layers.8.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.9",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.9.self_attn.k_proj.weight",
+            "q": "model.layers.9.self_attn.q_proj.weight",
+            "v": "model.layers.9.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.10",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.10.self_attn.k_proj.weight",
+            "q": "model.layers.10.self_attn.q_proj.weight",
+            "v": "model.layers.10.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.11",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.11.self_attn.k_proj.weight",
+            "q": "model.layers.11.self_attn.q_proj.weight",
+            "v": "model.layers.11.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.12",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.12.self_attn.k_proj.weight",
+            "q": "model.layers.12.self_attn.q_proj.weight",
+            "v": "model.layers.12.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.13",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.13.self_attn.k_proj.weight",
+            "q": "model.layers.13.self_attn.q_proj.weight",
+            "v": "model.layers.13.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.14",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.14.self_attn.k_proj.weight",
+            "q": "model.layers.14.self_attn.q_proj.weight",
+            "v": "model.layers.14.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.15",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.15.self_attn.k_proj.weight",
+            "q": "model.layers.15.self_attn.q_proj.weight",
+            "v": "model.layers.15.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.16",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.16.self_attn.k_proj.weight",
+            "q": "model.layers.16.self_attn.q_proj.weight",
+            "v": "model.layers.16.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.17",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.17.self_attn.k_proj.weight",
+            "q": "model.layers.17.self_attn.q_proj.weight",
+            "v": "model.layers.17.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.18",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.18.self_attn.k_proj.weight",
+            "q": "model.layers.18.self_attn.q_proj.weight",
+            "v": "model.layers.18.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.19",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.19.self_attn.k_proj.weight",
+            "q": "model.layers.19.self_attn.q_proj.weight",
+            "v": "model.layers.19.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.20",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.20.self_attn.k_proj.weight",
+            "q": "model.layers.20.self_attn.q_proj.weight",
+            "v": "model.layers.20.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.21",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.21.self_attn.k_proj.weight",
+            "q": "model.layers.21.self_attn.q_proj.weight",
+            "v": "model.layers.21.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.22",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.22.self_attn.k_proj.weight",
+            "q": "model.layers.22.self_attn.q_proj.weight",
+            "v": "model.layers.22.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.23",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.23.self_attn.k_proj.weight",
+            "q": "model.layers.23.self_attn.q_proj.weight",
+            "v": "model.layers.23.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.24",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.24.self_attn.k_proj.weight",
+            "q": "model.layers.24.self_attn.q_proj.weight",
+            "v": "model.layers.24.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.25",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.25.self_attn.k_proj.weight",
+            "q": "model.layers.25.self_attn.q_proj.weight",
+            "v": "model.layers.25.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.26",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.26.self_attn.k_proj.weight",
+            "q": "model.layers.26.self_attn.q_proj.weight",
+            "v": "model.layers.26.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.27",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.27.self_attn.k_proj.weight",
+            "q": "model.layers.27.self_attn.q_proj.weight",
+            "v": "model.layers.27.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.28",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.28.self_attn.k_proj.weight",
+            "q": "model.layers.28.self_attn.q_proj.weight",
+            "v": "model.layers.28.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.29",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.29.self_attn.k_proj.weight",
+            "q": "model.layers.29.self_attn.q_proj.weight",
+            "v": "model.layers.29.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.30",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.30.self_attn.k_proj.weight",
+            "q": "model.layers.30.self_attn.q_proj.weight",
+            "v": "model.layers.30.self_attn.v_proj.weight"
+          }
+        },
+        {
+          "layer": "model.layers.31",
+          "shapes": {
+            "k": [
+              4096,
+              4096
+            ],
+            "q": [
+              4096,
+              4096
+            ],
+            "v": [
+              4096,
+              4096
+            ]
+          },
+          "source_keys": {
+            "k": "model.layers.31.self_attn.k_proj.weight",
+            "q": "model.layers.31.self_attn.q_proj.weight",
+            "v": "model.layers.31.self_attn.v_proj.weight"
+          }
+        }
+      ]
+    }
+  },
+  "csv_sha256": "8614dba074f58d8d56ec4e2e4f52700bee248da856388f6718727029898be0cb",
+  "source_sha256": {
+    "alpha_w/measure_weights.py": "10873b40897a9706a5dccf9202b5a65dcd065232c547fd45bc485f1cf660afab",
+    "alpha_w/wqkv_norm_per_layer.py": "8658a965b12532ea95ecb73c47c65f60545eb769785cdda2e69290fdd1597946"
+  }
+}

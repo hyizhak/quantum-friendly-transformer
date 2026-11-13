@@ -1,3 +1,4 @@
+from quantum_friendly_transformer.trainer.checkpoints import load_unparametrized_checkpoint
 import torch
 import torch.functional as F
 import torch.nn as nn
@@ -51,6 +52,10 @@ def main() -> None:
         max_gamma=1)
 
     subnorm_model = FrobeniuslyNormalizedBertForSequenceClassification(subnorm_config_layernorm)
+
+    # Start both normalized variants from the same pretrained backbone and head.
+    load_unparametrized_checkpoint(fn_model, vanilla_model.state_dict())
+    load_unparametrized_checkpoint(subnorm_model, vanilla_model.state_dict())
 
     # Load the dataset
     notata_dataset = load_dataset("katarinagresova/Genomic_Benchmarks_human_nontata_promoters")

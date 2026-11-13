@@ -2,3 +2,8 @@
 
 # Preserve pinned upstream bytes, including whitespace, for blob-hash checks.
 experiments/vendor/zoology/** -text -whitespace
+
+# Keep historical source snapshots and measurement CSVs byte-for-byte intact.
+artifacts/rigorous_rerun/legacy_921_provenance/** -text -whitespace
+artifacts/rigorous_rerun/**/*.csv -text whitespace=cr-at-eol
+alpha_w/stats/qkv_stats_corrected.csv -text whitespace=cr-at-eol

@@ -576,7 +576,7 @@ def evaluate(torch, model, loader, device, task: str) -> dict:
         for batch in loader:
             batch = move_batch(batch, device)
             outputs = call_model(model, batch)
-            losses.append(float(outputs.loss.detach().cpu().item()))
+            losses.append(float(outputs.loss.detach().cpu().item()) * batch["labels"].shape[0])
             logits = outputs.logits.detach().cpu()
             label = batch["labels"].detach().cpu()
             if task == "stsb":
@@ -586,7 +586,7 @@ def evaluate(torch, model, loader, device, task: str) -> dict:
             preds.extend(pred)
             labels.extend(label.numpy().tolist())
     metrics = compute_classification_metrics(task, preds, labels)
-    metrics["eval_loss"] = sum(losses) / max(1, len(losses))
+    metrics["eval_loss"] = sum(losses) / max(1, len(labels))
     return metrics
 
 

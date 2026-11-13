@@ -29,7 +29,7 @@ def quantile_table(df, group_cols, metrics):
 def hidden_growth(df):
     import pandas as pd
 
-    needed = {"model", "dataset", "task", "seq_len", "layer", "hidden_fro_over_sqrtN", "hidden_p95_row_norm"}
+    needed = {"model", "dataset", "task", "seq_len", "layer", "hidden_fro_over_sqrtN", "hidden_p95_row_norm", "hidden_spectral_over_sqrtN"}
     if not needed.issubset(df.columns):
         return pd.DataFrame()
     layer_stats = (
@@ -89,7 +89,7 @@ def resource_constants(df, attention, norms, growth):
         )
 
     out = config.copy()
-    for metric in ["r", "softmax_overhead", "effective_support_ratio", "ln1_denom", "ln2_denom", "rms_denom"]:
+    for metric in ["r", "softmax_overhead", "effective_support_ratio", *NORM_METRICS]:
         source = attention if metric in ATTENTION_METRICS else norms
         out = out.merge(metric_slice(source, metric), on=group_cols, how="left")
     if growth is not None and not growth.empty:

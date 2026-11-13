@@ -1,76 +1,41 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-# from datasets import load_dataset
-import torch
+"""Plot first-layer column norms in the S @ W matrix convention."""
+
+import argparse
+from pathlib import Path
+
 import matplotlib.pyplot as plt
-import numpy as np
-import os
+import torch
+
+if __package__:
+    from .measure_weights import iter_qkv
+else:
+    from measure_weights import iter_qkv
 
 
-# Specify the model checkpoint for Llama2
-model_name = "meta-llama/Llama-2-7b-chat-hf"
-
-# model_name = "meta-llama/Llama-3.2-11B-Vision"
-
-# model_name = "meta-llama/Llama-3.2-3B"
-
-# model_name = "Qwen/Qwen2.5-3B-Instruct"
-
-# model_name = "google/gemma-2-2b-it"
-
-# # Load the tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, trust_remote_code=True)
-
-model.eval()
-
-print(model)
-
-# Access QKV weights
-Wq = model.model.layers[0].self_attn.q_proj.weight.detach().cpu()
-Wk = model.model.layers[0].self_attn.k_proj.weight.detach().cpu()
-Wv = model.model.layers[0].self_attn.v_proj.weight.detach().cpu()
-
-# Compute row/column L2 norms for each matrix
-row_norms_Wq = Wq.norm(dim=1)  # L2 norm of each row of Wq
-col_norms_Wq = Wq.norm(dim=0)  # L2 norm of each column of Wq
-
-row_norms_Wk = Wk.norm(dim=1)
-col_norms_Wk = Wk.norm(dim=0)
-
-row_norms_Wv = Wv.norm(dim=1)
-col_norms_Wv = Wv.norm(dim=0)
-
-# Create a figure with multiple subplots for histograms
-fig, axes = plt.subplots(nrows=1, ncols=3, figsize=(16, 6))
-
-num_bins = 30
-
-# Helper to plot each histogram in a subplot
-def plot_hist(ax, data, title):
-    counts, bin_edges = np.histogram(data.cpu().numpy(), bins=num_bins)
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-    ax.bar(bin_centers, counts, width=bin_edges[1] - bin_edges[0], edgecolor='black')
-    ax.set_title(title, fontsize=14)
-    ax.set_xlim(0, 3)
-    ax.set_xlabel(r"$\ell_2$ Norm", fontsize=14)
-    ax.set_ylabel("Frequency", fontsize=14)
-
-    # Set the tick font sizes as well
-    ax.tick_params(axis='both', which='major', labelsize=14)
+def plot_column_norms(snapshot, output, *, model_label):
+    layer, weights, _ = next(iter_qkv(snapshot, first_only=True))
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+    for ax, kind in zip(axes, 'qkv'):
+        values = torch.linalg.vector_norm(weights[kind].double(), dim=0).numpy()
+        ax.hist(values, bins=30, edgecolor='black')
+        ax.set(title=r'$W_' + kind + '$', xlabel=r'Column $\ell_2$ norm', ylabel='Frequency')
+        # Autoscale: fixed limits previously hid legitimate large-norm columns.
+    fig.suptitle(f'{model_label}: first-layer column norms ({layer})')
+    fig.tight_layout()
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output)
+    return fig
 
 
-# First row: row-norm histograms
-# plot_hist(axes[0, 0], row_norms_Wq, "Row L2 Norm - Wq")
-# plot_hist(axes[0, 1], row_norms_Wk, "Row L2 Norm - Wk")
-# plot_hist(axes[0, 2], row_norms_Wv, "Row L2 Norm - Wv")
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--snapshot', type=Path, required=True)
+    parser.add_argument('--model-label', required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    plot_column_norms(args.snapshot, args.output, model_label=args.model_label)
 
-# Second row: column-norm histograms
-plot_hist(axes[0], col_norms_Wq, r"Column $\ell_2$ Norm - Wq")
-plot_hist(axes[1], col_norms_Wk, r"Column $\ell_2$ Norm - Wk")
-plot_hist(axes[2], col_norms_Wv, r"Column $\ell_2$ Norm - Wv")
 
-plt.suptitle(r"Histograms of Column $\ell_2$ Norms for Wq, Wk, Wv Weights (Layer 0 of Llama-2-$7b$)", size=14)
-plt.tight_layout()
-
-# Save to file
-plt.savefig("./images/wqkv_col_norms_llama_2_7b_4096.pdf")
+if __name__ == '__main__':
+    main()

@@ -1,3 +1,5 @@
+from quantum_friendly_transformer.trainer.checkpoints import load_unparametrized_checkpoint
+import copy
 import torch
 import torch.functional as F
 import torch.nn as nn
@@ -51,17 +53,17 @@ def main() -> None:
     attn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
         d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
         apply_embedding_sn=False,
-        apply_attention_sn=False,
+        apply_attention_sn=True,
         apply_ffn_sn=False,
-        embedding_layer=dnabert_embedding
+        embedding_layer=copy.deepcopy(dnabert_embedding)
     ).to(device)
 
     ffn_sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
         d_model=768, nhead=12, d_ff=4*768, num_emb=tokenizer.vocab_size, num_classes=2, max_seq_len=256,
         apply_embedding_sn=False,
-        apply_attention_sn=True,
+        apply_attention_sn=False,
         apply_ffn_sn=True,
-        embedding_layer=dnabert_embedding
+        embedding_layer=copy.deepcopy(dnabert_embedding)
     ).to(device)
 
     # # Training
@@ -69,7 +71,7 @@ def main() -> None:
 
         model_label = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
-        model.load_state_dict(torch.load(".../model/gue/vanilla_epoch_40.pth"), strict=False)
+        load_unparametrized_checkpoint(model, torch.load(".../model/gue/vanilla_epoch_40.pth", weights_only=True, map_location="cpu"))
 
         metric_fns = {'f1': f1_score, 'accuracy': accuracy_score}
 

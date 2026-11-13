@@ -1,6 +1,7 @@
 """Training and evaluation helpers for the PyTorch reference classifiers."""
 
 import os
+import copy
 import torch
 
 def evaluate(model, data_loader, device, metric_fns, is_sequence=True):
@@ -102,7 +103,7 @@ def train(
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     # Cosine annealing scheduler over epochs
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs)
-    scaler = torch.amp.GradScaler()
+    scaler = torch.amp.GradScaler(device.type, enabled=device.type == "cuda")
 
     history = {'val_metrics': []}
     best_metric = None
@@ -123,7 +124,7 @@ def train(
             attn_mask = batch['attention_mask']
 
             optimizer.zero_grad()
-            with torch.amp.autocast(device_type=device.type):
+            with torch.amp.autocast(device_type=device.type, enabled=device.type == "cuda"):
                 logits = model(x, key_padding_mask=(attn_mask == 0))
                 if is_sequence:
                     loss = criterion(logits.view(-1, logits.size(-1)), y.view(-1))
@@ -154,7 +155,9 @@ def train(
 
         if improved:
             best_metric = current_metric
-            best_model_state = model.state_dict()
+            # state_dict() tensors alias the live parameters. A snapshot must
+            # survive later optimizer steps before it can restore the best epoch.
+            best_model_state = copy.deepcopy(model.state_dict())
             patience_counter = 0
             os.makedirs(save_dir, exist_ok=True)
             best_path = os.path.join(save_dir, f"{save_prefix}_best.pth")
@@ -171,8 +174,8 @@ def train(
             path = os.path.join(save_dir, f"{save_prefix}_epoch_{epoch}.pth")
             torch.save(model.state_dict(), path)
 
-    # Load best state if early stopping used
-    if early_stopping and best_model_state is not None:
+    # Select by validation regardless of whether early stopping was enabled.
+    if best_model_state is not None:
         model.load_state_dict(best_model_state)
 
     # Final evaluation on test set

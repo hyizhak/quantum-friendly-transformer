@@ -1,3 +1,5 @@
+from quantum_friendly_transformer.trainer.checkpoints import load_unparametrized_checkpoint
+import copy
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForTokenClassification
 import torch
@@ -55,7 +57,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=True,
         apply_ffn_sn=False,
-        embedding_layer=embedding_layer
+        embedding_layer=copy.deepcopy(embedding_layer)
     ).to(device)
 
     ffn_sn_model = SpectrallyNormalizedTransformerForTokenClassification(
@@ -63,7 +65,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=False,
         apply_ffn_sn=True,
-        embedding_layer=embedding_layer
+        embedding_layer=copy.deepcopy(embedding_layer)
     ).to(device)
 
     # Training
@@ -71,7 +73,7 @@ def main() -> None:
 
         model_label = "attn_sn_model" if model == attn_sn_model else "ffn_sn_model"
 
-        model.load_state_dict(torch.load(".../model/conll03/vanilla_epoch_20.pth"), strict=False)
+        load_unparametrized_checkpoint(model, torch.load(".../model/conll03/vanilla_epoch_20.pth", weights_only=True, map_location="cpu"))
 
         metric_fns = {'f1': lambda y_true, y_pred: f1_score(y_true, y_pred, average='macro'), 'accuracy': accuracy_score}
 

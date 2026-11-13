@@ -1,3 +1,4 @@
+import copy
 import torch
 import torch.functional as F
 import torch.nn as nn
@@ -61,7 +62,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=False,
         apply_ffn_sn=False,
-        embedding_layer=dnabert_embedding
+        embedding_layer=copy.deepcopy(dnabert_embedding)
     ).to(device)
 
     sn_model = SpectrallyNormalizedTransformerForSequenceClassification(
@@ -69,7 +70,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=True,
         apply_ffn_sn=True,
-        embedding_layer=dnabert_embedding
+        embedding_layer=copy.deepcopy(dnabert_embedding)
     ).to(device)
 
     fn_model = FrobeniuslyNormalizedTransformerForSequenceClassification(
@@ -77,7 +78,7 @@ def main() -> None:
         apply_embedding_fn=False,
         apply_attention_fn=True,
         apply_ffn_fn=True,
-        embedding_layer=dnabert_embedding
+        embedding_layer=copy.deepcopy(dnabert_embedding)
     ).to(device)
 
     # Training

@@ -1,0 +1,34 @@
+Available GPUs: 2
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+........................................................................ [ 77%]
+.............................................................            [100%]
+=============================== warnings summary ===============================
+../vllm-moe-routing/.venv/lib/python3.12/site-packages/requests/__init__.py:113
+  /home/hyizhan/vllm-moe-routing/.venv/lib/python3.12/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.4.4) doesn't match a supported version!
+    warnings.warn(
+
+tests/test_bert_attention_backend.py::test_bert_flash_dispatch_uses_same_scale_as_torch[False]
+tests/test_bert_attention_backend.py::test_bert_flash_dispatch_uses_same_scale_as_torch[True]
+tests/test_checkpoint_conversion.py::test_dnabert_fused_projections_load_into_fn_parameters
+  /home/hyizhan/quantum-friendly-transformer/src/quantum_friendly_transformer/norm_transformer/bert/frobenius_normalized_bert.py:286: UserWarning: Unable to import Triton; defaulting MosaicBERT attention implementation to pytorch (this will reduce throughput when using this model).
+    warnings.warn(
+
+tests/test_recovery_sam.py::test_sam_gradient_at_perturbed_point_and_exact_restoration
+  /home/hyizhan/quantum-friendly-transformer/tests/test_recovery_sam.py:14: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+    assert float((p-original).norm()) == pytest.approx(.5)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 10 durations =============================
+3.76s call     tests/test_mqar.py::test_prepare_and_train_from_extracted_source_zip
+3.47s call     tests/test_distribution.py::test_source_distribution_builds_a_self_contained_wheel
+1.33s call     tests/test_library.py::test_core_imports_without_optional_frameworks
+0.90s call     tests/test_evidence.py::test_shipped_catalog_covers_records_measurements_and_checkpoints
+0.81s call     tests/test_recovery_full_dense.py::test_dense_conversion_and_all_parameter_training[devices1]
+0.16s call     tests/test_mqar_caps.py::test_smaller_cap_preserves_raw_initial_parameters_and_changes_effective_weights
+0.15s setup    tests/test_alpha_s_measurement.py::test_saved_norms_match_each_sample[-1-1-llama2-7b]
+0.10s call     tests/test_alpha_s_measurement.py::test_saved_norms_match_each_sample[-1-1-llama2-7b]
+0.08s call     tests/test_recovery_full_dense.py::test_dense_conversion_and_all_parameter_training[devices0]
+0.07s call     tests/test_bounded_low_rank.py::test_mistral_adapter_preserves_effective_bounds[bfloat16]
+277 passed, 5 warnings in 14.95s

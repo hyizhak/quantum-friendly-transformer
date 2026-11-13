@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
+import math
 
 import torch
 from torch import Tensor, nn
@@ -31,8 +32,12 @@ class LearnableFrobeniusCap(nn.Module):
         norm_dtype: str = "float32",
     ) -> None:
         super().__init__()
-        if max_gamma <= 0:
-            raise ValueError("max_gamma must be positive")
+        if not math.isfinite(max_gamma) or max_gamma <= 0:
+            raise ValueError("max_gamma must be positive and finite")
+        if not math.isfinite(eps) or eps <= 0:
+            raise ValueError("eps must be positive and finite")
+        if not math.isfinite(init_fraction) or not 0 < init_fraction < 1:
+            raise ValueError("init_fraction must be between 0 and 1")
         if norm_dtype not in {"float32", "native"}:
             raise ValueError("norm_dtype must be 'float32' or 'native'")
         self.max_gamma = float(max_gamma)
@@ -47,8 +52,12 @@ class LearnableFrobeniusCap(nn.Module):
 
     def forward(self, weight: Tensor) -> Tensor:
         gamma = self.gamma
-        norm_weight = weight.float() if self.norm_dtype == "float32" else weight
+        norm_weight = weight.float() if self.norm_dtype == "float32" and weight.dtype != torch.float64 else weight
         norm = torch.linalg.vector_norm(norm_weight)
+        if norm.dtype in (torch.float16, torch.bfloat16):
+            # Keep the requested reduction dtype, but eps/division must not
+            # underflow at zero (otherwise the backward pass produces NaNs).
+            norm = norm.float()
         scale = torch.clamp(gamma / (norm + self.eps), max=1.0)
         return scale.to(weight.dtype) * weight
 

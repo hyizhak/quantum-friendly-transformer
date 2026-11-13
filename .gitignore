@@ -191,3 +191,39 @@ cython_debug/
 /rebuttal*.tex
 /reproduction-assets/
 /reproduced/
+
+# Local manuscripts and editorial backups; experimental tables stay versioned.
+/main.tex
+/appendix.tex
+/paper_result_updates*.tex
+/artifacts/rigorous_rerun/manuscript_edit/
+/artifacts/rigorous_rerun/final_delivery.json
+/artifacts/rigorous_rerun/**/delivery.lock
+
+# Manuscript exports, editorial checks and snapshots containing manuscript prose.
+/alpha_w/stats/paper_column_norms.tex
+/artifacts/rigorous_rerun/sst2_record_recheck/norms_table.tex
+/artifacts/rigorous_rerun/sst2_record_recheck/scores_table.tex
+/artifacts/rigorous_rerun/paper_result_audit.py
+/artifacts/rigorous_rerun/paper_result_audit.json
+/artifacts/rigorous_rerun/paper_delivery_preflight.json
+/artifacts/rigorous_rerun/hyenadna_recipe_audit.json
+/artifacts/rigorous_rerun/matrix_norm_paper_models/MatrixNorm_previous_11_models.pdf
+/artifacts/rigorous_rerun/paper_seed42/evaluator.py
+/artifacts/rigorous_rerun/paper_seed42/final_verification.json
+/artifacts/rigorous_rerun/paper_seed42/paper_summary.json
+/artifacts/rigorous_rerun/trainable_ln_fn1/trainable_ln_fn1.py
+/artifacts/rigorous_rerun/unit_fn_all_tests/test_unit_fn_variants.py
+/artifacts/rigorous_rerun/unit_fn_layerwise_test/test_unit_fn_layerwise.py
+/artifacts/rigorous_rerun/unit_fn_all_tests/verification.json
+/artifacts/rigorous_rerun/unit_fn_all_tests/complete.json
+/artifacts/rigorous_rerun/unit_fn_layerwise_test/verification.json
+/artifacts/rigorous_rerun/unit_fn_layerwise_test/complete.json
+/artifacts/rigorous_rerun/trainable_ln_fn1/complete.json
+
+# Download upstream datasets and extract existing public archives locally.
+/alpha_s/data_files/mmlu_validation_questions.json
+/artifacts/rigorous_rerun/sst2_record_recheck/records/
+
+# Local raw experiment histories, predictions and run metadata.
+/artifacts/rigorous_rerun/

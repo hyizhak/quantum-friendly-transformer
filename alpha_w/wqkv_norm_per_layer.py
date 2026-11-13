@@ -1,98 +1,48 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import torch
-import pandas as pd
+"""Measure columns of the paper's W matrices across all self-attention layers."""
 
-def get_base_model(model):
-    prefix = model.base_model_prefix
-    return getattr(model, prefix)
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
 
-def get_transformer_layers(base_model):
-    if hasattr(base_model, 'layers'):
-        return base_model.layers
-    if hasattr(base_model, 'h'):
-        return base_model.h
-    if hasattr(base_model, 'encoder') and hasattr(base_model.encoder, 'layer'):
-        return base_model.encoder.layer
-    raise ValueError(f"Cannot find transformer layers on {base_model.__class__}")
+if __package__:
+    from .measure_weights import column_statistics
+else:
+    from measure_weights import column_statistics
 
-def get_qkv_weights(layer):
-    # 1) GPT-style / Llama / Mistral
-    if hasattr(layer, 'self_attn'):
-        attn = layer.self_attn
-        return attn.q_proj.weight, attn.k_proj.weight, attn.v_proj.weight
 
-    # 2) BERT / RoBERTa
-    if hasattr(layer, 'attention') and hasattr(layer.attention, 'self'):
-        attn = layer.attention.self
-        return attn.query.weight, attn.key.weight, attn.value.weight
-
-    # 3) GPT-2 / GPT-Neo / GPT-J style
-    #    – these pack Q,K,V into one Conv1D c_attn weight of shape [in, 3*out]
-    if hasattr(layer, 'attn') and hasattr(layer.attn, 'c_attn'):
-        W = layer.attn.c_attn.weight  # shape [hidden, 3*hidden]
-        hidden = W.shape[1] // 3
-        Wq = W[:, :hidden]
-        Wk = W[:, hidden:2*hidden]
-        Wv = W[:, 2*hidden:]
-        return Wq, Wk, Wv
-
-    raise ValueError(f"No self-attention block found in layer {layer.__class__.__name__}")
-
-all_stats = []
-
-for model_name in [
-    "meta-llama/Meta-Llama-3.1-8B-Instruct",
-    "Qwen/Qwen2.5-3B-Instruct",
-    "mistralai/Mistral-Nemo-Base-2407",
-    'bert-base-uncased',
-    'roberta-base',
-    'distilgpt2',
-    'gpt2',
-    'gpt2-medium',
-    'gpt2-large',
-    'gpt2-xl',
-    'openai-gpt',
-    'meta-llama/Llama-2-7b-hf',
-    'TinyLlama/Tinyllama-1.1B-chat-v1.0',
-    'mistralai/Mistral-7B-v0.1',
-]:
-    safe_name = model_name.replace('/', '_').replace('-', '_')
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model     = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16)
-    model.eval()
-
-    base   = get_base_model(model)
-    layers = get_transformer_layers(base)
-
-    all_q, all_k, all_v = [], [], []
-    for layer in layers:
-        Wq, Wk, Wv = [w.detach().cpu() for w in get_qkv_weights(layer)]
-        all_q.append(Wq.norm(dim=0))
-        all_k.append(Wk.norm(dim=0))
-        all_v.append(Wv.norm(dim=0))
-
-    all_q = torch.cat(all_q)
-    all_k = torch.cat(all_k)
-    all_v = torch.cat(all_v)
-    combined = torch.cat([all_q, all_k, all_v])
-
-    # --- build stats dict ---
-    stats_dict = {
-        "model":    model_name,
-        "d_hidden": all_q.shape[0] // len(layers),
-        "Wq_mean":  all_q.mean().item(),
-        "Wq_var":   all_q.var().item(),
-        "Wk_mean":  all_k.mean().item(),
-        "Wk_var":   all_k.var().item(),
-        "Wv_mean":  all_v.mean().item(),
-        "Wv_var":   all_v.var().item(),
-        "total_mean": combined.mean().item(),
-        "total_var":  combined.var().item(),
+def measure_column_sources(sources, output):
+    rows, details = [], {}
+    for name, source in sources.items():
+        print(f'Measuring all-layer columns: {name}', flush=True)
+        stats, layers = column_statistics(source['snapshot_path'])
+        rows.append({'model': name, **stats})
+        details[name] = {'source': source, 'layers': layers}
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with output.open('w', newline='') as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    metadata = {
+        'matrix_convention': 'S @ W; Linear weights transposed; GPT Conv1D weights unchanged',
+        'method': 'float64 column L2 norms; pooled across Q/K/V and all layers; sample variance (ddof=1)',
+        'gqa_weighting': 'one observation per actual output column; fewer K/V columns for grouped-query attention',
+        'models': details,
+        'csv_sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
     }
-    all_stats.append(stats_dict)
+    output.with_suffix('.json').write_text(json.dumps(metadata, indent=2) + '\n')
+    return rows
 
-# --- save to CSV ---
-df = pd.DataFrame(all_stats)
-out_csv = f"./stats/qkv_stats.csv"
-df.to_csv(out_csv, index=False)
-print(f"Saved stats to {out_csv}")
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sources', type=Path, required=True, help='JSON mapping model labels to pinned local snapshots')
+    parser.add_argument('--output', type=Path, default=Path(__file__).parent / 'stats/qkv_stats_corrected.csv')
+    args = parser.parse_args()
+    measure_column_sources(json.loads(args.sources.read_text()), args.output)
+
+
+if __name__ == '__main__':
+    main()

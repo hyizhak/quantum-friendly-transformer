@@ -1,0 +1,28 @@
+{
+  "source": {
+    "repository": "facebook/bart-base",
+    "revision": "aadd2ab0ae0c8268c7c9693540e9904811f36177",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--facebook--bart-base/snapshots/aadd2ab0ae0c8268c7c9693540e9904811f36177",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 557709915,
+        "sha256": "1bd3ac8e5b3ac71c77cf18fbcd8b113e0bfceced94c5cfbbb9a2b4bb4781190b"
+      }
+    ]
+  },
+  "model_class": "BartModel encoder",
+  "hidden_states": "encoder embeddings and first encoder layer",
+  "max_tokens": 512,
+  "mmlu_rows": 1531,
+  "random_rows": 512,
+  "seed": 0,
+  "status": "remeasured; not included in the paper plots",
+  "method": "float32 inference; float64 norms and exact SVD",
+  "replaces": "Legacy BART arrays had inconsistent undocumented 3/5-column schemas; these are new encoder measurements, not a reconstruction of those old runs.",
+  "files": {
+    "bart_data.npy": "89dfebce5b141b3c3fbbd8d995a64a5ecd825e3beedf167d4dd7d9d824f50958",
+    "bart_random_data.npy": "b87d9262c34439e26a81d0ddcd917c4b68216a817d67e3dc22d1b0cff6c04437",
+    "bart_random_inputs.json": "8d27ea9518c57186c6ed87a793646b2db2e2ff9be24ecab821b0a857d5abfb08"
+  }
+}

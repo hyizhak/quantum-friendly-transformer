@@ -1,7 +1,19 @@
 from typing import Optional
+import math
 import torch
 from torch import nn, Tensor
 from torch.nn.utils import parametrize
+
+
+def _unit_frobenius(X: Tensor, eps: float) -> Tensor:
+    # Half precision overflows on large matrices and underflows eps at zero.
+    value = X.float() if X.dtype in (torch.float16, torch.bfloat16) else X
+    return value / (torch.linalg.vector_norm(value) + eps)
+
+
+def _validate_eps(eps):
+    if not math.isfinite(eps) or eps <= 0:
+        raise ValueError("eps must be positive and finite")
 
 class _FrobeniusNorm(nn.Module):
     r"""
@@ -15,14 +27,13 @@ class _FrobeniusNorm(nn.Module):
     """
     def __init__(self, weight: Tensor, eps: float = 1e-12):
         super().__init__()
+        _validate_eps(eps)
         # We usually store eps as a buffer/attribute for numeric stability
         self.eps = eps
 
     def forward(self, X: Tensor) -> Tensor:
         # Compute the Frobenius norm (over all elements)
-        fro_norm = torch.linalg.norm(X, ord='fro')
-        # Normalize the parameter
-        return X / (fro_norm + self.eps)
+        return _unit_frobenius(X, self.eps).to(X.dtype)
     
 class _FrobeniusNormWithGamma(nn.Module):
     r"""
@@ -37,6 +48,9 @@ class _FrobeniusNormWithGamma(nn.Module):
     """
     def __init__(self, eps: float = 1e-12, max_gamma: float = 2.0):
         super().__init__()
+        _validate_eps(eps)
+        if not math.isfinite(max_gamma) or max_gamma <= 0:
+            raise ValueError("max_gamma must be positive and finite")
         self.eps = eps
         self.max_gamma = max_gamma
         # To initialize so that gamma is close to init_gamma, solve: init_gamma = max_gamma * sigmoid(g)
@@ -46,8 +60,7 @@ class _FrobeniusNormWithGamma(nn.Module):
 
     def forward(self, X: Tensor) -> Tensor:
         gamma = self.max_gamma * torch.sigmoid(self.g)
-        fro_norm = torch.linalg.norm(X, ord='fro')
-        return gamma * X / (fro_norm + self.eps)
+        return (gamma * _unit_frobenius(X, self.eps)).to(X.dtype)
 
 def frobenius_norm(
     module: nn.Module,
@@ -97,6 +110,6 @@ def frobenius_norm_with_scaling(
         return frobenius_norm(module, name=name, eps=eps)
 
     parametrize.register_parametrization(
-        module, name, _FrobeniusNormWithGamma(eps=eps, max_gamma=max_gamma)
+        module, name, _FrobeniusNormWithGamma(eps=eps, max_gamma=max_gamma).to(device=weight.device)
     )
     return module

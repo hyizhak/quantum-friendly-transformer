@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "seed": 0,
+  "method": "New independent random token sequences for each N=1..512; exclude special tokens; float32 inference, float64 Frobenius norms and exact SVD.",
+  "comparison_note": "Original random token IDs and seed were not retained. This is a reproducible replacement experiment, not replay of the original draws.",
+  "old_unplotted_first_layer_nonfinite_counts": {
+    "bert": 113,
+    "roberta": 108,
+    "distilgpt": 15,
+    "gpt2": 15,
+    "gpt": 8
+  },
+  "models": {
+    "gpt2": {
+      "source": {
+        "repository": "openai-community/gpt2",
+        "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2/snapshots/607a30d783dfa663caf39e06633721c8d4cfcd7e",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 548105171,
+            "sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": false,
+      "sha256": {
+        "gpt2_random_data.npy": "c8153592143be3cdab28230678dbb345f49bf585f355a8488d0574cf039409f5",
+        "gpt2_random_inputs.json": "f90bb1baabb22a335c04f9a5132210ab6cac3280ba6ff954341e185fe95318ff"
+      }
+    },
+    "roberta": {
+      "source": {
+        "repository": "FacebookAI/roberta-base",
+        "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--FacebookAI--roberta-base/snapshots/e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 498818054,
+            "sha256": "5bde1d28afb363d0103324efeb5afc8b2b397fe5e04beabb9b1ef355255ade81"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": false,
+      "sha256": {
+        "roberta_random_data.npy": "1146ff9c296aa125a570b29bb4a3ec8169c4e2e12554b014573c007bf1f28881",
+        "roberta_random_inputs.json": "8d27ea9518c57186c6ed87a793646b2db2e2ff9be24ecab821b0a857d5abfb08"
+      }
+    },
+    "mistral7b": {
+      "source": {
+        "repository": "mistralai/Mistral-7B-v0.1",
+        "revision": "26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--mistralai--Mistral-7B-v0.1/snapshots/26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+        "weight_files": [
+          {
+            "file": "model-00001-of-00002.safetensors",
+            "bytes": 9942981696,
+            "sha256": "9742cb4764964155b7a5f35eefad651f590006091ddeb536863d6c5865cca1b9"
+          },
+          {
+            "file": "model-00002-of-00002.safetensors",
+            "bytes": 4540516344,
+            "sha256": "9bcf56354ec0c68b5f8e97b4f3b02d16af899a65b0868d6dba5a51c1b30f01cb"
+          }
+        ],
+        "tokenizer_note": "Pre-July-2024 tokenizer; all 1531 token lengths match the original archived rows."
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": true,
+      "sha256": {
+        "mistral7b_random_data.npy": "b415a04999d44cc88907d96cc40e1c3449af5012e962baa954f210c7e1b77677",
+        "mistral7b_random_inputs.json": "34ca296c674e98def1070e1cb476563a71a588c9829a884416c9a0fb79f87156"
+      }
+    },
+    "bert": {
+      "source": {
+        "repository": "google-bert/bert-base-uncased",
+        "revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 440449768,
+            "sha256": "68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": false,
+      "sha256": {
+        "bert_random_data.npy": "cfeb8a8571c06e5872444b17d54b021675ef4648e5d77b9d7aa653a11d2841f3",
+        "bert_random_inputs.json": "39a4b7ed5eaec0dec914fe2f61bfad6c5242e2dfd69d5a2048f4c935765ce8f7"
+      }
+    },
+    "gpt": {
+      "source": {
+        "repository": "openai-community/openai-gpt",
+        "revision": "1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--openai-gpt/snapshots/1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 478736214,
+            "sha256": "25c82cdf1844d2d93e9120b3b628fc6c2b4fcc7801a1297f58465ba67d45deb3"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": false,
+      "sha256": {
+        "gpt_random_data.npy": "1ae7824429aee1f509972b9f7f47c64ebdb297e4a8babb644503245b15a382f3",
+        "gpt_random_inputs.json": "f36e2489b4ce166d31136f3ad9ec29196bd491af8fc68236d6f6c4fa829d3c63"
+      }
+    },
+    "llama2-7b": {
+      "source": {
+        "repository": "NousResearch/Llama-2-7b-chat-hf",
+        "revision": "351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--NousResearch--Llama-2-7b-chat-hf/snapshots/351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+        "weight_files": [
+          {
+            "file": "model-00001-of-00002.safetensors",
+            "bytes": 9976576152,
+            "sha256": "66dec18c9f1705b9387d62f8485f4e7d871ca388718786737ed3c72dbfaac9fb"
+          },
+          {
+            "file": "model-00002-of-00002.safetensors",
+            "bytes": 3500296424,
+            "sha256": "0fd6895090da1b2ccffdb93964847709a3b31e6b69fe7dc5a480dce37c811b1d"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": true,
+      "sha256": {
+        "llama2-7b_random_data.npy": "3e65739f3b51002ed11dbde1113fa6b5adb7374fc07267b5872659914940c56b",
+        "llama2-7b_random_inputs.json": "b05614653d628a2c926633762d84bfadc2acd4d41b882d7e5c3588d3d2a7b922"
+      }
+    },
+    "distilgpt": {
+      "source": {
+        "repository": "distilbert/distilgpt2",
+        "revision": "2290a62682d06624634c1f46a6ad5be0f47f38aa",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--distilbert--distilgpt2/snapshots/2290a62682d06624634c1f46a6ad5be0f47f38aa",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 352824413,
+            "sha256": "e1ff18884359fe8beb795a5f414feb85a6ce3d929ad019c0d958c039d2b94a1b"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": false,
+      "sha256": {
+        "distilgpt_random_data.npy": "d9d3acbcf7da33cb77bbd3e79c598501072b9750e901921331f17bdf682a515d",
+        "distilgpt_random_inputs.json": "f90bb1baabb22a335c04f9a5132210ab6cac3280ba6ff954341e185fe95318ff"
+      }
+    },
+    "tinyllama": {
+      "source": {
+        "repository": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+        "snapshot_path": "/data/hyizhan/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+        "weight_files": [
+          {
+            "file": "model.safetensors",
+            "bytes": 2200119864,
+            "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+          }
+        ]
+      },
+      "rows": 512,
+      "seed": 0,
+      "max_tokens": 512,
+      "precision": "float32 model inference; float64 Frobenius norms and exact SVD",
+      "first_two_layers": true,
+      "sha256": {
+        "tinyllama_random_data.npy": "dcdc27da0b1be10cc076493cd760ff3d34e942e94d2542310d80ef91efdc7f34",
+        "tinyllama_random_inputs.json": "34ca296c674e98def1070e1cb476563a71a588c9829a884416c9a0fb79f87156"
+      }
+    }
+  },
+  "bart": "See bart_remeasurement.json (separate encoder measurements; not plotted).",
+  "packages": {
+    "numpy": "2.5.4",
+    "torch": "2.9.0",
+    "transformers": "4.57.6",
+    "safetensors": "0.7.0"
+  },
+  "source_sha256": {
+    "alpha_s/alpha_s.py": "a5471e93e4d635bb431f847aa02b460ee594dc0794c85913de8684574b79644c",
+    "alpha_s/norm_data.py": "c624afbb8da1a8c69cea2aa6c7f775493d0035ad5f0e68235dc7d6d02ab8afa2",
+    "alpha_w/measure_weights.py": "10873b40897a9706a5dccf9202b5a65dcd065232c547fd45bc485f1cf660afab"
+  },
+  "figures": {
+    "alpha_s/images/random.pdf": "a2ceb054a27fc6676b50ed2866dc6955ce5843928c05af305fa58ff1a4d709fc",
+    "alpha_s/images/random_fro_1.pdf": "269bed035afdb7e0dfa388e59ae7e24d8eb2bf4adcf749ace3feade9bccc9b85",
+    "alpha_s/images/random_fro_2.pdf": "64e4fa09a30459f134f039e45ca7e875282b060b5c3e4dc5399f5e0c9bf35f9c",
+    "alpha_s/images/random_fro_3.pdf": "09472002f1a69141c0c98e568de5ce11db16704b526532e26d628da63292cbf7",
+    "alpha_s/images/random_spec_1.pdf": "564df4c24f59f4e68e33ac225049ea7bf9b52486062717f2cc5abe1fa0741048",
+    "alpha_s/images/random_spec_2.pdf": "be148ab5b9e775e635f361f2d9a9b34332ca51036cbdc31a76d232af33d3c42c",
+    "alpha_s/images/random_spec_3.pdf": "ccd06d1ec4570e654e98abd007e9c78b56d78249481df4c95e9767b0ae4e48ca"
+  }
+}

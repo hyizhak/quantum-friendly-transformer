@@ -1,3 +1,4 @@
+import copy
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForTokenClassification
 import torch
@@ -54,7 +55,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=False,
         apply_ffn_sn=False,
-        embedding_layer=embedding_layer
+        embedding_layer=copy.deepcopy(embedding_layer)
     ).to(device)
 
     sn_model = SpectrallyNormalizedTransformerForTokenClassification(
@@ -62,7 +63,7 @@ def main() -> None:
         apply_embedding_sn=False,
         apply_attention_sn=True,
         apply_ffn_sn=True,
-        embedding_layer=embedding_layer
+        embedding_layer=copy.deepcopy(embedding_layer)
     ).to(device)
 
     fn_model = FrobeniuslyNormalizedTransformerForTokenClassification(
@@ -70,7 +71,7 @@ def main() -> None:
         apply_embedding_fn=False,
         apply_attention_fn=True,
         apply_ffn_fn=True,
-        embedding_layer=embedding_layer
+        embedding_layer=copy.deepcopy(embedding_layer)
     ).to(device)
 
     # Training

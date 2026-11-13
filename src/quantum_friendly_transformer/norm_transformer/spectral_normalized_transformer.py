@@ -19,13 +19,17 @@ class SpectrallyNormalizedTransformerBlock(nn.Module):
             self.embedding = nn.Embedding(num_embeddings=num_emb, embedding_dim=d_model, padding_idx=0)
 
         if apply_embedding_sn:
-            # consider wrapping the weight manually.
-            self.embedding.weight.data = self.embedding.weight.data / torch.norm(self.embedding.weight.data, dim=1, keepdim=True)
+            # Historical option: normalize rows once, not a training-time cap.
+            with torch.no_grad():
+                weight = self.embedding.weight
+                values = weight.float() if weight.dtype in (torch.float16, torch.bfloat16) else weight
+                norms = torch.linalg.vector_norm(values, dim=1, keepdim=True)
+                weight.copy_(values / torch.where(norms > 0, norms, torch.ones_like(norms)))
 
         RoPE = RotaryPositionalEmbedding(head_dim=d_model//nhead, max_seq_len=max_seq_len)
         
         # Self-attention components
-        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=RoPE)
+        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=RoPE, batch_first=True)
         if apply_attention_sn:
             # Apply SN to the projection matrices for Q, K, V manually if needed.
             self.attn.q_linear = spectral_norm(self.attn.q_linear)

@@ -348,11 +348,13 @@ class FrobeniuslyNormalizedBertUnpadSelfAttention(nn.Module):
                 qkv = qkv.to(torch.float16)
                 bias_dtype = bias.dtype
                 bias = bias.to(torch.float16)
-                attention = flash_attn_qkvpacked_func(qkv, bias)
+                scale = math.sqrt(self.attention_head_size) if self.qkv_fn else self.attention_head_size ** -0.5
+                attention = flash_attn_qkvpacked_func(qkv, bias, False, scale)
                 attention = attention.to(orig_dtype)
                 bias = bias.to(bias_dtype)
             else:
-                attention = flash_attn_qkvpacked_func(qkv, bias)
+                scale = math.sqrt(self.attention_head_size) if self.qkv_fn else self.attention_head_size ** -0.5
+                attention = flash_attn_qkvpacked_func(qkv, bias, False, scale)
 
         # attn_mask is 1 for attend and 0 for don't
         attention = unpad_input_only(attention, torch.squeeze(attn_mask) == 1)

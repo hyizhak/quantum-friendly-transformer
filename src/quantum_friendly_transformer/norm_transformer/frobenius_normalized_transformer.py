@@ -19,13 +19,17 @@ class FrobeniuslyNormalizedTransformerBlock(nn.Module):
             self.embedding = nn.Embedding(num_embeddings=num_emb, embedding_dim=d_model, padding_idx=0)
 
         if apply_embedding_fn:
-            # consider wrapping the weight manually.
-            self.embedding.weight.data = self.embedding.weight.data / torch.linalg.norm(self.embedding.weight.data, ord='fro')
+            # Normalize once at initialization, preserving a possible zero matrix.
+            with torch.no_grad():
+                weight = self.embedding.weight
+                values = weight.float() if weight.dtype in (torch.float16, torch.bfloat16) else weight
+                norm = torch.linalg.vector_norm(values)
+                weight.copy_(values / torch.where(norm > 0, norm, torch.ones_like(norm)))
 
         RoPE = RotaryPositionalEmbedding(head_dim=d_model//nhead, max_seq_len=max_seq_len)
         
         # Self-attention components
-        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=RoPE)
+        self.attn = AttentionWithSeparateQKV(embed_dim=d_model, num_heads=nhead, rope=RoPE, batch_first=True)
         if apply_attention_fn:
             # Apply FN to the projection matrices for Q, K, V manually if needed.
             self.attn.q_linear = frobenius_norm(self.attn.q_linear)

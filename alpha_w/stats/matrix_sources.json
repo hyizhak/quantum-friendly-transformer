@@ -1,0 +1,145 @@
+{
+  "bert": {
+    "repository": "google-bert/bert-base-uncased",
+    "revision": "86b5e0934494bd15c9632b12f734a8a67f723594",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--bert-base-uncased/snapshots/86b5e0934494bd15c9632b12f734a8a67f723594",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 440449768,
+        "sha256": "68d45e234eb4a928074dfd868cead0219ab85354cc53d20e772753c6bb9169d3"
+      }
+    ]
+  },
+  "distilbert": {
+    "repository": "distilbert/distilbert-base-uncased",
+    "revision": "12040accade4e8a0f71eabdb258fecc2e7e948be",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--distilbert--distilbert-base-uncased/snapshots/12040accade4e8a0f71eabdb258fecc2e7e948be",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 267954768,
+        "sha256": "5e3f1108e3cb34ee048634875d8482665b65ac713291a7e32396fb18f6ff0063"
+      }
+    ]
+  },
+  "albert": {
+    "repository": "albert/albert-base-v1",
+    "revision": "082438ba120d36b97b9288772a41144e941705b9",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--albert--albert-base-v1/snapshots/082438ba120d36b97b9288772a41144e941705b9",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 47372900,
+        "sha256": "28ede8cd37c7e0605ae75c32a1961436c0d3b1d0d2086e008a8f22fbd22bbeb7"
+      }
+    ]
+  },
+  "bart": {
+    "repository": "facebook/bart-base",
+    "revision": "aadd2ab0ae0c8268c7c9693540e9904811f36177",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--facebook--bart-base/snapshots/aadd2ab0ae0c8268c7c9693540e9904811f36177",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 557709915,
+        "sha256": "1bd3ac8e5b3ac71c77cf18fbcd8b113e0bfceced94c5cfbbb9a2b4bb4781190b"
+      }
+    ]
+  },
+  "flanT5": {
+    "repository": "google/flan-t5-base",
+    "revision": "7bcac572ce56db69c1ea7c8af255c5d7c9672fc2",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--google--flan-t5-base/snapshots/7bcac572ce56db69c1ea7c8af255c5d7c9672fc2",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 990345061,
+        "sha256": "1dfb70afdcedceb9f9fae2f9b68e004ad934361fb35b9b2bd50b45ea90790fc8"
+      }
+    ]
+  },
+  "roberta": {
+    "repository": "FacebookAI/roberta-base",
+    "revision": "e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--FacebookAI--roberta-base/snapshots/e2da8e2f811d1448a5b465c236feacd80ffbac7b",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 498818054,
+        "sha256": "5bde1d28afb363d0103324efeb5afc8b2b397fe5e04beabb9b1ef355255ade81"
+      }
+    ]
+  },
+  "gpt2": {
+    "repository": "openai-community/gpt2",
+    "revision": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--gpt2/snapshots/607a30d783dfa663caf39e06633721c8d4cfcd7e",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 548105171,
+        "sha256": "248dfc3911869ec493c76e65bf2fcf7f615828b0254c12b473182f0f81d3a707"
+      }
+    ]
+  },
+  "gpt": {
+    "repository": "openai-community/openai-gpt",
+    "revision": "1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--openai-community--openai-gpt/snapshots/1e0d4f3028acbffb47fe933cea64619c5ec1a002",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 478736214,
+        "sha256": "25c82cdf1844d2d93e9120b3b628fc6c2b4fcc7801a1297f58465ba67d45deb3"
+      }
+    ]
+  },
+  "llama2-7b": {
+    "repository": "NousResearch/Llama-2-7b-chat-hf",
+    "revision": "351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--NousResearch--Llama-2-7b-chat-hf/snapshots/351844e75ed0bcbbe3f10671b3c808d2b83894ee",
+    "weight_files": [
+      {
+        "file": "model-00001-of-00002.safetensors",
+        "bytes": 9976576152,
+        "sha256": "66dec18c9f1705b9387d62f8485f4e7d871ca388718786737ed3c72dbfaac9fb"
+      },
+      {
+        "file": "model-00002-of-00002.safetensors",
+        "bytes": 3500296424,
+        "sha256": "0fd6895090da1b2ccffdb93964847709a3b31e6b69fe7dc5a480dce37c811b1d"
+      }
+    ]
+  },
+  "tinyllama": {
+    "repository": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "revision": "fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6",
+    "weight_files": [
+      {
+        "file": "model.safetensors",
+        "bytes": 2200119864,
+        "sha256": "6e6001da2106d4757498752a021df6c2bdc332c650aae4bae6b0c004dcf14933"
+      }
+    ]
+  },
+  "mistral7b": {
+    "repository": "mistralai/Mistral-7B-v0.1",
+    "revision": "26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+    "snapshot_path": "/data/hyizhan/huggingface/hub/models--mistralai--Mistral-7B-v0.1/snapshots/26bca36bde8333b5d7f72e9ed20ccda6a618af24",
+    "weight_files": [
+      {
+        "file": "model-00001-of-00002.safetensors",
+        "bytes": 9942981696,
+        "sha256": "9742cb4764964155b7a5f35eefad651f590006091ddeb536863d6c5865cca1b9"
+      },
+      {
+        "file": "model-00002-of-00002.safetensors",
+        "bytes": 4540516344,
+        "sha256": "9bcf56354ec0c68b5f8e97b4f3b02d16af899a65b0868d6dba5a51c1b30f01cb"
+      }
+    ],
+    "tokenizer_note": "Pre-July-2024 tokenizer; all 1531 token lengths match the original archived rows."
+  }
+}
